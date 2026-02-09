@@ -1,6 +1,6 @@
 Flask==3.0.3
 pandas==2.2.2
-pandas-ta==0.3.14b0
+pandas-ta>=0.3.14b
 yfinance==0.2.40
 plotly==5.22.0
 textblob==0.18.0.post0
