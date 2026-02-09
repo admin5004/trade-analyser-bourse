@@ -21,6 +21,7 @@ load_dotenv()
 # Initialisation de l'application Flask
 app = Flask(__name__)
 app.secret_key = "dev-secret-key-123"
+VERSION = "2.0.1"
 
 # --- CONFIGURATION BASE DE DONNÉES ---
 DB_NAME = "users.db"
