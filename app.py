@@ -20,7 +20,7 @@ load_dotenv()
 
 # Initialisation de l'application Flask
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", os.urandom(24))
+app.secret_key = "dev-secret-key-123"
 
 # --- CONFIGURATION BASE DE DONNÉES ---
 DB_NAME = "users.db"
@@ -29,14 +29,6 @@ def init_db():
     """Initialise la base de données pour les utilisateurs et l'audit."""
     with sqlite3.connect(DB_NAME) as conn:
         cursor = conn.cursor()
-        # Table pour stocker les codes de vérification temporaires
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS verification_codes (
-                email TEXT PRIMARY KEY,
-                code TEXT,
-                timestamp REAL
-            )
-        ''')
         # Table pour l'audit légal (Consentements enregistrés)
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS legal_audit (
@@ -47,47 +39,18 @@ def init_db():
                 user_agent TEXT
             )
         ''')
+        # Table pour les prospects (Leads) avec consentement marketing
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS leads (
+                email TEXT PRIMARY KEY,
+                signup_date TEXT,
+                marketing_consent INTEGER DEFAULT 0,
+                ip_address TEXT
+            )
+        ''')
         conn.commit()
 
 init_db()
-
-# --- FONCTIONS UTILITAIRES (Email & Sécurité) ---
-
-def generate_code(length=6):
-    return ''.join(random.choices(string.digits, k=length))
-
-def send_verification_email(email, code):
-    """
-    Envoie un email réel via Gmail en utilisant des variables d'environnement.
-    """
-    sender_email = os.environ.get("SENDER_EMAIL")
-    password = os.environ.get("SENDER_PASSWORD")
-    
-    if not sender_email or not password:
-        # En mode test, on affiche le code dans un fichier visible
-        with open("last_code.txt", "w") as f:
-            f.write(f"Code pour {email} : {code}")
-        print(f"\n[MODE TEST] Code pour {email} : {code}\n")
-        return True
-
-    try:
-        msg = MIMEMultipart()
-        msg['From'] = sender_email
-        msg['To'] = email
-        msg['Subject'] = "Votre code d'accès - Trading Analyzer Pro"
-        
-        body = f"Bonjour,\n\nVotre code de vérification est : {code}\n\nEn entrant ce code, vous confirmez avoir lu et accepté l'avertissement légal : ce programme est expérimental et ne constitue pas un conseil en investissement.\n\nL'équipe Trading Analyzer."
-        msg.attach(MIMEText(body, 'plain'))
-        
-        server = smtplib.SMTP("smtp.gmail.com", 587)
-        server.starttls()
-        server.login(sender_email, password)
-        server.send_message(msg)
-        server.quit()
-        return True
-    except Exception as e:
-        print(f"Erreur d'envoi email: {e}")
-        return False
 
 # --- FONCTIONS MÉTIER (Analyse Bourse) ---
 
@@ -192,49 +155,35 @@ def index():
         return redirect(url_for('analyze_page'))
     return render_template('welcome.html')
 
-@app.route('/send_code', methods=['POST'])
-def send_code():
+@app.route('/login', methods=['POST'])
+def login():
     email = request.form.get('email')
+    accept_marketing = request.form.get('accept_marketing') == 'on'
+    
     if not email:
         flash("Email requis.", "error")
         return redirect(url_for('index'))
     
-    code = generate_code()
-    with sqlite3.connect(DB_NAME) as conn:
-        conn.execute('INSERT OR REPLACE INTO verification_codes (email, code, timestamp) VALUES (?, ?, ?)', 
-                     (email, code, time.time()))
-    
-    send_verification_email(email, code)
-    session['pending_email'] = email
-    flash(f"Code envoyé à {email}. (Regardez la console serveur pour le code en mode test)", "success")
-    return render_template('welcome.html', step='verify')
-
-@app.route('/verify_code', methods=['POST'])
-def verify_code():
-    email = session.get('pending_email')
-    code_input = request.form.get('code')
-    
-    # Autoriser le code maître 000000 pour les tests
-    if code_input == "000000":
-        session['verified'] = True
-        return redirect(url_for('analyze_page'))
-
-    with sqlite3.connect(DB_NAME) as conn:
-        cursor = conn.cursor()
-        cursor.execute('SELECT code FROM verification_codes WHERE email = ?', (email,))
-        row = cursor.fetchone()
-        
-    if row and row[0] == code_input:
-        # Enregistrement Audit Légal
+    try:
         with sqlite3.connect(DB_NAME) as conn:
-            conn.execute('INSERT INTO legal_audit (email, ip_address, consent_date, user_agent) VALUES (?, ?, ?, ?)',
-                         (email, request.remote_addr, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), request.user_agent.string))
-        
+            # Enregistrement du prospect pour le démarchage
+            conn.execute('''
+                INSERT OR REPLACE INTO leads (email, signup_date, marketing_consent, ip_address) 
+                VALUES (?, ?, ?, ?)
+            ''', (email, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 1 if accept_marketing else 0, request.remote_addr))
+            
+            # Audit légal du consentement aux risques
+            conn.execute('''
+                INSERT INTO legal_audit (email, ip_address, consent_date, user_agent) 
+                VALUES (?, ?, ?, ?)
+            ''', (email, request.remote_addr, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), request.user_agent.string))
+            
         session['verified'] = True
         return redirect(url_for('analyze_page'))
-    else:
-        flash("Code incorrect.", "error")
-        return render_template('welcome.html', step='verify')
+    except Exception as e:
+        print(f"Erreur d'accès : {e}")
+        flash("Une erreur est survenue.", "error")
+        return redirect(url_for('index'))
 
 # --- ROUTE PRINCIPALE ---
 
