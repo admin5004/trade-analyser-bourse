@@ -16,8 +16,5 @@ RUN python -m textblob.download_corpora
 # Copier tout le code du projet
 COPY . .
 
-# Exposer le port que Cloud Run utilise (8080 par défaut)
-ENV PORT 8080
-
-# Lancer l'application avec gunicorn (serveur de production)
-CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 app:app
+# Lancer l'application avec gunicorn
+CMD gunicorn --bind 0.0.0.0:$PORT app:app
