@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Analyzer Pro - Accès Expérimental</title>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; color: #1c1e21; }
+        .login-card { background: white; padding: 2.5rem; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); max-width: 500px; width: 100%; text-align: center; }
+        h1 { color: #1a73e8; margin-bottom: 1.5rem; font-size: 1.8rem; }
+        .alert-box { background: #fff8e1; border: 1px solid #ffecb3; color: #b05a00; padding: 1rem; border-radius: 8px; font-size: 0.9rem; text-align: left; margin-bottom: 1.5rem; line-height: 1.5; }
+        input[type="email"], input[type="text"] { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
+        button { width: 100%; padding: 12px; background: #1a73e8; color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        button:hover { background: #1557b0; }
+        .legal-check { text-align: left; font-size: 0.85rem; margin-bottom: 1.5rem; display: flex; align-items: flex-start; gap: 10px; }
+        .flash { padding: 10px; margin-bottom: 15px; border-radius: 8px; font-size: 0.9rem; }
+        .flash.error { background: #fce8e6; color: #c5221f; }
+        .flash.success { background: #e6f4ea; color: #137333; }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <h1>Trading Analyzer Pro</h1>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        {% if not step or step == 'email' %}
+            <div class="alert-box">
+                <strong>⚠️ AVERTISSEMENT LÉGAL ET EXPÉRIMENTAL</strong><br><br>
+                Ce programme est un <strong>outil expérimental</strong> de démonstration technique.<br><br>
+                1. <strong>Aucun conseil financier :</strong> Les données sont fournies à titre indicatif et peuvent être erronées, incomplètes ou retardées.<br>
+                2. <strong>Risque de perte :</strong> Le trading comporte des risques élevés. Vous êtes seul responsable de vos décisions.<br>
+                3. <strong>Professionnel requis :</strong> Avant tout investissement, vous devez impérativement consulter un conseiller financier agréé.<br><br>
+                En continuant, vous confirmez avoir lu, compris et accepté ces risques.
+            </div>
+
+            <form action="/send_code" method="POST">
+                <div class="legal-check">
+                    <input type="checkbox" id="accept" required>
+                    <label for="accept">Je certifie avoir lu l'avertissement ci-dessus, je comprends que cet outil est expérimental et je renonce à tout recours en cas de perte financière.</label>
+                </div>
+                <input type="email" name="email" placeholder="Votre adresse email professionnelle" required>
+                <button type="submit">Recevoir mon code d'accès</button>
+            </form>
+
+        {% elif step == 'verify' %}
+            <h2>Vérification de sécurité</h2>
+            <p style="color: #666; margin-bottom: 20px;">Un code a été envoyé à votre adresse email.</p>
+            <form action="/verify_code" method="POST">
+                <input type="text" name="code" placeholder="Code à 6 chiffres" required style="text-align: center; letter-spacing: 5px; font-size: 1.2rem;">
+                <button type="submit">Accéder à l'outil</button>
+            </form>
+            <p style="margin-top: 15px; font-size: 0.8rem;"><a href="/" style="color: #666;">Retour</a></p>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Analyzer Pro | {{ symbol if symbol else 'Accueil' }}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        :root {
+            --primary: #4f46e5; --primary-hover: #4338ca;
+            --bg: #f8fafc; --card-bg: #ffffff;
+            --text-main: #0f172a; --text-muted: #64748b;
+            --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
+            --border: #e2e8f0;
+        }
+
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 0; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+        .container { max-width: 1000px; margin: 2rem auto; padding: 0 1.5rem; }
+        
+        header { text-align: center; margin-bottom: 2rem; }
+        h1 { font-weight: 800; font-size: 2.2rem; color: var(--text-main); margin-bottom: 0.5rem; }
+
+        .search-box { position: relative; max-width: 600px; margin: 0 auto 3rem; }
+        .search-form { display: flex; gap: 10px; background: white; padding: 6px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+        input[type="text"] { flex: 1; border: none; padding: 12px 20px; font-size: 1rem; outline: none; border-radius: 12px; }
+        button.btn-search { background: var(--primary); color: white; border: none; padding: 12px 28px; border-radius: 12px; font-weight: 600; cursor: pointer; }
+
+        .dashboard-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 1.5rem; }
+        .card { background: var(--card-bg); border-radius: 20px; border: 1px solid var(--border); padding: 1.5rem; }
+        .col-8 { grid-column: span 8; }
+        .col-4 { grid-column: span 4; }
+        .col-12 { grid-column: span 12; }
+
+        .summary-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .price-now { font-size: 2.5rem; font-weight: 800; }
+        .badge { padding: 6px 14px; border-radius: 99px; font-weight: 700; text-transform: uppercase; font-size: 0.8rem; }
+        .badge-buy { background: #ecfdf5; color: var(--success); }
+        .badge-sell { background: #fef2f2; color: var(--danger); }
+
+        .stat-group { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; }
+        .stat-item { display: flex; justify-content: space-between; padding-bottom: 0.4rem; border-bottom: 1px solid #f1f5f9; }
+        .stat-label { color: var(--text-muted); font-size: 0.85rem; font-weight: 500; }
+        .stat-val { font-weight: 700; font-size: 0.9rem; }
+
+        .target-card { text-align: center; padding: 1rem; border-radius: 14px; margin-top: 1rem; }
+        .target-buy { background: #f0fdf4; }
+        .target-sell { background: #fff1f2; }
+
+        /* Accordion pour le graphique */
+        .accordion-btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; margin-top: 1.5rem; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        .accordion-content { display: none; margin-top: 1rem; background: white; border-radius: 20px; border: 1px solid var(--border); overflow: hidden; }
+
+        .jauge-bg { height: 8px; background: #e2e8f0; border-radius: 10px; margin: 10px 0; overflow: hidden; }
+        .jauge-fill { height: 100%; transition: width 1s; }
+
+        .news-item { display: block; text-decoration: none; padding: 0.75rem; border-radius: 10px; border: 1px solid #f1f5f9; margin-bottom: 0.5rem; }
+        .news-title { font-weight: 600; color: var(--primary); font-size: 0.9rem; }
+        
+        .autocomplete-results { position: absolute; width: 100%; background: white; z-index: 100; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: none; }
+        .autocomplete-results a { display: block; padding: 10px 20px; text-decoration: none; color: var(--text-main); border-bottom: 1px solid #f1f5f9; }
+
+        /* Tooltips */
+        .info-icon {
+            display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; background-color: #f1f5f9; color: var(--text-muted); border-radius: 50%; font-size: 9px; font-weight: 800; cursor: help; margin-left: 4px; vertical-align: middle; position: relative; border: 1px solid var(--border);
+        }
+        .info-icon:hover::after {
+            content: attr(data-tooltip); position: absolute; bottom: 125%; left: 50%; transform: translateX(-50%); background-color: #1e293b; color: white; padding: 8px 12px; border-radius: 8px; font-size: 0.7rem; width: 160px; z-index: 1001; font-weight: 400; line-height: 1.4; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-transform: none;
+        }
+        .info-icon:hover::before {
+            content: ""; position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%); border-width: 5px; border-style: solid; border-color: #1e293b transparent transparent transparent;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Trading Analyzer Pro</h1>
+        </header>
+
+        <div class="search-box">
+            <form action="{{ url_for('search') }}" method="POST" class="search-form">
+                <input type="text" name="query" id="search-input" placeholder="Symbole..." required autocomplete="off" value="{{ symbol if symbol else '' }}">
+                <button type="submit" class="btn-search">Analyser</button>
+            </form>
+            <div id="autocomplete-results-container" class="autocomplete-results"></div>
+        </div>
+
+        {% if symbol and recommendation %}
+        <div class="dashboard-grid">
+            
+            <div class="card col-8">
+                <div class="summary-header">
+                    <div>
+                        <div style="font-weight: 700; color: var(--text-muted);">{{ symbol }}</div>
+                        <div class="price-now">{{ "%.2f"|format(last_close_price) }} {{ currency_symbol }}</div>
+                        <div style="color: {% if daily_change > 0 %}var(--success){% else %}var(--danger){% endif %}; font-weight: 700;">
+                            {{ "+" if daily_change > 0 }}{{ "%.2f"|format(daily_change) }} ({{ "%.2f"|format(daily_change_percent) }}%)
+                        </div>
+                    </div>
+                    <div class="badge {% if recommendation == 'Achat' %}badge-buy{% else %}badge-sell{% endif %}">
+                        {{ recommendation }}
+                    </div>
+                </div>
+                
+                <p style="background: #f8fafc; padding: 12px; border-radius: 10px; font-size: 0.9rem;"><strong>Signal :</strong> {{ reason }}</p>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="target-card target-buy">
+                        <span style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted);">ENTRÉE</span>
+                        <div style="font-size: 1.2rem; font-weight: 800; color: var(--success);">{{ short_term_entry_price }} {{ currency_symbol }}</div>
+                    </div>
+                    <div class="target-card target-sell">
+                        <span style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted);">SORTIE</span>
+                        <div style="font-size: 1.2rem; font-weight: 800; color: var(--danger);">{{ short_term_exit_price }} {{ currency_symbol }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card col-4">
+                <h3 style="margin-top:0; font-size: 1rem;">Indicateurs Techniques</h3>
+                <div class="stat-group">
+                    <div class="stat-item">
+                        <span class="stat-label">RSI (14) <span class="info-icon" data-tooltip="Force du mouvement. <30: Survente, >70: Surachat.">i</span></span>
+                        <span class="stat-val" style="color: {% if rsi_value < 35 %}var(--success){% elif rsi_value > 65 %}var(--danger){% endif %};">{{ "%.2f"|format(rsi_value) }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">MM 60 (CT) <span class="info-icon" data-tooltip="Moyenne Mobile 60 jours. Support de court terme.">i</span></span>
+                        <span class="stat-val">{{ "%.2f"|format(sma_60) }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">MM 200 (LT) <span class="info-icon" data-tooltip="Moyenne Mobile 200 jours. Tendance de long terme.">i</span></span>
+                        <span class="stat-val">{{ "%.2f"|format(sma_200) }}</span>
+                    </div>
+                </div>
+
+                <h3 style="margin-top:1.5rem; font-size: 1rem;">Sentiment IA <span class="info-icon" data-tooltip="Analyse par IA des titres de presse des dernières 24h.">i</span></h3>
+                <div class="jauge-bg">
+                    <div class="jauge-fill" style="width: {{ ((sentiment_score + 1) / 2 * 100) }}%; background: {% if sentiment_score > 0.1 %}var(--success){% elif sentiment_score < -0.1 %}var(--danger){% else %}var(--warning){% endif %};"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px;">
+                    <span>Crainte</span>
+                    <span>Neutre</span>
+                    <span>Euphorie</span>
+                </div>
+                <div style="text-align: center; font-weight: 700; font-size: 0.8rem; color: var(--primary);">Score : {{ "%.2f"|format(sentiment_score) }}</div>
+            </div>
+
+            {% if analyst_reco_chart_div %}
+            <div class="card col-12">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3 style="margin:0; font-size: 1.1rem;">Consensus des Analystes</h3>
+                    {% if analyst_reco_date %}
+                        <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">Mise à jour : {{ analyst_reco_date }}</span>
+                    {% endif %}
+                </div>
+                <div style="max-height: 250px; overflow: hidden; display: flex; justify-content: center;">
+                    {{ analyst_reco_chart_div | safe }}
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="col-12">
+                <button class="accordion-btn" onclick="toggleChart()">
+                    📊 VOIR L'ANALYSE GRAPHIQUE DÉTAILLÉE
+                </button>
+                <div id="chart-accordion" class="accordion-content">
+                    {{ stock_chart_div | safe }}
+                </div>
+            </div>
+
+            <div class="card col-12">
+                <h3 style="margin-top:0;">Dernières Actualités</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+                    {% for item in stock_news %}
+                    <a href="{{ item.link }}" class="news-item" target="_blank">
+                        <div class="news-title">{{ item.title }}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">{{ item.publisher }} • {{ item.date }}</div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function toggleChart() {
+            const content = document.getElementById('chart-accordion');
+            const btn = document.querySelector('.accordion-btn');
+            if (content.style.display === 'block') {
+                content.style.display = 'none';
+                btn.innerHTML = '📊 VOIR L\'ANALYSE GRAPHIQUE DÉTAILLÉE';
+            } else {
+                content.style.display = 'block';
+                btn.innerHTML = '❌ FERMER LE GRAPHIQUE';
+            }
+        }
+
+        const searchInput = document.getElementById('search-input');
+        const resultsContainer = document.getElementById('autocomplete-results-container');
+        searchInput.addEventListener('input', function() {
+            if (this.value.length < 2) { resultsContainer.style.display = 'none'; return; }
+            fetch(`/api/search_tickers?query=${this.value.toUpperCase()}`)
+                .then(r => r.json())
+                .then(data => {
+                    resultsContainer.innerHTML = '';
+                    if (data.length > 0) {
+                        resultsContainer.style.display = 'block';
+                        data.forEach(s => {
+                            const a = document.createElement('a');
+                            a.href = `/search_redirect/${s.symbol}`;
+                            a.innerHTML = `<strong>${s.symbol}</strong> - ${s.name}`;
+                            resultsContainer.appendChild(a);
+                        });
+                    }
+                });
+        });
+    </script>
+</body>
+</html>
