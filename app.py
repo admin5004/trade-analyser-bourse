@@ -80,39 +80,48 @@ def analyze_stock(df, sentiment_score=0, info=None):
             if earning_growth > 0.05: fundamental_score += 1
         except Exception: pass
 
-    if len(df) < 20: # Réduit le seuil pour accepter plus de valeurs
-        return "Conserver", "Données limitées", 50, "N/A", "N/A", "N/A", "N/A", "N/A", "N/A", None, None
+    if len(df) < 200:
+        return "Conserver", "Données insuffisantes", 50, None, None, None, None, None, None
 
-    df.ta.sma(length=20, append=True) # Utilise des périodes plus courtes pour être plus réactif
+    # Calcul de toutes les moyennes mobiles demandées
+    df.ta.sma(length=20, append=True)
     df.ta.sma(length=50, append=True)
+    df.ta.sma(length=100, append=True)
+    df.ta.sma(length=200, append=True)
     df.ta.rsi(length=14, append=True)
 
     last_row = df.iloc[-1]
-    mm50 = last_row.get('SMA_50', last_row['close'])
-    rsi = last_row.get('RSI_14', 50)
+    mm20 = last_row['SMA_20']
+    mm50 = last_row['SMA_50']
+    mm100 = last_row['SMA_100']
+    mm200 = last_row['SMA_200']
+    rsi = last_row['RSI_14']
     last_close_price = last_row['close']
 
     adjustment_factor = 1 + (sentiment_score * 0.05) + (fundamental_score * 0.02)
     recommendation = "Conserver"
-    reason = "Signal neutre."
+    reason = "Analyse technique neutre."
 
-    if last_close_price > mm50 and rsi < 40:
+    if last_close_price > mm200 and rsi < 40:
         recommendation = "Achat"
-        reason = "Zone technique attractive et tendance positive."
-    elif last_close_price < mm50 and rsi > 70:
+        reason = "Tendance long terme haussière et zone de survente."
+    elif last_close_price < mm200 and rsi > 70:
         recommendation = "Vente"
-        reason = "Surachat technique détecté."
+        reason = "Signal de faiblesse sous la MM200 avec surachat."
     
     entry = last_close_price * 0.98
     exit = last_close_price * 1.05 * adjustment_factor
-    return recommendation, reason, rsi, "Neutre", "Neutre", "Neutre", "N/A", "N/A", "N/A", entry, exit
+    return recommendation, reason, rsi, mm20, mm50, mm100, mm200, entry, exit
 
 def create_stock_chart(df, symbol):
     try:
         fig = go.Figure(data=[go.Candlestick(x=df.index, open=df.get('open', df['close']), high=df.get('high', df['close']), low=df.get('low', df['close']), close=df['close'], name='Cours')])
-        fig.update_layout(title=f'Historique {symbol}', height=600, template='plotly_white', margin=dict(l=10, r=10, t=40, b=10))
+        if 'SMA_20' in df.columns: fig.add_trace(go.Scatter(x=df.index, y=df['SMA_20'], name='MM20', line=dict(width=1)))
+        if 'SMA_50' in df.columns: fig.add_trace(go.Scatter(x=df.index, y=df['SMA_50'], name='MM50', line=dict(width=1)))
+        if 'SMA_200' in df.columns: fig.add_trace(go.Scatter(x=df.index, y=df['SMA_200'], name='MM200', line=dict(color='red', width=1.5)))
+        fig.update_layout(title=f'Analyse {symbol}', height=500, template='plotly_white', margin=dict(l=10, r=10, t=40, b=10), xaxis_rangeslider_visible=False)
         return fig.to_html(full_html=False, include_plotlyjs='cdn')
-    except Exception: return "Impossible de charger le graphique."
+    except Exception: return "Erreur graphique"
 
 @app.route('/')
 def index():
@@ -170,40 +179,22 @@ def analyze_page():
             except Exception:
                 info = {'currency': 'USD'}
             
-            # Insiders
+            # Insiders (Désactivé par défaut pour la rapidité, décommenter si besoin)
             insiders = []
-            try:
-                it = ticker_yf.insider_transactions
-                if it is not None and not it.empty:
-                    for _, row in it.head(5).iterrows():
-                        insiders.append({'name': str(row.get('Insider', 'N/A')), 'position': str(row.get('Position', 'Dirigeant')), 'type': str(row.get('Transaction', 'Action')), 'date': str(row.get('Start Date', ''))})
-            except Exception: pass
-
-            # News
+            
+            # News (Réduit à 8 articles pour la rapidité)
             stock_news = []
             try:
                 raw_news = ticker_yf.news
-                for article in raw_news[:10]:
+                for article in raw_news[:8]:
                     content = article.get('content', {})
                     stock_news.append({'title': content.get('title', 'Sans titre'), 'link': content.get('link') or content.get('canonicalUrl', {}).get('url', '#'), 'publisher': content.get('provider', {}).get('displayName', 'Inconnu'), 'date': str(content.get('pubDate', ''))})
             except Exception: pass
             
             sentiment_score = analyze_news_sentiment(stock_news)
-            reco, reason, rsi, st_f, mt_f, lt_f, st_t, mt_t, lt_t, entry, exit = analyze_stock(df, sentiment_score, info)
+            reco, reason, rsi, mm20, mm50, mm100, mm200, entry, exit = analyze_stock(df, sentiment_score, info)
             
-            # Analystes
-            analyst_reco_chart_div = None
-            try:
-                recos = ticker_yf.recommendations
-                if recos is not None and not recos.empty:
-                    latest = recos.iloc[-1]
-                    values = [latest.get('strongSell',0), latest.get('sell',0), latest.get('hold',0), latest.get('buy',0), latest.get('strongBuy',0)]
-                    if sum(values) > 0:
-                        fig_reco = go.Figure(data=[go.Pie(labels=['Vente Forte', 'Vente', 'Conserver', 'Achat', 'Achat Fort'], values=values, hole=.3, marker_colors=['#212121', '#FF4500', '#A9A9A9', '#90EE90', '#228B22'])])
-                        fig_reco.update_layout(margin=dict(t=0, b=0, l=0, r=0), height=200, showlegend=True)
-                        analyst_reco_chart_div = fig_reco.to_html(full_html=False, include_plotlyjs='cdn')
-            except Exception: pass
-
+            # Context
             context.update({
                 'last_close_price': df['close'].iloc[-1],
                 'daily_change': df['close'].iloc[-1] - df['close'].iloc[-2] if len(df)>1 else 0,
@@ -211,10 +202,9 @@ def analyze_page():
                 'recommendation': reco, 'reason': reason, 'rsi_value': rsi,
                 'short_term_entry_price': f"{entry:.2f}" if entry else "N/A",
                 'short_term_exit_price': f"{exit:.2f}" if exit else "N/A",
-                'sma_200': df.get('SMA_50', [0])[-1],
+                'mm20': mm20, 'mm50': mm50, 'mm100': mm100, 'mm200': mm200,
                 'currency_symbol': info.get('currency', '$'),
                 'stock_chart_div': create_stock_chart(df, symbol),
-                'analyst_reco_chart_div': analyst_reco_chart_div,
                 'stock_news': stock_news, 'sentiment_score': sentiment_score,
                 'insiders': insiders
             })
