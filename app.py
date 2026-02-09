@@ -65,13 +65,19 @@ def analyze_news_sentiment(news_list):
 
 def get_stock_data(symbol):
     try:
+        print(f"Tentative de récupération pour : {symbol}")
         ticker = yf.Ticker(symbol)
-        df = ticker.history(period="max")
-        if df.empty: return None
+        df = ticker.history(period="2y")
+        if df is None or df.empty:
+            print(f"Données vides pour {symbol}")
+            return None
+        print(f"Données récupérées pour {symbol} : {len(df)} lignes")
         df.columns = [col.lower() for col in df.columns]
+        if 'open' not in df.columns: return None
         df = df[['open', 'high', 'low', 'close', 'volume']]
         return df.sort_index()
-    except Exception:
+    except Exception as e:
+        print(f"Erreur yfinance pour {symbol}: {e}")
         return None
 
 def analyze_stock(df, sentiment_score=0):
@@ -276,7 +282,24 @@ def search():
 @app.route('/api/search_tickers', methods=['GET'])
 def search_tickers():
     query = request.args.get('query', '').upper()
-    stocks = [{'symbol': 'CAP.PA', 'name': 'Capgemini'}, {'symbol': 'MC.PA', 'name': 'LVMH'}, {'symbol': 'AAPL', 'name': 'Apple'}] # Liste réduite pour l'exemple
+    stocks = [
+        {'symbol': 'CAP.PA', 'name': 'Capgemini'},
+        {'symbol': 'MC.PA', 'name': 'LVMH'},
+        {'symbol': 'OR.PA', 'name': "L'Oréal"},
+        {'symbol': 'AI.PA', 'name': 'Air Liquide'},
+        {'symbol': 'AIR.PA', 'name': 'Airbus'},
+        {'symbol': 'SAN.PA', 'name': 'Sanofi'},
+        {'symbol': 'GLE.PA', 'name': 'Société Générale'},
+        {'symbol': 'BNP.PA', 'name': 'BNP Paribas'},
+        {'symbol': 'TTE.PA', 'name': 'TotalEnergies'},
+        {'symbol': 'AAPL', 'name': 'Apple'},
+        {'symbol': 'MSFT', 'name': 'Microsoft'},
+        {'symbol': 'GOOGL', 'name': 'Alphabet (Google)'},
+        {'symbol': 'AMZN', 'name': 'Amazon'},
+        {'symbol': 'TSLA', 'name': 'Tesla'},
+        {'symbol': 'NVDA', 'name': 'NVIDIA'},
+        {'symbol': 'BTC-USD', 'name': 'Bitcoin'}
+    ]
     return jsonify([s for s in stocks if query in s['symbol'] or query in s['name'].upper()])
 
 @app.route('/search_redirect/<symbol>')
