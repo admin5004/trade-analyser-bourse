@@ -12,10 +12,11 @@
         input[type="email"], input[type="text"] { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
         button { width: 100%; padding: 12px; background: #1a73e8; color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
         button:hover { background: #1557b0; }
-        .legal-check { text-align: left; font-size: 0.85rem; margin-bottom: 1.5rem; display: flex; align-items: flex-start; gap: 10px; }
+        .legal-check { text-align: left; font-size: 0.85rem; margin-bottom: 1rem; display: flex; align-items: flex-start; gap: 10px; }
         .flash { padding: 10px; margin-bottom: 15px; border-radius: 8px; font-size: 0.9rem; }
         .flash.error { background: #fce8e6; color: #c5221f; }
         .flash.success { background: #e6f4ea; color: #137333; }
+        .data-privacy { font-size: 0.75rem; color: #666; text-align: justify; margin-top: 1.5rem; border-top: 1px solid #eee; padding-top: 1rem; }
     </style>
 </head>
 <body>
@@ -30,34 +31,35 @@
           {% endif %}
         {% endwith %}
 
-        {% if not step or step == 'email' %}
-            <div class="alert-box">
-                <strong>⚠️ AVERTISSEMENT LÉGAL ET EXPÉRIMENTAL</strong><br><br>
-                Ce programme est un <strong>outil expérimental</strong> de démonstration technique.<br><br>
-                1. <strong>Aucun conseil financier :</strong> Les données sont fournies à titre indicatif et peuvent être erronées, incomplètes ou retardées.<br>
-                2. <strong>Risque de perte :</strong> Le trading comporte des risques élevés. Vous êtes seul responsable de vos décisions.<br>
-                3. <strong>Professionnel requis :</strong> Avant tout investissement, vous devez impérativement consulter un conseiller financier agréé.<br><br>
-                En continuant, vous confirmez avoir lu, compris et accepté ces risques.
+        <div class="alert-box">
+            <strong>⚠️ AVERTISSEMENT LÉGAL ET FINANCIER</strong><br><br>
+            Ce programme est un <strong>outil expérimental</strong>.
+            <ul>
+                <li><strong>Aucun conseil financier :</strong> Les données sont indicatives.</li>
+                <li><strong>Risques :</strong> Le trading comporte des risques de perte en capital.</li>
+                <li><strong>Responsabilité :</strong> L'éditeur décline toute responsabilité en cas de perte.</li>
+            </ul>
+        </div>
+
+        <form action="/login" method="POST">
+            <div class="legal-check">
+                <input type="checkbox" id="accept_risk" required>
+                <label for="accept_risk">Je certifie avoir lu l'avertissement, je suis conscient des risques financiers et je renonce à tout recours contre l'éditeur.</label>
+            </div>
+            
+            <input type="email" name="email" placeholder="Votre adresse email" required>
+
+            <div class="legal-check">
+                <input type="checkbox" id="accept_marketing" name="accept_marketing" required>
+                <label for="accept_marketing">J'accepte que mon adresse email soit collectée pour recevoir des informations sur les mises à jour et des offres commerciales partenaires (démarchage).</label>
             </div>
 
-            <form action="/send_code" method="POST">
-                <div class="legal-check">
-                    <input type="checkbox" id="accept" required>
-                    <label for="accept">Je certifie avoir lu l'avertissement ci-dessus, je comprends que cet outil est expérimental et je renonce à tout recours en cas de perte financière.</label>
-                </div>
-                <input type="email" name="email" placeholder="Votre adresse email professionnelle" required>
-                <button type="submit">Recevoir mon code d'accès</button>
-            </form>
+            <button type="submit">Accéder à l'outil</button>
+        </form>
 
-        {% elif step == 'verify' %}
-            <h2>Vérification de sécurité</h2>
-            <p style="color: #666; margin-bottom: 20px;">Un code a été envoyé à votre adresse email.</p>
-            <form action="/verify_code" method="POST">
-                <input type="text" name="code" placeholder="Code à 6 chiffres" required style="text-align: center; letter-spacing: 5px; font-size: 1.2rem;">
-                <button type="submit">Accéder à l'outil</button>
-            </form>
-            <p style="margin-top: 15px; font-size: 0.8rem;"><a href="/" style="color: #666;">Retour</a></p>
-        {% endif %}
+        <div class="data-privacy">
+            <strong>Données personnelles :</strong> Conformément au RGPD, votre adresse email est conservée uniquement à des fins d'authentification, d'audit légal et de communication commerciale si consentie. Vous disposez d'un droit d'accès, de rectification et de suppression sur simple demande.
+        </div>
     </div>
 </body>
 </html>
