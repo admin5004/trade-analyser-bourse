@@ -280,9 +280,20 @@ def analyze_page():
     
     if symbol:
         symbol = symbol.upper().strip()
+        
+        # 1. Tenter de trouver le ticker dans notre DB locale si c'est un nom
+        try:
+            with sqlite3.connect(DB_NAME) as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT symbol FROM tickers WHERE name LIKE ? OR symbol = ?", (f'%{symbol}%', symbol))
+                row = cursor.fetchone()
+                if row:
+                    symbol = row[0]
+        except Exception: pass
+
         df = get_stock_data(symbol)
         
-        # SI LE SYMBOLE ÉCHOUE (ex: lien direct avec un NOM au lieu d'un ticker)
+        # 2. Si toujours rien, tenter la recherche Yahoo
         if df is None:
             try:
                 search_results = yf.Search(symbol, max_results=1).tickers
@@ -326,21 +337,21 @@ def analyze_page():
                         })
             except Exception: pass
 
-            # --- ACTUALITÉS ÉTENDUES (Vision trimestrielle) ---
+            # --- ACTUALITÉS ÉTENDUES ---
             raw_news = ticker_yf.news
             stock_news = []
-            for article in raw_news[:15]: # Analyse de 15 articles pour plus de poids
+            for article in raw_news[:15]:
                 content = article.get('content', {})
                 stock_news.append({
                     'title': content.get('title'),
-                            'link': content.get('link') or content.get('canonicalUrl', {}).get('url'),
-                            'publisher': content.get('provider', {}).get('displayName'),
-                            'date': pd.to_datetime(content.get('pubDate')).strftime('%Y-%m-%d %H:%M') if content.get('pubDate') else None
-                        })
-                    sentiment_score = analyze_news_sentiment(stock_news)
-                    
-                    # --- ANALYSE FINALE ---
-                    reco, reason, rsi, st_f, mt_f, lt_f, st_t, mt_t, lt_t, entry, exit = analyze_stock(df, sentiment_score, info)
+                    'link': content.get('link') or content.get('canonicalUrl', {}).get('url'),
+                    'publisher': content.get('provider', {}).get('displayName'),
+                    'date': pd.to_datetime(content.get('pubDate')).strftime('%Y-%m-%d %H:%M') if content.get('pubDate') else None
+                })
+            sentiment_score = analyze_news_sentiment(stock_news)
+            
+            # --- ANALYSE FINALE ---
+            reco, reason, rsi, st_f, mt_f, lt_f, st_t, mt_t, lt_t, entry, exit = analyze_stock(df, sentiment_score, info)
                     # Reco Analystes (Chart)
             analyst_reco_chart_div = None
             analyst_reco_date = None
