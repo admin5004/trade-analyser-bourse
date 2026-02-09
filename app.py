@@ -117,70 +117,47 @@ def get_stock_data(symbol):
         print(f"Erreur yfinance pour {symbol}: {e}")
         return None
 
-def analyze_stock(df, sentiment_score=0):
-    # (Code d'analyse identique à précédemment, conservé pour la fiabilité)
-    short_term_forecast = "Neutre"
-    medium_term_forecast = "Neutre"
-    long_term_forecast = "Neutre"
-    short_term_target = "N/A"
-    medium_term_target = "N/A"
-    long_term_target = "N/A"
+def analyze_stock(df, sentiment_score=0, info=None):
+    # Analyse trimestrielle améliorée
+    fundamental_score = 0
+    if info:
+        try:
+            rev_growth = info.get('revenueGrowth', 0) or 0
+            earning_growth = info.get('earningsGrowth', 0) or 0
+            if rev_growth > 0.05: fundamental_score += 1
+            if earning_growth > 0.05: fundamental_score += 1
+        except Exception: pass
 
     if len(df) < 200:
-        return "Conserver", "Données insuffisantes", None, "Neutre", "Neutre", "Neutre", "N/A", "N/A", "N/A", None, None
+        return "Conserver", "Données insuffisantes", None, "N/A", "N/A", "N/A", "N/A", "N/A", "N/A", None, None
 
     df.ta.sma(length=60, append=True)
-    df.ta.sma(length=100, append=True)
     df.ta.sma(length=200, append=True)
     df.ta.rsi(length=14, append=True)
 
-    if len(df) < 2: return "Conserver", "Données insuffisantes", None, "Neutre", "Neutre", "Neutre", "N/A", "N/A", "N/A", None, None
-
     last_row = df.iloc[-1]
-    prev_row = df.iloc[-2]
     mm60 = last_row['SMA_60']
-    mm100 = last_row['SMA_100']
     mm200 = last_row['SMA_200']
     rsi = last_row['RSI_14']
     last_close_price = last_row['close']
-    prev_mm60 = prev_row['SMA_60']
-    prev_mm200 = prev_row['SMA_200']
 
-    adjustment_factor = 1 + (sentiment_score * 0.05) 
-    recommendation = "Conserver"
-    reason = "Aucun signal fort détecté."
-
-    if last_close_price > mm60:
-        medium_term_forecast = "Haussière"
-        medium_term_target = f"{mm60 * 1.05 * adjustment_factor:.2f}"
-    elif last_close_price < mm60:
-        medium_term_forecast = "Baissière"
-        medium_term_target = f"{mm60 * 0.95 * adjustment_factor:.2f}"
-
-    if mm60 > mm200 and prev_mm60 <= prev_mm200:
-        long_term_forecast = "Haussière (Croisement Doré)"
-        long_term_target = f"{mm200 * 1.1 * adjustment_factor:.2f}"
-    elif mm60 < mm200 and prev_mm60 >= prev_mm200:
-        long_term_forecast = "Baissière (Croisement de la Mort)"
-        long_term_target = f"{mm200 * 0.9 * adjustment_factor:.2f}"
-    elif last_close_price > mm200:
-        long_term_forecast = "Haussière"
-        long_term_target = f"{mm200 * 1.05 * adjustment_factor:.2f}"
-    elif last_close_price < mm200:
-        long_term_forecast = "Baissière"
-        long_term_target = f"{mm200 * 0.95 * adjustment_factor:.2f}"
-
-    if mm60 > mm200 and rsi < 30:
-        recommendation = "Achat"
-        reason = f"Signal technique fort : Croisement haussier et RSI en survente. Sentiment : {'Positif' if sentiment_score > 0.1 else 'Négatif' if sentiment_score < -0.1 else 'Neutre'}."
-    elif mm60 < mm200 and rsi > 70:
-        recommendation = "Vente"
-        reason = f"Signal de vente : Croisement baissier et RSI en surachat. Sentiment : {'Positif' if sentiment_score > 0.1 else 'Négatif' if sentiment_score < -0.1 else 'Neutre'}."
+    # Le sentiment et les fondamentaux pèsent sur l'objectif à long terme
+    adjustment_factor = 1 + (sentiment_score * 0.05) + (fundamental_score * 0.02)
     
-    suggested_entry_price = last_close_price * (1 - (sentiment_score * 0.02)) if rsi < 40 else mm60 * (1 - (sentiment_score * 0.01))
-    suggested_exit_price = last_close_price * 1.02 * adjustment_factor if rsi > 60 else mm60 * 1.10 * adjustment_factor
+    recommendation = "Conserver"
+    reason = "Analyse trimestrielle neutre."
 
-    return recommendation, reason, rsi, short_term_forecast, medium_term_forecast, long_term_forecast, short_term_target, medium_term_target, long_term_target, suggested_entry_price, suggested_exit_price
+    if last_close_price > mm200 and rsi < 40:
+        recommendation = "Achat"
+        reason = "Tendance trimestrielle haussière et zone de prix attractive."
+    elif last_close_price < mm200 and rsi > 70:
+        recommendation = "Vente"
+        reason = "Signal de surachat dans une tendance trimestrielle baissière."
+    
+    suggested_entry_price = last_close_price * 0.98
+    suggested_exit_price = last_close_price * 1.05 * adjustment_factor
+
+    return recommendation, reason, rsi, "Neutre", "Neutre", "Neutre", "N/A", "N/A", "N/A", suggested_entry_price, suggested_exit_price
 
 def create_stock_chart(df, symbol):
     fig = go.Figure(data=[go.Candlestick(x=df.index, open=df['open'], high=df['high'], low=df['low'], close=df['close'], name='Cours')])
@@ -311,39 +288,50 @@ def analyze_page():
                              (session.get('pending_email', 'inconnu'), symbol, 1 if df is not None else 0, datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
         except Exception: pass
 
-        if df is not None:
-            ticker_yf = yf.Ticker(symbol)
-            info = ticker_yf.info
-            
-            # AUTO-APPRENTISSAGE : Si le ticker est valide mais absent de notre DB, on l'ajoute
-            try:
-                with sqlite3.connect(DB_NAME) as conn:
-                    cursor = conn.cursor()
-                    cursor.execute("SELECT symbol FROM tickers WHERE symbol = ?", (symbol,))
-                    if not cursor.fetchone():
-                        name = info.get('longName') or info.get('shortName') or symbol
-                        cursor.execute("INSERT INTO tickers (symbol, name) VALUES (?, ?)", (symbol, name))
-                        print(f"--- NOUVELLE VALEUR APPRISE : {symbol} ({name}) ---")
-            except Exception as e:
-                print(f"Erreur auto-apprentissage: {e}")
-            
-            # News & Sentiment
-            raw_news = ticker_yf.news
-            stock_news = []
-            for article in raw_news[:5]:
-                content = article.get('content', {})
-                stock_news.append({
-                    'title': content.get('title'),
-                    'link': content.get('link') or content.get('canonicalUrl', {}).get('url'),
-                    'publisher': content.get('provider', {}).get('displayName'),
-                    'date': pd.to_datetime(content.get('pubDate')).strftime('%Y-%m-%d %H:%M') if content.get('pubDate') else None
-                })
-            sentiment_score = analyze_news_sentiment(stock_news)
-            
-            # Analyse
-            reco, reason, rsi, st_f, mt_f, lt_f, st_t, mt_t, lt_t, entry, exit = analyze_stock(df, sentiment_score)
-            
-            # Reco Analystes (Chart)
+                if df is not None:
+                    ticker_yf = yf.Ticker(symbol)
+                    info = ticker_yf.info
+                    
+                    # --- AUTO-APPRENTISSAGE ---
+                    try:
+                        with sqlite3.connect(DB_NAME) as conn:
+                            cursor = conn.cursor()
+                            cursor.execute("SELECT symbol FROM tickers WHERE symbol = ?", (symbol,))
+                            if not cursor.fetchone():
+                                name = info.get('longName') or info.get('shortName') or symbol
+                                cursor.execute("INSERT INTO tickers (symbol, name) VALUES (?, ?)", (symbol, name))
+                    except Exception: pass
+        
+                    # --- INSIDERS (Transactions Dirigeants) ---
+                    insiders = []
+                    try:
+                        it = ticker_yf.insider_transactions
+                        if it is not None and not it.empty:
+                            for _, row in it.head(5).iterrows():
+                                insiders.append({
+                                    'name': row.get('Insider', 'N/A'),
+                                    'position': row.get('Position', 'Dirigeant'),
+                                    'type': row.get('Transaction', 'Action'),
+                                    'date': str(row.get('Start Date', ''))
+                                })
+                    except Exception: pass
+        
+                    # --- ACTUALITÉS ÉTENDUES (Vision trimestrielle) ---
+                    raw_news = ticker_yf.news
+                    stock_news = []
+                    for article in raw_news[:15]: # Analyse de 15 articles pour plus de poids
+                        content = article.get('content', {})
+                        stock_news.append({
+                            'title': content.get('title'),
+                            'link': content.get('link') or content.get('canonicalUrl', {}).get('url'),
+                            'publisher': content.get('provider', {}).get('displayName'),
+                            'date': pd.to_datetime(content.get('pubDate')).strftime('%Y-%m-%d %H:%M') if content.get('pubDate') else None
+                        })
+                    sentiment_score = analyze_news_sentiment(stock_news)
+                    
+                    # --- ANALYSE FINALE ---
+                    reco, reason, rsi, st_f, mt_f, lt_f, st_t, mt_t, lt_t, entry, exit = analyze_stock(df, sentiment_score, info)
+                    # Reco Analystes (Chart)
             analyst_reco_chart_div = None
             analyst_reco_date = None
             try:
@@ -382,7 +370,8 @@ def analyze_page():
                 'stock_chart_div': create_stock_chart(df, symbol),
                 'analyst_reco_chart_div': analyst_reco_chart_div,
                 'analyst_reco_date': analyst_reco_date,
-                'stock_news': stock_news, 'sentiment_score': sentiment_score
+                'stock_news': stock_news, 'sentiment_score': sentiment_score,
+                'insiders': insiders
             })
 
     return render_template('index.html', **context)
