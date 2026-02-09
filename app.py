@@ -80,6 +80,7 @@ def init_db():
             ('SGO.PA', 'Saint-Gobain'), ('SAN.PA', 'Sanofi'), ('SU.PA', 'Schneider Electric'), ('GLE.PA', 'Société Générale'),
             ('STLAP.PA', 'Stellantis'), ('STMPA.PA', 'STMicroelectronics'), ('TEP.PA', 'Teleperformance'), ('HO.PA', 'Thales'),
             ('TTE.PA', 'TotalEnergies'), ('URW.PA', 'Unibail-Rodamco-Westfield'), ('VIE.PA', 'Veolia'), ('DG.PA', 'Vinci'),
+            ('AYV.PA', 'Ayvens'),
             ('AAPL', 'Apple'), ('MSFT', 'Microsoft'), ('GOOGL', 'Alphabet (Google)'), ('AMZN', 'Amazon'),
             ('TSLA', 'Tesla'), ('NVDA', 'NVIDIA'), ('BTC-USD', 'Bitcoin'), ('ETH-USD', 'Ethereum')
         ]
@@ -278,9 +279,18 @@ def analyze_page():
     SECTOR_PE_AVG = {'USA': {'Technology': 28.2}, 'Europe': {'Technology': 25.5}} # Simplifié
     
     if symbol:
-        symbol = symbol.upper()
+        symbol = symbol.upper().strip()
         df = get_stock_data(symbol)
         
+        # SI LE SYMBOLE ÉCHOUE (ex: lien direct avec un NOM au lieu d'un ticker)
+        if df is None:
+            try:
+                search_results = yf.Search(symbol, max_results=1).tickers
+                if search_results:
+                    symbol = search_results[0]['symbol']
+                    df = get_stock_data(symbol)
+            except Exception: pass
+
         # Log de la recherche
         try:
             with sqlite3.connect(DB_NAME) as conn:
@@ -288,41 +298,41 @@ def analyze_page():
                              (session.get('pending_email', 'inconnu'), symbol, 1 if df is not None else 0, datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
         except Exception: pass
 
-                if df is not None:
-                    ticker_yf = yf.Ticker(symbol)
-                    info = ticker_yf.info
-                    
-                    # --- AUTO-APPRENTISSAGE ---
-                    try:
-                        with sqlite3.connect(DB_NAME) as conn:
-                            cursor = conn.cursor()
-                            cursor.execute("SELECT symbol FROM tickers WHERE symbol = ?", (symbol,))
-                            if not cursor.fetchone():
-                                name = info.get('longName') or info.get('shortName') or symbol
-                                cursor.execute("INSERT INTO tickers (symbol, name) VALUES (?, ?)", (symbol, name))
-                    except Exception: pass
+        if df is not None:
+            ticker_yf = yf.Ticker(symbol)
+            info = ticker_yf.info
+            
+            # --- AUTO-APPRENTISSAGE ---
+            try:
+                with sqlite3.connect(DB_NAME) as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("SELECT symbol FROM tickers WHERE symbol = ?", (symbol,))
+                    if not cursor.fetchone():
+                        name = info.get('longName') or info.get('shortName') or symbol
+                        cursor.execute("INSERT INTO tickers (symbol, name) VALUES (?, ?)", (symbol, name))
+            except Exception: pass
         
-                    # --- INSIDERS (Transactions Dirigeants) ---
-                    insiders = []
-                    try:
-                        it = ticker_yf.insider_transactions
-                        if it is not None and not it.empty:
-                            for _, row in it.head(5).iterrows():
-                                insiders.append({
-                                    'name': row.get('Insider', 'N/A'),
-                                    'position': row.get('Position', 'Dirigeant'),
-                                    'type': row.get('Transaction', 'Action'),
-                                    'date': str(row.get('Start Date', ''))
-                                })
-                    except Exception: pass
-        
-                    # --- ACTUALITÉS ÉTENDUES (Vision trimestrielle) ---
-                    raw_news = ticker_yf.news
-                    stock_news = []
-                    for article in raw_news[:15]: # Analyse de 15 articles pour plus de poids
-                        content = article.get('content', {})
-                        stock_news.append({
-                            'title': content.get('title'),
+            # --- INSIDERS (Transactions Dirigeants) ---
+            insiders = []
+            try:
+                it = ticker_yf.insider_transactions
+                if it is not None and not it.empty:
+                    for _, row in it.head(5).iterrows():
+                        insiders.append({
+                            'name': row.get('Insider', 'N/A'),
+                            'position': row.get('Position', 'Dirigeant'),
+                            'type': row.get('Transaction', 'Action'),
+                            'date': str(row.get('Start Date', ''))
+                        })
+            except Exception: pass
+
+            # --- ACTUALITÉS ÉTENDUES (Vision trimestrielle) ---
+            raw_news = ticker_yf.news
+            stock_news = []
+            for article in raw_news[:15]: # Analyse de 15 articles pour plus de poids
+                content = article.get('content', {})
+                stock_news.append({
+                    'title': content.get('title'),
                             'link': content.get('link') or content.get('canonicalUrl', {}).get('url'),
                             'publisher': content.get('provider', {}).get('displayName'),
                             'date': pd.to_datetime(content.get('pubDate')).strftime('%Y-%m-%d %H:%M') if content.get('pubDate') else None
