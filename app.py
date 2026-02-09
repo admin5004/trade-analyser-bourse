@@ -26,10 +26,10 @@ app.secret_key = "dev-secret-key-123"
 DB_NAME = "users.db"
 
 def init_db():
-    """Initialise la base de données pour les utilisateurs et l'audit."""
+    """Initialise la base de données pour les utilisateurs, l'audit et les tickers."""
     with sqlite3.connect(DB_NAME) as conn:
         cursor = conn.cursor()
-        # Table pour l'audit légal (Consentements enregistrés)
+        # Table pour l'audit légal
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS legal_audit (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,7 +39,7 @@ def init_db():
                 user_agent TEXT
             )
         ''')
-        # Table pour les prospects (Leads) avec consentement marketing
+        # Table pour les prospects (Leads)
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS leads (
                 email TEXT PRIMARY KEY,
@@ -48,6 +48,30 @@ def init_db():
                 ip_address TEXT
             )
         ''')
+        # Table pour les suggestions de tickers
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS tickers (
+                symbol TEXT PRIMARY KEY,
+                name TEXT
+            )
+        ''')
+        
+        # Peuplement du CAC 40
+        cac40 = [
+            ('AC.PA', 'Accor'), ('AI.PA', 'Air Liquide'), ('AIR.PA', 'Airbus'), ('ALO.PA', 'Alstom'),
+            ('MT.PA', 'ArcelorMittal'), ('CS.PA', 'AXA'), ('BNP.PA', 'BNP Paribas'), ('EN.PA', 'Bouygues'),
+            ('CAP.PA', 'Capgemini'), ('CA.PA', 'Carrefour'), ('ACA.PA', 'Crédit Agricole'), ('BN.PA', 'Danone'),
+            ('DSY.PA', 'Dassault Systèmes'), ('EDEN.PA', 'Edenred'), ('ENGI.PA', 'Engie'), ('EL.PA', 'EssilorLuxottica'),
+            ('ERF.PA', 'Eurofins Scientific'), ('RMS.PA', 'Hermès'), ('KER.PA', 'Kering'), ('OR.PA', "L'Oréal"),
+            ('LR.PA', 'Legrand'), ('MC.PA', 'LVMH'), ('ML.PA', 'Michelin'), ('ORA.PA', 'Orange'),
+            ('RI.PA', 'Pernod Ricard'), ('PUB.PA', 'Publicis'), ('RNO.PA', 'Renault'), ('SAF.PA', 'Safran'),
+            ('SGO.PA', 'Saint-Gobain'), ('SAN.PA', 'Sanofi'), ('SU.PA', 'Schneider Electric'), ('GLE.PA', 'Société Générale'),
+            ('STLAP.PA', 'Stellantis'), ('STMPA.PA', 'STMicroelectronics'), ('TEP.PA', 'Teleperformance'), ('HO.PA', 'Thales'),
+            ('TTE.PA', 'TotalEnergies'), ('URW.PA', 'Unibail-Rodamco-Westfield'), ('VIE.PA', 'Veolia'), ('DG.PA', 'Vinci'),
+            ('AAPL', 'Apple'), ('MSFT', 'Microsoft'), ('GOOGL', 'Alphabet (Google)'), ('AMZN', 'Amazon'),
+            ('TSLA', 'Tesla'), ('NVDA', 'NVIDIA'), ('BTC-USD', 'Bitcoin'), ('ETH-USD', 'Ethereum')
+        ]
+        cursor.executemany('INSERT OR IGNORE INTO tickers (symbol, name) VALUES (?, ?)', cac40)
         conn.commit()
 
 init_db()
@@ -282,25 +306,15 @@ def search():
 @app.route('/api/search_tickers', methods=['GET'])
 def search_tickers():
     query = request.args.get('query', '').upper()
-    stocks = [
-        {'symbol': 'CAP.PA', 'name': 'Capgemini'},
-        {'symbol': 'MC.PA', 'name': 'LVMH'},
-        {'symbol': 'OR.PA', 'name': "L'Oréal"},
-        {'symbol': 'AI.PA', 'name': 'Air Liquide'},
-        {'symbol': 'AIR.PA', 'name': 'Airbus'},
-        {'symbol': 'SAN.PA', 'name': 'Sanofi'},
-        {'symbol': 'GLE.PA', 'name': 'Société Générale'},
-        {'symbol': 'BNP.PA', 'name': 'BNP Paribas'},
-        {'symbol': 'TTE.PA', 'name': 'TotalEnergies'},
-        {'symbol': 'AAPL', 'name': 'Apple'},
-        {'symbol': 'MSFT', 'name': 'Microsoft'},
-        {'symbol': 'GOOGL', 'name': 'Alphabet (Google)'},
-        {'symbol': 'AMZN', 'name': 'Amazon'},
-        {'symbol': 'TSLA', 'name': 'Tesla'},
-        {'symbol': 'NVDA', 'name': 'NVIDIA'},
-        {'symbol': 'BTC-USD', 'name': 'Bitcoin'}
-    ]
-    return jsonify([s for s in stocks if query in s['symbol'] or query in s['name'].upper()])
+    if not query: return jsonify([])
+    
+    with sqlite3.connect(DB_NAME) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT symbol, name FROM tickers WHERE symbol LIKE ? OR name LIKE ? LIMIT 10", 
+                       (f'%{query}%', f'%{query}%'))
+        results = [{'symbol': row[0], 'name': row[1]} for row in cursor.fetchall()]
+    
+    return jsonify(results)
 
 @app.route('/search_redirect/<symbol>')
 def search_redirect(symbol):
