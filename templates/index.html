@@ -202,21 +202,26 @@
         const searchInput = document.getElementById('search-input');
         const resultsContainer = document.getElementById('autocomplete-results-container');
         searchInput.addEventListener('input', function() {
-            if (this.value.length < 2) { resultsContainer.style.display = 'none'; return; }
-            fetch(`/api/search_tickers?query=${this.value.toUpperCase()}`)
+            const val = this.value.trim().toUpperCase();
+            if (val.length < 1) { resultsContainer.style.display = 'none'; return; }
+            console.log("Searching for:", val);
+            fetch(`/api/search_tickers?query=${encodeURIComponent(val)}`)
                 .then(r => r.json())
                 .then(data => {
+                    console.log("Data received:", data);
                     resultsContainer.innerHTML = '';
                     if (data.length > 0) {
                         resultsContainer.style.display = 'block';
                         data.forEach(s => {
                             const a = document.createElement('a');
-                            a.href = `/search_redirect/${s.symbol}`;
+                            a.href = `/analyze?symbol=${encodeURIComponent(s.symbol)}`;
                             a.innerHTML = `<strong>${s.symbol}</strong> - ${s.name}`;
                             resultsContainer.appendChild(a);
                         });
+                    } else {
+                        resultsContainer.style.display = 'none';
                     }
-                });
+                }).catch(err => console.error("Autocomplete error:", err));
         });
     </script>
 </body>
