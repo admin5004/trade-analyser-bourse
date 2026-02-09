@@ -197,6 +197,9 @@ def login():
         return redirect(url_for('index'))
     
     try:
+        # AFFICHAGE DANS LES LOGS (Visible sur le dashboard Render)
+        print(f"--- NOUVEAU LEAD COLLECTÉ : {email} (Marketing: {accept_marketing}) ---")
+        
         with sqlite3.connect(DB_NAME) as conn:
             # Enregistrement du prospect pour le démarchage
             conn.execute('''
