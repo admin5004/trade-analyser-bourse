@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 import pandas as pd
 import pandas_ta as ta
 import yfinance as yf
-from flask import Flask, render_template, request, redirect, url_for, jsonify, session, flash
+from flask import Flask, render_template, request, redirect, url_for, jsonify, session, flash, Response
 import plotly.graph_objects as go
 from textblob import TextBlob
 
@@ -188,6 +188,57 @@ def create_stock_chart(df, symbol):
     if 'SMA_200' in df.columns: fig.add_trace(go.Scatter(x=df.index, y=df['SMA_200'], mode='lines', name='MM200', line=dict(color='red', width=1)))
     fig.update_layout(title=f'Historique {symbol}', yaxis_title='Prix', height=600, margin=dict(l=20, r=20, t=40, b=20), xaxis_rangeslider_visible=False)
     return fig.to_html(full_html=False, include_plotlyjs='cdn')
+
+# --- ROUTES ADMINISTRATION ---
+
+@app.route('/admin')
+def admin_dashboard():
+    # Sécurité : Vérifier les identifiants admin (à configurer sur Render)
+    admin_user = os.environ.get("ADMIN_USER", "admin")
+    admin_pass = os.environ.get("ADMIN_PASS", "password123") # Changez-le sur Render !
+    
+    auth = request.authorization
+    if not auth or not (auth.username == admin_user and auth.password == admin_pass):
+        return Response(
+            'Accès refusé. Veuillez vous connecter.', 401,
+            {'WWW-Authenticate': 'Basic realm="Login Required"'}
+        )
+
+    with sqlite3.connect(DB_NAME) as conn:
+        cursor = conn.cursor()
+        
+        # Récupérer les leads
+        cursor.execute("SELECT email, signup_date, marketing_consent, ip_address FROM leads ORDER BY signup_date DESC")
+        leads = cursor.fetchall()
+        
+        # Récupérer les statistiques de recherche
+        cursor.execute("SELECT symbol, COUNT(*) as count FROM search_history GROUP BY symbol ORDER BY count DESC LIMIT 10")
+        search_stats = cursor.fetchall()
+        
+        # Récupérer l'audit légal
+        cursor.execute("SELECT email, consent_date, ip_address FROM legal_audit ORDER BY consent_date DESC LIMIT 50")
+        audit_logs = cursor.fetchall()
+
+    return render_template('admin.html', leads=leads, search_stats=search_stats, audit_logs=audit_logs)
+
+@app.route('/admin/export_leads')
+def export_leads():
+    # Sécurité identique pour l'export
+    admin_user = os.environ.get("ADMIN_USER", "admin")
+    admin_pass = os.environ.get("ADMIN_PASS", "password123")
+    auth = request.authorization
+    if not auth or not (auth.username == admin_user and auth.password == admin_pass):
+        return "Accès refusé", 401
+
+    with sqlite3.connect(DB_NAME) as conn:
+        df = pd.read_sql_query("SELECT email, signup_date, marketing_consent FROM leads", conn)
+        csv_data = df.to_csv(index=False)
+    
+    return Response(
+        csv_data,
+        mimetype="text/csv",
+        headers={"Content-disposition": "attachment; filename=leads_export.csv"}
+    )
 
 # --- ROUTES AUTHENTIFICATION ---
 
