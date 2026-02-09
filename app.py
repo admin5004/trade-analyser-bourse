@@ -185,8 +185,10 @@ def index():
         return redirect(url_for('analyze_page'))
     return render_template('welcome.html')
 
-@app.route('/login', methods=['POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
+    if request.method == 'GET':
+        return redirect(url_for('index'))
     email = request.form.get('email')
     accept_marketing = request.form.get('accept_marketing') == 'on'
     
@@ -299,8 +301,10 @@ def analyze_page():
 
     return render_template('index.html', **context)
 
-@app.route('/search', methods=['POST'])
+@app.route('/search', methods=['GET', 'POST'])
 def search():
+    if request.method == 'GET':
+        return redirect(url_for('analyze_page'))
     return redirect(url_for('analyze_page', symbol=request.form.get('query', '').strip().upper()))
 
 @app.route('/api/search_tickers', methods=['GET'])
@@ -321,4 +325,5 @@ def search_redirect(symbol):
     return redirect(url_for('analyze_page', symbol=symbol))
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # Force le mode HTTP simple pour le développement local
+    app.run(debug=True, host='0.0.0.0', port=5000, ssl_context=None)
