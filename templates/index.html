@@ -168,6 +168,36 @@
                         {% endfor %}
                     </div>
                 </div>
+
+                {% if insiders %}
+                <button class="accordion-btn" style="margin-top: 1rem; background: #1e293b;" onclick="toggleSection('insider-accordion')">
+                    🕵️ VOIR LES TRANSACTIONS DES DIRIGEANTS
+                </button>
+                <div id="insider-accordion" class="accordion-content">
+                    <div style="padding: 1.5rem;">
+                        <table style="width: 100%; font-size: 0.85rem; border-collapse: collapse;">
+                            <thead>
+                                <tr style="text-align: left; color: var(--text-muted); border-bottom: 1px solid var(--border);">
+                                    <th style="padding: 8px;">Nom</th>
+                                    <th>Transaction</th>
+                                    <th style="text-align: right;">Volume (Actions)</th>
+                                    <th style="text-align: right;">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for person in insiders %}
+                                <tr style="border-bottom: 1px solid #f1f5f9;">
+                                    <td style="padding: 8px;"><strong>{{ person.name }}</strong><br><small>{{ person.position }}</small></td>
+                                    <td>{{ person.type }}</td>
+                                    <td style="text-align: right; font-weight: 700;">{{ person.shares }}</td>
+                                    <td style="text-align: right;">{{ person.date }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
         {% endif %}

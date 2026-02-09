@@ -179,8 +179,20 @@ def analyze_page():
             except Exception:
                 info = {'currency': 'USD'}
             
-            # Insiders (Désactivé par défaut pour la rapidité, décommenter si besoin)
+            # Insiders (Réactivé avec Volume)
             insiders = []
+            try:
+                it = ticker_yf.insider_transactions
+                if it is not None and not it.empty:
+                    for _, row in it.head(10).iterrows():
+                        insiders.append({
+                            'name': str(row.get('Insider', 'N/A')),
+                            'position': str(row.get('Position', 'Dirigeant')),
+                            'type': str(row.get('Transaction', 'Action')),
+                            'shares': "{:,}".format(int(row.get('Shares', 0))) if row.get('Shares') else "0",
+                            'date': str(row.get('Start Date', ''))
+                        })
+            except Exception: pass
             
             # News (Réduit à 8 articles pour la rapidité)
             stock_news = []
