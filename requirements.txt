@@ -1,5 +1,5 @@
 Flask==3.0.3
-pandas==2.2.2
+pandas>=2.2.2
 pandas-ta==0.4.71b0
 yfinance==0.2.40
 plotly==5.22.0
