@@ -57,6 +57,17 @@ def init_db():
             )
         ''')
         
+        # Table pour l'historique des recherches (pour analyse et amélioration)
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS search_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT,
+                symbol TEXT,
+                found INTEGER,
+                timestamp TEXT
+            )
+        ''')
+        
         # Peuplement du CAC 40
         cac40 = [
             ('AC.PA', 'Accor'), ('AI.PA', 'Air Liquide'), ('AIR.PA', 'Airbus'), ('ALO.PA', 'Alstom'),
@@ -241,9 +252,28 @@ def analyze_page():
         symbol = symbol.upper()
         df = get_stock_data(symbol)
         
+        # Log de la recherche
+        try:
+            with sqlite3.connect(DB_NAME) as conn:
+                conn.execute('INSERT INTO search_history (email, symbol, found, timestamp) VALUES (?, ?, ?, ?)',
+                             (session.get('pending_email', 'inconnu'), symbol, 1 if df is not None else 0, datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+        except Exception: pass
+
         if df is not None:
             ticker_yf = yf.Ticker(symbol)
             info = ticker_yf.info
+            
+            # AUTO-APPRENTISSAGE : Si le ticker est valide mais absent de notre DB, on l'ajoute
+            try:
+                with sqlite3.connect(DB_NAME) as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("SELECT symbol FROM tickers WHERE symbol = ?", (symbol,))
+                    if not cursor.fetchone():
+                        name = info.get('longName') or info.get('shortName') or symbol
+                        cursor.execute("INSERT INTO tickers (symbol, name) VALUES (?, ?)", (symbol, name))
+                        print(f"--- NOUVELLE VALEUR APPRISE : {symbol} ({name}) ---")
+            except Exception as e:
+                print(f"Erreur auto-apprentissage: {e}")
             
             # News & Sentiment
             raw_news = ticker_yf.news
