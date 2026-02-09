@@ -101,6 +101,7 @@ def analyze_news_sentiment(news_list):
 
 def get_stock_data(symbol):
     try:
+        symbol = symbol.strip().upper()
         print(f"Tentative de récupération pour : {symbol}")
         ticker = yf.Ticker(symbol)
         df = ticker.history(period="2y")
@@ -390,7 +391,25 @@ def analyze_page():
 def search():
     if request.method == 'GET':
         return redirect(url_for('analyze_page'))
-    return redirect(url_for('analyze_page', symbol=request.form.get('query', '').strip().upper()))
+    
+    query = request.form.get('query', '').strip()
+    if not query:
+        return redirect(url_for('analyze_page'))
+    
+    # Si la requête ressemble à un nom (pas de point, plus de 3 lettres, ou nom connu)
+    # on tente de trouver le ticker correspondant
+    symbol = query.upper()
+    if len(query) > 2 and "." not in query:
+        try:
+            # Recherche via yfinance
+            search_results = yf.Search(query, max_results=1).tickers
+            if search_results:
+                symbol = search_results[0]['symbol']
+                print(f"--- RECHERCHE NOM REUSSIE : {query} -> {symbol} ---")
+        except Exception as e:
+            print(f"Erreur recherche ticker pour {query}: {e}")
+
+    return redirect(url_for('analyze_page', symbol=symbol))
 
 @app.route('/api/search_tickers', methods=['GET'])
 def search_tickers():
