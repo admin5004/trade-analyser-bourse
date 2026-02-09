@@ -135,7 +135,7 @@
                     </div>
                 </div>
 
-                <h3 style="margin-top:1.5rem; font-size: 1rem;">Sentiment IA <span class="info-icon" data-tooltip="Analyse par IA des titres de presse des dernières 24h.">i</span></h3>
+                <h3 style="margin-top:1.5rem; font-size: 1rem;">Sentiment Trimestriel IA <span class="info-icon" data-tooltip="Analyse par IA des titres de presse sur le long terme.">i</span></h3>
                 <div class="jauge-bg">
                     <div class="jauge-fill" style="width: {{ ((sentiment_score + 1) / 2 * 100) }}%; background: {% if sentiment_score > 0.1 %}var(--success){% elif sentiment_score < -0.1 %}var(--danger){% else %}var(--warning){% endif %};"></div>
                 </div>
@@ -146,6 +146,32 @@
                 </div>
                 <div style="text-align: center; font-weight: 700; font-size: 0.8rem; color: var(--primary);">Score : {{ "%.2f"|format(sentiment_score) }}</div>
             </div>
+
+            {% if insiders %}
+            <div class="card col-12">
+                <h3 style="margin-top:0; font-size: 1.1rem;">Transactions des Dirigeants (Insiders)</h3>
+                <table style="width: 100%; font-size: 0.85rem; border-collapse: collapse;">
+                    <thead>
+                        <tr style="text-align: left; color: var(--text-muted); border-bottom: 1px solid var(--border);">
+                            <th style="padding: 8px;">Nom</th>
+                            <th>Position</th>
+                            <th>Transaction</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for person in insiders %}
+                        <tr style="border-bottom: 1px solid #f1f5f9;">
+                            <td style="padding: 8px;"><strong>{{ person.name }}</strong></td>
+                            <td>{{ person.position }}</td>
+                            <td>{{ person.type }}</td>
+                            <td>{{ person.date }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
 
             {% if analyst_reco_chart_div %}
             <div class="card col-12">
