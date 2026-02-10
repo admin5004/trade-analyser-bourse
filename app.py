@@ -200,6 +200,20 @@ scheduler.start()
 threading.Thread(target=fetch_market_data_job).start()
 threading.Thread(target=fetch_esg_and_fundamentals).start()
 
+# --- HELPERS ---
+def get_global_context():
+    """Données partagées par toutes les pages (Top Secteurs, Heatmap)"""
+    sorted_sectors = sorted(MARKET_STATE['sectors'].items(), key=lambda x: x[1], reverse=True)
+    top_sectors = [{'name': name, 'change': change} for name, change in sorted_sectors[:5]]
+    
+    heatmap_data = []
+    for s, t_info in MARKET_STATE['tickers'].items():
+        if '.PA' in s:
+            heatmap_data.append({'symbol': s.replace('.PA', ''), 'change': t_info['change_pct'], 'full_symbol': s})
+    heatmap_data = sorted(heatmap_data, key=lambda x: x['symbol'])
+    
+    return top_sectors, heatmap_data
+
 # --- ROUTES ---
 @app.route('/')
 def index():
@@ -230,16 +244,14 @@ def analyze_page():
             row = cursor.fetchone()
             if row: symbol = row[0]
     except Exception: pass
+    
     info = MARKET_STATE['tickers'].get(symbol)
     df = MARKET_STATE['dataframes'].get(symbol)
     esg = MARKET_STATE['esg_data'].get(symbol, {'score': 'N/A', 'badge': '-'})
     fund = MARKET_STATE['fundamentals'].get(symbol, {'pe': 'N/A', 'yield': 'N/A'})
-    sorted_sectors = sorted(MARKET_STATE['sectors'].items(), key=lambda x: x[1], reverse=True)
-    top_sectors = [{'name': name, 'change': change} for name, change in sorted_sectors[:5]]
-    heatmap_data = []
-    for s, t_info in MARKET_STATE['tickers'].items():
-        if '.PA' in s: heatmap_data.append({'symbol': s.replace('.PA', ''), 'change': t_info['change_pct'], 'full_symbol': s})
-    heatmap_data = sorted(heatmap_data, key=lambda x: x['symbol'])
+    
+    top_sectors, heatmap_data = get_global_context()
+
     if df is not None:
         context = {
             'symbol': symbol, 'last_close_price': info['price'], 'daily_change': df['close'].iloc[-1] - df['close'].iloc[-2],
@@ -252,8 +264,9 @@ def analyze_page():
             'engine_status': 'ONLINE', 'last_update': MARKET_STATE['last_update'], 'top_sectors': top_sectors, 'heatmap_data': heatmap_data
         }
         return render_template('index.html', **context)
-    flash(f"Instrument {symbol} non trouvé.", "error")
-    return render_template('index.html', symbol=symbol, recommendation=None)
+    
+    flash(f"Instrument {symbol} non trouvé ou en cours de chargement initial.", "error")
+    return render_template('index.html', symbol=symbol, recommendation=None, top_sectors=top_sectors, heatmap_data=heatmap_data)
 
 @app.route('/status')
 def engine_status():
