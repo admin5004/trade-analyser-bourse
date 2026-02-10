@@ -96,7 +96,7 @@ def fetch_market_data_job():
     for symbol in symbols:
         try:
             ticker = yf.Ticker(symbol)
-            df = ticker.history(period="2y")
+            df = ticker.history(period="2y", timeout=10)
             if df is None or df.empty: continue
             df.columns = [col.lower() for col in df.columns]
             if len(df) < 2 or df['close'].iloc[-2] == 0: continue
@@ -228,7 +228,13 @@ def ultra_login():
                          (email, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 1 if request.form.get('accept_marketing')=='on' else 0, request.remote_addr))
         session['verified'] = True
         session['pending_email'] = email
-        if not MARKET_STATE['tickers']: threading.Thread(target=fetch_market_data_job).start()
+        
+        # S'assurer que le moteur démarre immédiatement si vide
+        with market_lock:
+            needs_update = not MARKET_STATE['tickers']
+        if needs_update:
+            threading.Thread(target=fetch_market_data_job).start()
+            
         return redirect(url_for('ultra_analyze'))
     except Exception as e: 
         logger.error(f"Login Error: {e}")
@@ -265,14 +271,18 @@ def ultra_analyze():
     news_list = []
     analyst_info = "N/A"
     if df is None:
+        logger.info(f"🔍 Falling back to sync fetch for {symbol}")
         try:
             ticker = yf.Ticker(symbol)
             df = ticker.history(period="2y")
+            logger.info(f"📊 Data fetched for {symbol}: {len(df) if df is not None else 0} rows")
+            
             # Fetch news and analyst info
             news_list = ticker.news[:5] if ticker.news else []
             try:
                 analyst_info = ticker.info.get('recommendationKey', 'N/A').replace('_', ' ').title()
-            except: pass
+            except Exception as e:
+                logger.warning(f"Could not fetch info for {symbol}: {e}")
 
             if df is not None and not df.empty:
                 df.columns = [col.lower() for col in df.columns]
@@ -292,8 +302,11 @@ def ultra_analyze():
                     'sector_avg': 0,
                     'relative_strength': 0
                 }
+                logger.info(f"✅ Analysis complete for {symbol}: {reco}")
+            else:
+                logger.warning(f"⚠️ No data returned for {symbol}")
         except Exception as e:
-            logger.error(f"Fallback fetch error for {symbol}: {e}")
+            logger.error(f"❌ Fallback fetch error for {symbol}: {e}")
             pass
     else:
         # If df was already in MARKET_STATE, we still need news for the specific symbol
