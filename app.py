@@ -30,7 +30,7 @@ logger = logging.getLogger("TradingEngine")
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key-123-v3")
-VERSION = "3.3.0 (Route Reset)"
+VERSION = "3.3.1 (Anti-Block Update)"
 DB_NAME = "users.db"
 
 market_lock = threading.Lock()
@@ -89,8 +89,10 @@ def fetch_market_data_job():
     for symbol in symbols:
         try:
             ticker = yf.Ticker(symbol)
-            df = ticker.history(period="2y", timeout=5)
-            if df is None or df.empty: continue
+            df = ticker.history(period="2y") # yfinance utilise curl_cffi en interne si présent
+            if df is None or df.empty: 
+                logger.warning(f"No data for {symbol}")
+                continue
             df.columns = [col.lower() for col in df.columns]
             if len(df) < 2 or df['close'].iloc[-2] == 0: continue
             change_pct = ((df['close'].iloc[-1] - df['close'].iloc[-2]) / df['close'].iloc[-2] * 100)
@@ -99,15 +101,17 @@ def fetch_market_data_job():
             sector_stats[sector].append(change_pct)
             temp_dfs[symbol] = df
             temp_tickers[symbol] = {'price': float(df['close'].iloc[-1]), 'change_pct': float(change_pct), 'sector': sector, 'vol_spike': float(df['volume'].iloc[-1] / df['volume'].tail(20).mean()) if df['volume'].tail(20).mean() > 0 else 1.0}
-            time.sleep(0.5)
-        except Exception: continue
+            time.sleep(1.0) # Délai plus long pour Render
+        except Exception as e: 
+            logger.error(f"Error {symbol}: {e}")
+            continue
     with market_lock:
         MARKET_STATE['tickers'].update(temp_tickers)
         MARKET_STATE['dataframes'].update(temp_dfs)
         for sec, changes in sector_stats.items():
             if changes: MARKET_STATE['sectors'][sec] = sum(changes) / len(changes)
         MARKET_STATE['last_update'] = datetime.now().isoformat()
-    logger.info("✅ ENGINE: Ready.")
+    logger.info("✅ ENGINE: Cycle complete.")
 
 def analyze_stock(df, sector_avg_change=0):
     try:
@@ -142,10 +146,10 @@ def get_global_context():
 
 # --- SCHEDULER ---
 scheduler = BackgroundScheduler()
-scheduler.add_job(func=fetch_market_data_job, trigger=IntervalTrigger(minutes=20), id='mkt_job')
+scheduler.add_job(func=fetch_market_data_job, trigger=IntervalTrigger(minutes=30), id='mkt_job')
 scheduler.start()
 
-# --- ROUTES (UNIQUE NAMES TO BYPASS CACHE) ---
+# --- ROUTES ---
 
 @app.route('/v3_search_engine', methods=['GET', 'POST'])
 def v3_search():
@@ -189,6 +193,8 @@ def v3_login():
 def v3_analyze():
     if not session.get('verified'): return redirect(url_for('v3_home'))
     symbol = request.args.get('symbol', 'MC.PA').upper().strip()
+    
+    # 1. Résolution
     try:
         with sqlite3.connect(DB_NAME) as conn:
             cursor = conn.cursor()
@@ -200,37 +206,42 @@ def v3_analyze():
     with market_lock:
         info, df = MARKET_STATE['tickers'].get(symbol), MARKET_STATE['dataframes'].get(symbol)
     
+    # FALLBACK SYNC AVEC PROTECTION BLOQUAGE
     if df is None or info is None:
         try:
+            logger.info(f"Fallback fetch for {symbol}...")
             ticker = yf.Ticker(symbol)
-            df = ticker.history(period="2y", timeout=5)
+            df = ticker.history(period="2y")
             if df is not None and not df.empty:
                 df.columns = [col.lower() for col in df.columns]
                 reco, reason, rsi, mm20, mm50, mm100, mm200, entry, exit = analyze_stock(df)
                 info = {'price': float(df['close'].iloc[-1]), 'change_pct': 0.0, 'recommendation': reco, 'reason': reason, 'rsi': rsi, 'mm20': mm20, 'mm50': mm50, 'mm200': mm200, 'targets': {'entry': entry, 'exit': exit}, 'vol_spike': 1.0}
-        except Exception: pass
+            else:
+                logger.warning(f"Yahoo returned empty DF for {symbol}")
+        except Exception as e:
+            logger.error(f"Fallback error: {e}")
 
     top_sectors, heatmap_data = get_global_context()
     esg, fund = MARKET_STATE['esg_data'].get(symbol, {'score': 'N/A', 'badge': '-'}), MARKET_STATE['fundamentals'].get(symbol, {'pe': 'N/A', 'yield': 'N/A'})
 
-    context = {
-        'symbol': symbol, 'top_sectors': top_sectors, 'heatmap_data': heatmap_data,
-        'engine_status': 'ONLINE', 'last_update': MARKET_STATE['last_update'] or 'Chargement...'
-    }
-
     if df is not None and info is not None:
-        context.update({
-            'last_close_price': info.get('price', 0), 'daily_change': 0, 'daily_change_percent': info.get('change_pct', 0),
+        context = {
+            'symbol': symbol, 'last_close_price': info.get('price', 0), 'daily_change': 0, 'daily_change_percent': info.get('change_pct', 0),
             'recommendation': info.get('recommendation', 'N/A'), 'reason': info.get('reason', 'N/A'), 'rsi_value': info.get('rsi', 50),
             'mm20': info.get('mm20', 0), 'mm50': info.get('mm50', 0), 'mm200': info.get('mm200', 0),
             'short_term_entry_price': f"{info.get('targets', {}).get('entry', 0):.2f}", 
             'short_term_exit_price': f"{info.get('targets', {}).get('exit', 0):.2f}",
             'sector': info.get('sector', 'N/A'), 'sector_avg': info.get('sector_avg', 0), 'relative_strength': info.get('relative_strength', 0), 'vol_spike': info.get('vol_spike', 1),
             'esg_score': esg['score'], 'esg_badge': esg['badge'], 'pe_ratio': fund['pe'], 'div_yield': fund['yield'],
-            'currency_symbol': '€' if '.PA' in symbol else '$', 'stock_chart_div': create_stock_chart(df, symbol)
-        })
+            'currency_symbol': '€' if '.PA' in symbol else '$', 'stock_chart_div': create_stock_chart(df, symbol),
+            'engine_status': 'ONLINE', 'last_update': MARKET_STATE['last_update'] or 'À l\'instant',
+            'top_sectors': top_sectors, 'heatmap_data': heatmap_data
+        }
+        return render_template('index.html', **context)
     
-    return render_template('index.html', **context)
+    # Si pas de données : on force l'affichage pour sortir de la boucle de chargement
+    flash(f"Yahoo Finance semble bloquer l'accès pour {symbol}. Réessayez plus tard.", "warning")
+    return render_template('index.html', symbol=symbol, recommendation="Indisponible", top_sectors=top_sectors, heatmap_data=heatmap_data)
 
 @app.errorhandler(500)
 def handle_500(e):
