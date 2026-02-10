@@ -120,14 +120,33 @@ def analyze_stock(df, sector_avg_change=0):
     try:
         df.ta.sma(length=20, append=True); df.ta.sma(length=50, append=True); df.ta.sma(length=200, append=True); df.ta.rsi(length=14, append=True)
         last = df.iloc[-1]; mm200, rsi, close = last.get('SMA_200'), last.get('RSI_14', 50), last['close']
+        
+        # Calcul de la dynamique de volume
+        vol_today = df['volume'].iloc[-1]
+        vol_yesterday = df['volume'].iloc[-2] if len(df) > 1 else vol_today
+        vol_ratio = vol_today / vol_yesterday if vol_yesterday > 0 else 1.0
+        
         daily_change = ((close - df['close'].iloc[-2]) / df['close'].iloc[-2] * 100) if len(df) > 1 else 0
         rs = daily_change - sector_avg_change
         reco, reason = "Conserver", "Neutre"
+        
         if mm200 and close > mm200:
             if rsi < 40 or rs > 1.5: reco, reason = "Achat", "Tendance haussière"
         elif mm200 and close < mm200:
             if rsi > 70 or rs < -1.5: reco, reason = "Vente", "Faiblesse relative"
-        return reco, reason, float(rsi), float(last.get('SMA_20', 0)), float(last.get('SMA_50', 0)), None, float(mm200 or 0), float(close*0.98), float(close*1.05)
+            
+        # Ajustement dynamique des prix en fonction du volume
+        entry_coeff = 0.98
+        exit_coeff = 1.05
+        
+        if vol_ratio > 1.2: # Volume en hausse de 20%+ : Forte conviction
+            entry_coeff = 0.99 # On peut entrer un peu plus haut
+            exit_coeff = 1.07 # On vise plus haut
+        elif vol_ratio < 0.8: # Volume faible : Manque de conviction
+            entry_coeff = 0.97 # On attend un repli plus marqué
+            exit_coeff = 1.04 # Objectif plus prudent
+            
+        return reco, reason, float(rsi), float(last.get('SMA_20', 0)), float(last.get('SMA_50', 0)), None, float(mm200 or 0), float(close*entry_coeff), float(close*exit_coeff)
     except Exception: return "N/A", "Erreur", 50, 0, 0, None, 0, 0, 0
 
 def create_stock_chart(df, symbol):
