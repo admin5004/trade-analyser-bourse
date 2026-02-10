@@ -119,7 +119,33 @@
             </div>
 
             <div class="card col-4">
-                <h3 style="margin-top:0; font-size: 1rem;">Indicateurs Techniques</h3>
+                <h3 style="margin-top:0; font-size: 1rem;">Environnement & Secteur</h3>
+                <div class="stat-group">
+                    <div class="stat-item">
+                        <span class="stat-label">Secteur</span>
+                        <span class="stat-val">{{ sector }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Perf. Secteur</span>
+                        <span class="stat-val" style="color: {% if sector_avg > 0 %}var(--success){% else %}var(--danger){% endif %};">
+                            {{ "%.2f"|format(sector_avg) }}%
+                        </span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Force Relative (RS)</span>
+                        <span class="stat-val" style="color: {% if relative_strength > 0 %}var(--success){% else %}var(--danger){% endif %}; font-weight: 800;">
+                            {{ "+" if relative_strength > 0 }}{{ "%.2f"|format(relative_strength) }}
+                        </span>
+                    </div>
+                    <div class="stat-item" style="margin-top: 10px; padding-top: 10px; border-top: 2px solid #f1f5f9;">
+                        <span class="stat-label">Score ESG IA</span>
+                        <span class="badge" style="background: {% if esg_badge == 'A' %}#dcfce7{% elif esg_badge == 'B' %}#fef9c3{% else %}#fee2e2{% endif %}; color: #1e293b;">
+                            {{ esg_badge }} ({{ esg_score }})
+                        </span>
+                    </div>
+                </div>
+
+                <h3 style="margin-top:1.5rem; font-size: 1rem;">Indicateurs Techniques</h3>
                 <div class="stat-group">
                     <div class="stat-item">
                         <span class="stat-label">RSI (14)</span>
@@ -127,15 +153,8 @@
                     </div>
                     <div class="stat-item"><span class="stat-label">MM 20</span><span class="stat-val">{{ "%.2f"|format(mm20) if mm20 else 'N/A' }}</span></div>
                     <div class="stat-item"><span class="stat-label">MM 50</span><span class="stat-val">{{ "%.2f"|format(mm50) if mm50 else 'N/A' }}</span></div>
-                    <div class="stat-item"><span class="stat-label">MM 100</span><span class="stat-val">{{ "%.2f"|format(mm100) if mm100 else 'N/A' }}</span></div>
                     <div class="stat-item"><span class="stat-label">MM 200</span><span class="stat-val">{{ "%.2f"|format(mm200) if mm200 else 'N/A' }}</span></div>
                 </div>
-
-                <h3 style="margin-top:1.5rem; font-size: 1rem;">Sentiment IA</h3>
-                <div class="jauge-bg">
-                    <div class="jauge-fill" style="width: {{ ((sentiment_score + 1) / 2 * 100) }}%; background: {% if sentiment_score > 0.1 %}var(--success){% elif sentiment_score < -0.1 %}var(--danger){% else %}var(--warning){% endif %};"></div>
-                </div>
-                <div style="text-align: center; font-weight: 700; font-size: 0.8rem; color: var(--primary);">Score : {{ "%.2f"|format(sentiment_score) }}</div>
             </div>
 
             {% if analyst_reco_chart_div %}

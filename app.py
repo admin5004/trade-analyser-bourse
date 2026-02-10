@@ -29,126 +29,142 @@ logger = logging.getLogger("TradingEngine")
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key-123")
-VERSION = "3.0.0 (High Performance Engine)"
+VERSION = "3.1.0 (Sector & ESG Aware)"
 DB_NAME = "users.db"
 
-# Cache Configuration (Simple Cache for Dev, Redis for Prod)
 cache = Cache(app, config={'CACHE_TYPE': 'SimpleCache', 'CACHE_DEFAULT_TIMEOUT': 300})
 
-# --- GLOBAL MARKET STATE (In-Memory Database) ---
-# Ce dictionnaire remplace les appels API lents. Il est mis à jour par le moteur en arrière-plan.
+# --- GLOBAL MARKET STATE ---
 MARKET_STATE = {
     'last_update': None,
-    'tickers': {},  # { 'ACA.PA': { 'price': 12.5, 'change': 1.2, 'trend': 'Bullish', ... } }
-    'dataframes': {} # { 'ACA.PA': pd.DataFrame(...) }
+    'tickers': {},  
+    'dataframes': {},
+    'sectors': {}, # { 'Luxe': {'avg_change': 1.2, 'count': 3}, ... }
+    'esg_data': {}  # { 'MC.PA': {'total': 70, 'badge': 'A'} }
 }
 
 def init_db():
     try:
         with sqlite3.connect(DB_NAME) as conn:
             cursor = conn.cursor()
+            cursor.execute("DROP TABLE IF EXISTS tickers") # On recrée pour ajouter la colonne sector
+            cursor.execute('''CREATE TABLE IF NOT EXISTS tickers (symbol TEXT PRIMARY KEY, name TEXT, sector TEXT)''')
             cursor.execute('''CREATE TABLE IF NOT EXISTS legal_audit (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT, ip_address TEXT, consent_date TEXT, user_agent TEXT)''')
             cursor.execute('''CREATE TABLE IF NOT EXISTS leads (email TEXT PRIMARY KEY, signup_date TEXT, marketing_consent INTEGER DEFAULT 0, ip_address TEXT)''')
-            cursor.execute('''CREATE TABLE IF NOT EXISTS tickers (symbol TEXT PRIMARY KEY, name TEXT)''')
             cursor.execute('''CREATE TABLE IF NOT EXISTS search_history (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT, symbol TEXT, found INTEGER, timestamp TEXT)''')
             
-            # Initialisation CAC 40
+            # CAC 40 avec Secteurs (Optimisation inspirée par Euronext Index Services)
             cac40 = [
-                ('AC.PA', 'Accor'), ('AI.PA', 'Air Liquide'), ('AIR.PA', 'Airbus'), ('ALO.PA', 'Alstom'),
-                ('MT.PA', 'ArcelorMittal'), ('CS.PA', 'AXA'), ('BNP.PA', 'BNP Paribas'), ('EN.PA', 'Bouygues'),
-                ('CAP.PA', 'Capgemini'), ('CA.PA', 'Carrefour'), ('ACA.PA', 'Crédit Agricole'), ('BN.PA', 'Danone'),
-                ('DSY.PA', 'Dassault Systèmes'), ('EDEN.PA', 'Edenred'), ('ENGI.PA', 'Engie'), ('EL.PA', 'EssilorLuxottica'),
-                ('ERF.PA', 'Eurofins Scientific'), ('RMS.PA', 'Hermès'), ('KER.PA', 'Kering'), ('OR.PA', "L'Oréal"),
-                ('LR.PA', 'Legrand'), ('MC.PA', 'LVMH'), ('ML.PA', 'Michelin'), ('ORA.PA', 'Orange'),
-                ('RI.PA', 'Pernod Ricard'), ('PUB.PA', 'Publicis'), ('RNO.PA', 'Renault'), ('SAF.PA', 'Safran'),
-                ('SGO.PA', 'Saint-Gobain'), ('SAN.PA', 'Sanofi'), ('SU.PA', 'Schneider Electric'), ('GLE.PA', 'Société Générale'),
-                ('STLAP.PA', 'Stellantis'), ('STMPA.PA', 'STMicroelectronics'), ('TEP.PA', 'Teleperformance'), ('HO.PA', 'Thales'),
-                ('TTE.PA', 'TotalEnergies'), ('URW.PA', 'Unibail-Rodamco-Westfield'), ('VIE.PA', 'Veolia'), ('DG.PA', 'Vinci'),
-                ('AYV.PA', 'Ayvens'), ('AAPL', 'Apple'), ('MSFT', 'Microsoft'), ('GOOGL', 'Alphabet (Google)'), ('AMZN', 'Amazon'),
-                ('TSLA', 'Tesla'), ('NVDA', 'NVIDIA'), ('BTC-USD', 'Bitcoin'), ('ETH-USD', 'Ethereum')
+                ('AC.PA', 'Accor', 'Consommation'), ('AI.PA', 'Air Liquide', 'Industrie'), ('AIR.PA', 'Airbus', 'Aéronautique'), ('ALO.PA', 'Alstom', 'Industrie'),
+                ('MT.PA', 'ArcelorMittal', 'Matériaux'), ('CS.PA', 'AXA', 'Finance'), ('BNP.PA', 'BNP Paribas', 'Finance'), ('EN.PA', 'Bouygues', 'Industrie'),
+                ('CAP.PA', 'Capgemini', 'Technologie'), ('CA.PA', 'Carrefour', 'Consommation'), ('ACA.PA', 'Crédit Agricole', 'Finance'), ('BN.PA', 'Danone', 'Consommation'),
+                ('DSY.PA', 'Dassault Systèmes', 'Technologie'), ('EDEN.PA', 'Edenred', 'Finance'), ('ENGI.PA', 'Engie', 'Services Publics'), ('EL.PA', 'EssilorLuxottica', 'Santé'),
+                ('ERF.PA', 'Eurofins Scientific', 'Santé'), ('RMS.PA', 'Hermès', 'Luxe'), ('KER.PA', 'Kering', 'Luxe'), ('OR.PA', "L'Oréal", 'Consommation'),
+                ('LR.PA', 'Legrand', 'Industrie'), ('MC.PA', 'LVMH', 'Luxe'), ('ML.PA', 'Michelin', 'Industrie'), ('ORA.PA', 'Orange', 'Télécoms'),
+                ('RI.PA', 'Pernod Ricard', 'Consommation'), ('PUB.PA', 'Publicis', 'Média'), ('RNO.PA', 'Renault', 'Industrie'), ('SAF.PA', 'Safran', 'Aéronautique'),
+                ('SGO.PA', 'Saint-Gobain', 'Industrie'), ('SAN.PA', 'Sanofi', 'Santé'), ('SU.PA', 'Schneider Electric', 'Industrie'), ('GLE.PA', 'Société Générale', 'Finance'),
+                ('STLAP.PA', 'Stellantis', 'Industrie'), ('STMPA.PA', 'STMicroelectronics', 'Technologie'), ('TEP.PA', 'Teleperformance', 'Industrie'), ('HO.PA', 'Thales', 'Aéronautique'),
+                ('TTE.PA', 'TotalEnergies', 'Énergie'), ('URW.PA', 'Unibail-Rodamco', 'Immobilier'), ('VIE.PA', 'Veolia', 'Services Publics'), ('DG.PA', 'Vinci', 'Industrie'),
+                ('AAPL', 'Apple', 'Technologie'), ('MSFT', 'Microsoft', 'Technologie'), ('GOOGL', 'Google', 'Technologie'), ('TSLA', 'Tesla', 'Automobile')
             ]
-            cursor.executemany('INSERT OR IGNORE INTO tickers (symbol, name) VALUES (?, ?)', cac40)
+            cursor.executemany('INSERT OR IGNORE INTO tickers (symbol, name, sector) VALUES (?, ?, ?)', cac40)
             conn.commit()
     except Exception as e:
         logger.error(f"Database initialization failed: {e}")
 
 init_db()
 
-# --- MARKET DATA ENGINE (Optiq-inspired) ---
+# --- MARKET DATA ENGINE ---
+
+def fetch_esg_data():
+    """Tâche quotidienne pour récupérer les scores ESG (Lent, donc séparé)"""
+    logger.info("🌿 ESG ENGINE: Updating sustainability scores...")
+    symbols = list(MARKET_STATE['tickers'].keys())
+    for symbol in symbols:
+        try:
+            ticker = yf.Ticker(symbol)
+            sus = ticker.sustainability
+            if sus is not None:
+                score = sus.loc['totalEsg', 'Value'] if 'totalEsg' in sus.index else 0
+                badge = 'A' if score < 20 else 'B' if score < 30 else 'C'
+                MARKET_STATE['esg_data'][symbol] = {'score': score, 'badge': badge}
+        except Exception: pass
+    logger.info("✅ ESG ENGINE: Update complete.")
 
 def fetch_market_data_job():
-    """
-    Tâche de fond 'Bulk Loader'.
-    Télécharge tout le marché en une seule fois (très rapide) et met à jour la mémoire.
-    """
     logger.info("📡 ENGINE: Starting market data refresh cycle...")
     
-    # 1. Récupérer la liste des tickers
-    symbols = []
+    symbols_info = {}
     try:
         with sqlite3.connect(DB_NAME) as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT symbol FROM tickers")
-            symbols = [row[0] for row in cursor.fetchall()]
-    except Exception:
-        symbols = ['CAC.PA', 'MC.PA', 'AI.PA', 'SAN.PA', 'GLE.PA', 'ACA.PA', 'BNP.PA', 'AAPL', 'MSFT', 'TSLA'] # Fallback
-    
+            cursor.execute("SELECT symbol, sector FROM tickers")
+            for row in cursor.fetchall(): symbols_info[row[0]] = row[1]
+    except Exception: return
+
+    symbols = list(symbols_info.keys())
     if not symbols: return
 
-    # 2. Bulk Download (Optimisation Majeure)
     try:
-        # Téléchargement groupé : 1 requête HTTP au lieu de 50
         data = yf.download(symbols, period="2y", group_by='ticker', progress=False, threads=True)
         
-        # 3. Traitement et Analyse
-        updated_count = 0
+        # Reset Sectors
+        sector_stats = {} 
+
         for symbol in symbols:
             try:
-                # Extraction du DataFrame pour ce symbole
                 df = data[symbol] if len(symbols) > 1 else data
+                if df.empty or len(df) < 50: continue
                 
-                # Validation des données (Sanity Check)
-                if df.empty or len(df) < 50:
-                    continue
-                
-                # Nettoyage
                 df = df.dropna(subset=['Close'])
-                df.columns = [col.lower() for col in df.columns] # standardisation
+                df.columns = [col.lower() for col in df.columns]
                 
-                # Analyse Technique (Pré-calculée)
-                reco, reason, rsi, mm20, mm50, mm100, mm200, entry, exit = analyze_stock(df)
+                # Calcul Performance Individuelle
+                change_pct = ((df['close'].iloc[-1] - df['close'].iloc[-2]) / df['close'].iloc[-2] * 100) if len(df) > 1 else 0
                 
-                # Mise en cache
+                # Agrégation Sectorielle
+                sector = symbols_info.get(symbol, 'Autre')
+                if sector not in sector_stats: sector_stats[sector] = []
+                sector_stats[sector].append(change_pct)
+
                 MARKET_STATE['dataframes'][symbol] = df
                 MARKET_STATE['tickers'][symbol] = {
                     'price': df['close'].iloc[-1],
-                    'change_pct': ((df['close'].iloc[-1] - df['close'].iloc[-2]) / df['close'].iloc[-2] * 100) if len(df) > 1 else 0,
-                    'recommendation': reco,
-                    'reason': reason,
-                    'rsi': rsi,
-                    'targets': {'entry': entry, 'exit': exit},
+                    'change_pct': change_pct,
+                    'sector': sector,
                     'last_updated': datetime.now().strftime('%H:%M:%S')
                 }
-                updated_count += 1
-            except Exception as e:
-                logger.warning(f"Failed to process {symbol}: {e}")
+            except Exception: continue
+
+        # Finalisation des moyennes sectorielles
+        for sec, changes in sector_stats.items():
+            MARKET_STATE['sectors'][sec] = sum(changes) / len(changes) if changes else 0
+
+        # Seconde passe : Analyse avec Force Relative
+        for symbol in list(MARKET_STATE['tickers'].keys()):
+            df = MARKET_STATE['dataframes'][symbol]
+            info = MARKET_STATE['tickers'][symbol]
+            sec_avg = MARKET_STATE['sectors'].get(info['sector'], 0)
+            
+            reco, reason, rsi, mm20, mm50, mm100, mm200, entry, exit = analyze_stock(df, sec_avg)
+            info.update({
+                'recommendation': reco, 'reason': reason, 'rsi': rsi,
+                'targets': {'entry': entry, 'exit': exit},
+                'sector_avg': sec_avg,
+                'relative_strength': info['change_pct'] - sec_avg
+            })
                 
         MARKET_STATE['last_update'] = datetime.now().isoformat()
-        logger.info(f"✅ ENGINE: Refreshed {updated_count} instruments in {(datetime.now() - datetime.fromisoformat(MARKET_STATE['last_update'])).seconds if MARKET_STATE['last_update'] else 0}s")
+        logger.info(f"✅ ENGINE: Refreshed {len(MARKET_STATE['tickers'])} instruments and {len(MARKET_STATE['sectors'])} sectors.")
         
     except Exception as e:
-        logger.error(f"❌ ENGINE CRITICAL: Bulk download failed: {e}")
+        logger.error(f"❌ ENGINE CRITICAL: {e}")
 
-def analyze_stock(df, sentiment_score=0):
-    """Analyse technique robuste"""
-    if df is None or len(df) < 50:
-        return "N/A", "Données insuffisantes", 50, None, None, None, None, None, None
-
+def analyze_stock(df, sector_avg_change=0):
+    """Algorithme optimisé avec Force Relative Sectorielle"""
     try:
-        # Indicateurs
         df.ta.sma(length=20, append=True)
         df.ta.sma(length=50, append=True)
-        df.ta.sma(length=100, append=True)
         df.ta.sma(length=200, append=True)
         df.ta.rsi(length=14, append=True)
 
@@ -156,40 +172,42 @@ def analyze_stock(df, sentiment_score=0):
         mm200 = last.get('SMA_200')
         rsi = last.get('RSI_14', 50)
         close = last['close']
+        daily_change = ((close - df['close'].iloc[-2]) / df['close'].iloc[-2] * 100) if len(df) > 1 else 0
+        
+        # Force Relative : L'action monte-t-elle plus que son secteur ?
+        relative_strength = daily_change - sector_avg_change
         
         reco = "Conserver"
         reason = "Neutre"
         
-        if mm200 and close > mm200 and rsi < 40:
-            reco = "Achat"
-            reason = "Tendance haussière + Survente"
-        elif mm200 and close < mm200 and rsi > 70:
-            reco = "Vente"
-            reason = "Tendance baissière + Surachat"
+        if mm200 and close > mm200:
+            if rsi < 40 or relative_strength > 1.5:
+                reco = "Achat"
+                reason = "Tendance haussière + Forte résistance sectorielle" if relative_strength > 1.5 else "Tendance haussière + Survente"
+        elif mm200 and close < mm200:
+            if rsi > 70 or relative_strength < -1.5:
+                reco = "Vente"
+                reason = "Faiblesse sous MM200 + Sous-performance sectorielle"
             
-        return reco, reason, rsi, last.get('SMA_20'), last.get('SMA_50'), last.get('SMA_100'), mm200, close*0.98, close*1.05
-    except Exception as e:
-        logger.error(f"Analysis error: {e}")
-        return "Erreur", "Echec calcul", 50, None, None, None, None, None, None
+        return reco, reason, rsi, last.get('SMA_20'), last.get('SMA_50'), None, mm200, close*0.98, close*1.05
+    except Exception:
+        return "N/A", "Erreur", 50, None, None, None, None, None, None
 
 def create_stock_chart(df, symbol):
     try:
-        # Version légère pour performance
         fig = go.Figure(data=[go.Candlestick(x=df.index, open=df['open'], high=df['high'], low=df['low'], close=df['close'], name='Cours')])
-        if 'SMA_50' in df.columns: fig.add_trace(go.Scatter(x=df.index, y=df['SMA_50'], name='MM50', line=dict(width=1, color='orange')))
-        if 'SMA_200' in df.columns: fig.add_trace(go.Scatter(x=df.index, y=df['SMA_200'], name='MM200', line=dict(width=1.5, color='blue')))
-        fig.update_layout(title=f'{symbol}', height=450, template='plotly_white', margin=dict(l=20, r=20, t=40, b=20), xaxis_rangeslider_visible=False)
+        if 'SMA_200' in df.columns: fig.add_trace(go.Scatter(x=df.index, y=df['SMA_200'], name='MM200 Long Terme', line=dict(width=2, color='red')))
+        fig.update_layout(title=f'{symbol}', height=400, template='plotly_white', margin=dict(l=10, r=10, t=30, b=10), xaxis_rangeslider_visible=False)
         return fig.to_html(full_html=False, include_plotlyjs='cdn')
-    except Exception: return "<div>Graphique indisponible</div>"
+    except Exception: return ""
 
-# --- SCHEDULER SETUP ---
+# --- SCHEDULER ---
 scheduler = BackgroundScheduler()
-scheduler.add_job(func=fetch_market_data_job, trigger=IntervalTrigger(minutes=15), id='market_data_job', name='Rafraichissement Market Data', replace_existing=True)
+scheduler.add_job(func=fetch_market_data_job, trigger=IntervalTrigger(minutes=15), id='mkt_job')
+scheduler.add_job(func=fetch_esg_data, trigger=IntervalTrigger(hours=24), id='esg_job')
 scheduler.start()
 
-# Lancement immédiat au démarrage (dans un thread pour ne pas bloquer Flask)
 threading.Thread(target=fetch_market_data_job).start()
-
 
 # --- ROUTES ---
 
@@ -212,12 +230,11 @@ def login():
     except Exception: return redirect(url_for('index'))
 
 @app.route('/analyze')
-@cache.cached(timeout=60, query_string=True) # Cache la vue pour 60s
 def analyze_page():
     if not session.get('verified'): return redirect(url_for('index'))
-    symbol = request.args.get('symbol', 'ACA.PA').upper().strip()
+    symbol = request.args.get('symbol', 'MC.PA').upper().strip()
     
-    # 1. Résolution Symbole
+    # 1. Résolution
     try:
         with sqlite3.connect(DB_NAME) as conn:
             cursor = conn.cursor()
@@ -226,85 +243,46 @@ def analyze_page():
             if row: symbol = row[0]
     except Exception: pass
 
-    # 2. Récupération depuis le MOTEUR (Mémoire) - Ultra Rapide
-    market_info = MARKET_STATE['tickers'].get(symbol)
+    info = MARKET_STATE['tickers'].get(symbol)
     df = MARKET_STATE['dataframes'].get(symbol)
-    
-    # 3. Fallback: Si pas en mémoire, on charge à la demande (Lent mais nécessaire)
-    if df is None:
-        logger.info(f"Cache miss for {symbol}, fetching live...")
-        try:
-            df = yf.Ticker(symbol).history(period="2y")
-            df.columns = [col.lower() for col in df.columns]
-            market_info = {'recommendation': 'Neutre', 'reason': 'Données temps réel', 'rsi': 50}
-        except Exception:
-            flash(f"Symbole {symbol} introuvable.", "error")
-            return render_template('index.html', symbol=symbol, recommendation=None)
-    
-    # 4. Construction du contexte
-    if df is not None and not df.empty:
-        reco, reason, rsi, mm20, mm50, mm100, mm200, entry, exit = analyze_stock(df) # Recalcul rapide
-        
+    esg = MARKET_STATE['esg_data'].get(symbol, {'score': 'N/A', 'badge': '-'})
+
+    if df is not None:
         context = {
             'symbol': symbol,
-            'last_close_price': df['close'].iloc[-1],
-            'daily_change': df['close'].iloc[-1] - df['close'].iloc[-2] if len(df)>1 else 0,
-            'daily_change_percent': ((df['close'].iloc[-1] - df['close'].iloc[-2])/df['close'].iloc[-2]*100) if len(df)>1 else 0,
-            'recommendation': reco, 'reason': reason, 'rsi_value': rsi,
-            'short_term_entry_price': f"{entry:.2f}" if entry else "N/A",
-            'short_term_exit_price': f"{exit:.2f}" if exit else "N/A",
-            'mm20': mm20, 'mm50': mm50, 'mm100': mm100, 'mm200': mm200,
+            'last_close_price': info['price'],
+            'daily_change': df['close'].iloc[-1] - df['close'].iloc[-2],
+            'daily_change_percent': info['change_pct'],
+            'recommendation': info['recommendation'],
+            'reason': info['reason'],
+            'rsi_value': info['rsi'],
+            'short_term_entry_price': f"{info['targets']['entry']:.2f}",
+            'short_term_exit_price': f"{info['targets']['exit']:.2f}",
+            'sector': info['sector'],
+            'sector_avg': info['sector_avg'],
+            'relative_strength': info['relative_strength'],
+            'esg_score': esg['score'],
+            'esg_badge': esg['badge'],
+            'mm200': info.get('mm200'),
             'currency_symbol': '€' if '.PA' in symbol else '$',
             'stock_chart_div': create_stock_chart(df, symbol),
-            'stock_news': [], # Désactivé pour performance, à remettre en async JS
-            'sentiment_score': 0,
-            'insiders': [],
             'engine_status': 'ONLINE',
             'last_update': MARKET_STATE['last_update']
         }
         return render_template('index.html', **context)
     
+    flash(f"Instrument {symbol} non trouvé ou en cours de chargement.", "error")
     return render_template('index.html', symbol=symbol, recommendation=None)
-
-@app.route('/api/search_tickers')
-def search_tickers():
-    query = request.args.get('query', '').upper()
-    if not query: return jsonify([])
-    # Recherche en mémoire d'abord (très rapide)
-    results = [{'symbol': s, 'name': ''} for s in MARKET_STATE['tickers'].keys() if query in s][:5]
-    if not results:
-        # Fallback DB
-        try:
-            with sqlite3.connect(DB_NAME) as conn:
-                cursor = conn.cursor()
-                cursor.execute("SELECT symbol, name FROM tickers WHERE symbol LIKE ? OR name LIKE ? LIMIT 5", (f'%{query}%', f'%{query}%'))
-                results = [{'symbol': row[0], 'name': row[1]} for row in cursor.fetchall()]
-        except Exception: pass
-    return jsonify(results)
-
-@app.route('/admin/export_leads')
-def export_leads():
-    # ... (Code existant conservé pour export) ...
-    try:
-        si = io.StringIO()
-        cw = csv.writer(si)
-        with sqlite3.connect(DB_NAME) as conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT email, signup_date, marketing_consent, ip_address FROM leads")
-            cw.writerow(['Email', 'Signup Date', 'Marketing Consent', 'IP Address'])
-            cw.writerows(cursor.fetchall())
-        return Response(si.getvalue(), mimetype="text/csv", headers={"Content-disposition": "attachment; filename=leads.csv"})
-    except Exception: return "Erreur"
 
 @app.route('/status')
 def engine_status():
     return jsonify({
         'version': VERSION,
         'cached_instruments': len(MARKET_STATE['tickers']),
-        'last_update': MARKET_STATE['last_update'],
-        'engine_running': scheduler.running
+        'sectors_tracked': len(MARKET_STATE['sectors']),
+        'last_update': MARKET_STATE['last_update']
     })
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
-    app.run(debug=True, host='0.0.0.0', port=port, use_reloader=False) # use_reloader=False important pour Scheduler
+    app.run(debug=True, host='0.0.0.0', port=port, use_reloader=False)
