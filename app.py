@@ -143,28 +143,42 @@ def get_global_context():
         sectors, tickers = dict(MARKET_STATE['sectors']), dict(MARKET_STATE['tickers'])
     
     # Récupérer TOUS les symboles de la base pour garantir que la heatmap n'est jamais vide
-    all_symbols = {}
+    all_symbols_data = {}
     try:
         with sqlite3.connect(DB_NAME) as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT symbol, name FROM tickers")
             for row in cursor.fetchall():
-                all_symbols[row[0]] = {'symbol': row[0].replace('.PA', ''), 'change': 0}
-    except Exception: pass
+                symbol_full = row[0]
+                all_symbols_data[symbol_full] = {
+                    'symbol_short': symbol_full.replace('.PA', ''),
+                    'change': 0,
+                    'full_symbol': symbol_full
+                }
+    except Exception as e:
+        logger.error(f"Error fetching symbols for heatmap: {e}")
 
-    # Fusionner avec les données live (écraser les placeholders par les vraies variations)
+    # Fusionner avec les données live
     for s, t_info in tickers.items():
-        if s in all_symbols:
-            all_symbols[s]['change'] = t_info.get('change_pct', 0)
+        if s in all_symbols_data:
+            all_symbols_data[s]['change'] = t_info.get('change_pct', 0)
         else:
-            all_symbols[s] = {'symbol': s.replace('.PA', ''), 'change': t_info.get('change_pct', 0)}
+            all_symbols_data[s] = {
+                'symbol_short': s.replace('.PA', ''),
+                'change': t_info.get('change_pct', 0),
+                'full_symbol': s
+            }
 
     sorted_sectors = sorted(sectors.items(), key=lambda x: x[1], reverse=True)
     top_sectors = [{'name': name, 'change': change} for name, change in sorted_sectors[:5]]
     
     heatmap_data = []
-    for s, data in all_symbols.items():
-        heatmap_data.append({'symbol': data['symbol'], 'change': data['change'], 'full_symbol': s})
+    for s, data in all_symbols_data.items():
+        heatmap_data.append({
+            'symbol': data['symbol_short'],
+            'change': data['change'],
+            'full_symbol': data['full_symbol']
+        })
     
     return top_sectors, sorted(heatmap_data, key=lambda x: x['symbol'])
 
