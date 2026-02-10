@@ -124,7 +124,15 @@
         </div> <!-- Fin de dashboard-grid -->
 
         <div class="col-12" style="margin-top: 2rem;">
-            <h3>🗺️ Heatmap du Marché</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h3 style="margin: 0;">🗺️ Carte thermique du Marché</h3>
+                <div style="display: flex; gap: 10px; font-size: 0.75rem; align-items: center; background: white; padding: 5px 15px; border-radius: 99px; border: 1px solid var(--border);">
+                    <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #064e3b; border-radius: 2px;"></span> > +1%</span>
+                    <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #059669; border-radius: 2px;"></span> Hausse</span>
+                    <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #dc2626; border-radius: 2px;"></span> Baisse</span>
+                    <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #7f1d1d; border-radius: 2px;"></span> < -1%</span>
+                </div>
+            </div>
             <div class="card heatmap-grid">
                 {% if heatmap_data %}
                     {% for item in heatmap_data %}
@@ -136,6 +144,27 @@
                 {% else %}
                     <p style="text-align:center; color: #64748b; padding: 1rem;">Chargement des données du marché...</p>
                 {% endif %}
+            </div>
+        </div>
+
+        <!-- Section Information / Menus additionnels -->
+        <div class="col-12" style="margin-top: 2rem; margin-bottom: 4rem;">
+            <button class="accordion-btn" style="background: #64748b;" onclick="toggleSection('info-area')">ℹ️ MÉTHODOLOGIE & INFORMATIONS</button>
+            <div id="info-area" class="accordion-content">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <h4>🔍 Méthodologie</h4>
+                        <p style="font-size: 0.9rem; color: #475569;">L'analyse repose sur un croisement d'indicateurs techniques (RSI, Moyennes Mobiles 20/50/200) et de force relative sectorielle. Les signaux sont générés automatiquement par l'algorithme Trading Analyzer V3.</p>
+                    </div>
+                    <div>
+                        <h4>📊 Indicateurs utilisés</h4>
+                        <ul style="font-size: 0.9rem; color: #475569;">
+                            <li><strong>RSI (14)</strong> : Mesure la vitesse et le changement des mouvements de prix.</li>
+                            <li><strong>MM200</strong> : Détermine la tendance de fond à long terme.</li>
+                            <li><strong>Force Relative</strong> : Comparaison de la performance de l'action par rapport à son secteur.</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
