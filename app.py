@@ -30,12 +30,10 @@ logger = logging.getLogger("TradingEngine")
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key-123")
-VERSION = "3.2.5 (Concurrency Fix)"
+VERSION = "3.2.6 (Diagnostic Mode)"
 DB_NAME = "users.db"
 
-# Verrou pour la sécurité des données entre threads
 market_lock = threading.Lock()
-
 cache = Cache(app, config={'CACHE_TYPE': 'SimpleCache', 'CACHE_DEFAULT_TIMEOUT': 300})
 
 MARKET_STATE = {
@@ -78,7 +76,7 @@ init_db()
 # --- ENGINE ---
 
 def fetch_market_data_job():
-    logger.info("📡 ENGINE: Cycle started...")
+    logger.info("📡 ENGINE: Starting stealth refresh...")
     symbols_info = {}
     try:
         with sqlite3.connect(DB_NAME) as conn:
@@ -99,30 +97,35 @@ def fetch_market_data_job():
             if df is None or df.empty: continue
             
             df.columns = [col.lower() for col in df.columns]
-            change_pct = ((df['close'].iloc[-1] - df['close'].iloc[-2]) / df['close'].iloc[-2] * 100) if len(df) > 1 else 0
+            # Sécurité division par zéro sur prix
+            if len(df) < 2 or df['close'].iloc[-2] == 0: continue
+            
+            change_pct = ((df['close'].iloc[-1] - df['close'].iloc[-2]) / df['close'].iloc[-2] * 100)
             sector = symbols_info.get(symbol, 'Autre')
             
             if sector not in sector_stats: sector_stats[sector] = []
             sector_stats[sector].append(change_pct)
 
             temp_dfs[symbol] = df
+            vol_avg = df['volume'].tail(20).mean()
             temp_tickers[symbol] = {
                 'price': float(df['close'].iloc[-1]), 'change_pct': float(change_pct), 'sector': sector,
-                'vol_spike': float(df['volume'].iloc[-1] / df['volume'].tail(20).mean()) if df['volume'].tail(20).mean() > 0 else 1.0
+                'vol_spike': float(df['volume'].iloc[-1] / vol_avg) if vol_avg > 0 else 1.0
             }
-            time.sleep(0.5)
+            time.sleep(0.3) # Anti-ban delay
         except Exception as e: 
-            logger.error(f"Refresh error {symbol}: {e}")
+            logger.error(f"Error {symbol}: {e}")
             MARKET_STATE['last_error'] = str(e)
 
-    # Mise à jour atomique avec Verrou
+    # Mise à jour atomique
     with market_lock:
         MARKET_STATE['tickers'].update(temp_tickers)
         MARKET_STATE['dataframes'].update(temp_dfs)
         for sec, changes in sector_stats.items():
-            MARKET_STATE['sectors'][sec] = sum(changes) / len(changes)
+            if changes: # Sécurité division par zéro
+                MARKET_STATE['sectors'][sec] = sum(changes) / len(changes)
         
-        # Analyse avec Force Relative
+        # Analyse finale
         for symbol, info in MARKET_STATE['tickers'].items():
             df = MARKET_STATE['dataframes'].get(symbol)
             if df is None: continue
@@ -135,7 +138,7 @@ def fetch_market_data_job():
                 'relative_strength': info['change_pct'] - sec_avg
             })
         MARKET_STATE['last_update'] = datetime.now().isoformat()
-    logger.info(f"✅ ENGINE: Cycle complete.")
+    logger.info(f"✅ ENGINE: Refreshed.")
 
 def analyze_stock(df, sector_avg_change=0):
     try:
@@ -165,13 +168,10 @@ def create_stock_chart(df, symbol):
 # --- HELPERS ---
 def get_global_context():
     with market_lock:
-        # Copie pour éviter RuntimeErrors
         sectors = dict(MARKET_STATE['sectors'])
         tickers = dict(MARKET_STATE['tickers'])
-        
     sorted_sectors = sorted(sectors.items(), key=lambda x: x[1], reverse=True)
     top_sectors = [{'name': name, 'change': change} for name, change in sorted_sectors[:5]]
-    
     heatmap_data = []
     for s, t_info in tickers.items():
         if '.PA' in s: heatmap_data.append({'symbol': s.replace('.PA', ''), 'change': t_info['change_pct'], 'full_symbol': s})
@@ -181,7 +181,6 @@ def get_global_context():
 scheduler = BackgroundScheduler()
 scheduler.add_job(func=fetch_market_data_job, trigger=IntervalTrigger(minutes=20), id='mkt_job')
 scheduler.start()
-# Pas de thread automatique au démarrage pour laisser Gunicorn souffler sur Render
 
 # --- ROUTES ---
 @app.route('/')
@@ -199,9 +198,7 @@ def login():
                         (email, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 1 if request.form.get('accept_marketing')=='on' else 0, request.remote_addr))
         session['verified'] = True
         session['pending_email'] = email
-        # Déclenche le premier chargement si le cache est vide
-        if not MARKET_STATE['tickers']:
-            threading.Thread(target=fetch_market_data_job).start()
+        if not MARKET_STATE['tickers']: threading.Thread(target=fetch_market_data_job).start()
         return redirect(url_for('analyze_page'))
     except Exception: return redirect(url_for('index'))
 
@@ -224,8 +221,6 @@ def search_tickers():
 def analyze_page():
     if not session.get('verified'): return redirect(url_for('index'))
     symbol = request.args.get('symbol', 'MC.PA').upper().strip()
-    
-    # Résolution
     try:
         with sqlite3.connect(DB_NAME) as conn:
             cursor = conn.cursor()
@@ -238,7 +233,7 @@ def analyze_page():
         info = MARKET_STATE['tickers'].get(symbol)
         df = MARKET_STATE['dataframes'].get(symbol)
     
-    if df is None:
+    if df is None or info is None:
         try:
             ticker = yf.Ticker(symbol)
             df = ticker.history(period="2y")
@@ -246,36 +241,36 @@ def analyze_page():
                 df.columns = [col.lower() for col in df.columns]
                 reco, reason, rsi, mm20, mm50, mm100, mm200, entry, exit = analyze_stock(df)
                 info = {'price': float(df['close'].iloc[-1]), 'change_pct': 0.0, 'recommendation': reco, 'reason': reason, 'rsi': rsi, 'mm20': mm20, 'mm50': mm50, 'mm200': mm200, 'targets': {'entry': entry, 'exit': exit}, 'vol_spike': 1.0}
-        except Exception as e: logger.error(f"Fallback error: {e}")
+        except Exception: pass
 
     top_sectors, heatmap_data = get_global_context()
     esg = MARKET_STATE['esg_data'].get(symbol, {'score': 'N/A', 'badge': '-'})
     fund = MARKET_STATE['fundamentals'].get(symbol, {'pe': 'N/A', 'yield': 'N/A'})
 
     if df is not None and info is not None:
-        try:
-            context = {
-                'symbol': symbol, 'last_close_price': info.get('price', 0), 'daily_change': 0, 'daily_change_percent': info.get('change_pct', 0),
-                'recommendation': info.get('recommendation', 'N/A'), 'reason': info.get('reason', 'N/A'), 'rsi_value': info.get('rsi', 50),
-                'mm20': info.get('mm20', 0), 'mm50': info.get('mm50', 0), 'mm200': info.get('mm200', 0),
-                'short_term_entry_price': f"{info.get('targets', {}).get('entry', 0):.2f}", 
-                'short_term_exit_price': f"{info.get('targets', {}).get('exit', 0):.2f}",
-                'sector': info.get('sector', 'N/A'), 'sector_avg': info.get('sector_avg', 0), 'relative_strength': info.get('relative_strength', 0), 'vol_spike': info.get('vol_spike', 1),
-                'esg_score': esg['score'], 'esg_badge': esg['badge'], 'pe_ratio': fund['pe'], 'div_yield': fund['yield'],
-                'currency_symbol': '€' if '.PA' in symbol else '$', 'stock_chart_div': create_stock_chart(df, symbol),
-                'engine_status': 'ONLINE', 'last_update': MARKET_STATE['last_update'], 'top_sectors': top_sectors, 'heatmap_data': heatmap_data
-            }
-            return render_template('index.html', **context)
-        except Exception as e: 
-            logger.error(f"Template context error: {e}")
-            return f"Erreur de rendu: {e}", 500
+        context = {
+            'symbol': symbol, 'last_close_price': info.get('price', 0), 'daily_change': 0, 'daily_change_percent': info.get('change_pct', 0),
+            'recommendation': info.get('recommendation', 'N/A'), 'reason': info.get('reason', 'N/A'), 'rsi_value': info.get('rsi', 50),
+            'mm20': info.get('mm20', 0), 'mm50': info.get('mm50', 0), 'mm200': info.get('mm200', 0),
+            'short_term_entry_price': f"{info.get('targets', {}).get('entry', 0):.2f}", 
+            'short_term_exit_price': f"{info.get('targets', {}).get('exit', 0):.2f}",
+            'sector': info.get('sector', 'N/A'), 'sector_avg': info.get('sector_avg', 0), 'relative_strength': info.get('relative_strength', 0), 'vol_spike': info.get('vol_spike', 1),
+            'esg_score': esg['score'], 'esg_badge': esg['badge'], 'pe_ratio': fund['pe'], 'div_yield': fund['yield'],
+            'currency_symbol': '€' if '.PA' in symbol else '$', 'stock_chart_div': create_stock_chart(df, symbol),
+            'engine_status': 'ONLINE', 'last_update': MARKET_STATE['last_update'], 'top_sectors': top_sectors, 'heatmap_data': heatmap_data
+        }
+        return render_template('index.html', **context)
     
     flash(f"Instrument {symbol} introuvable.", "error")
     return render_template('index.html', symbol=symbol, recommendation=None, top_sectors=top_sectors, heatmap_data=heatmap_data)
 
+@app.errorhandler(500)
+def handle_500(e):
+    return f"INTERNAL ERROR DETECTED:<br><pre>{traceback.format_exc()}</pre>", 500
+
 @app.route('/status')
 def engine_status():
-    return jsonify({'version': VERSION, 'cache_size': len(MARKET_STATE['tickers']), 'last_update': MARKET_STATE['last_update'], 'last_error': MARKET_STATE['last_error']})
+    return jsonify({'version': VERSION, 'cache_size': len(MARKET_STATE['tickers']), 'last_update': MARKET_STATE['last_update']})
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
