@@ -234,8 +234,24 @@ def ultra_analyze():
             if df is not None and not df.empty:
                 df.columns = [col.lower() for col in df.columns]
                 reco, reason, rsi, mm20, mm50, mm100, mm200, entry, exit = analyze_stock(df)
-                info = {'price': float(df['close'].iloc[-1]), 'change_pct': 0.0, 'recommendation': reco, 'reason': reason, 'rsi': rsi, 'mm20': mm20, 'mm50': mm50, 'mm200': mm200, 'targets': {'entry': entry, 'exit': exit}, 'vol_spike': 1.0}
-        except Exception: pass
+                info = {
+                    'price': float(df['close'].iloc[-1]),
+                    'change_pct': ((df['close'].iloc[-1] - df['close'].iloc[-2]) / df['close'].iloc[-2] * 100) if len(df) > 1 else 0,
+                    'recommendation': reco,
+                    'reason': reason,
+                    'rsi': rsi,
+                    'mm20': mm20,
+                    'mm50': mm50,
+                    'mm200': mm200,
+                    'targets': {'entry': entry, 'exit': exit},
+                    'vol_spike': 1.0,
+                    'sector': 'Autre',
+                    'sector_avg': 0,
+                    'relative_strength': 0
+                }
+        except Exception as e:
+            logger.error(f"Fallback fetch error for {symbol}: {e}")
+            pass
 
     top_sectors, heatmap_data = get_global_context()
     esg, fund = MARKET_STATE['esg_data'].get(symbol, {'score': 'N/A', 'badge': '-'}), MARKET_STATE['fundamentals'].get(symbol, {'pe': 'N/A', 'yield': 'N/A'})
