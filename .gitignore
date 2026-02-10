@@ -1,2 +1,3 @@
 __pycache__/\n*.pyc\nusers.db\nvenv/\n.env
 users.db
+__pycache__/
