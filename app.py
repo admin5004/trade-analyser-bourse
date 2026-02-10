@@ -224,15 +224,32 @@ def search():
 def search_tickers():
     query = request.args.get('query', '').upper()
     if not query: return jsonify([])
-    results = [{'symbol': s, 'name': ''} for s in MARKET_STATE['tickers'].keys() if query in s][:5]
-    if not results:
+    
+    logger.info(f"🔍 SEARCH: API query for '{query}'")
+    results = []
+    
+    # 1. Tentative Mémoire
+    if MARKET_STATE['tickers']:
+        results = [{'symbol': s, 'name': ''} for s in MARKET_STATE['tickers'].keys() if query in s][:5]
+    
+    # 2. Force Fallback DB (Si mémoire vide ou peu de résultats)
+    if len(results) < 3:
         try:
             with sqlite3.connect(DB_NAME) as conn:
                 cursor = conn.cursor()
-                cursor.execute("SELECT symbol, name FROM tickers WHERE symbol LIKE ? OR name LIKE ? LIMIT 5", (f'%{query}%', f'%{query}%'))
-                results = [{'symbol': row[0], 'name': row[1]} for row in cursor.fetchall()]
-        except Exception: pass
-    return jsonify(results)
+                # Recherche intelligente sur symbole OU nom
+                cursor.execute("SELECT symbol, name FROM tickers WHERE symbol LIKE ? OR name LIKE ? LIMIT 10", (f'%{query}%', f'%{query}%'))
+                db_results = [{'symbol': row[0], 'name': row[1]} for row in cursor.fetchall()]
+                # Fusion sans doublons
+                seen = {r['symbol'] for r in results}
+                for r in db_results:
+                    if r['symbol'] not in seen:
+                        results.append(r)
+                        seen.add(r['symbol'])
+        except Exception as e:
+            logger.error(f"DB Search Error: {e}")
+            
+    return jsonify(results[:10])
 
 @app.route('/analyze')
 def analyze_page():
