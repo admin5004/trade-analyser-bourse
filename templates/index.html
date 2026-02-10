@@ -85,6 +85,18 @@
                 <button type="submit" class="btn-search">Analyser</button>
             </form>
             <div id="autocomplete-results-container" class="autocomplete-results"></div>
+            
+            {% if top_sectors %}
+            <div style="margin-top: 1.5rem; display: flex; align-items: center; gap: 10px; overflow-x: auto; white-space: nowrap; padding-bottom: 5px; scrollbar-width: none;">
+                <span style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; background: #f1f5f9; padding: 4px 8px; border-radius: 4px;">Top Secteurs 🔥</span>
+                {% for sec in top_sectors %}
+                <div style="display: inline-flex; align-items: center; gap: 6px; background: white; padding: 6px 12px; border-radius: 99px; border: 1px solid var(--border); font-size: 0.85rem; font-weight: 600;">
+                    <span style="color: var(--text-main);">{{ sec.name }}</span>
+                    <span style="color: var(--success);">+{{ "%.2f"|format(sec.change) }}%</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
         </div>
 
         {% if symbol and recommendation %}
