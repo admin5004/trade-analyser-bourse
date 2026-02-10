@@ -70,6 +70,12 @@
         .info-icon:hover::before {
             content: ""; position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%); border-width: 5px; border-style: solid; border-color: #1e293b transparent transparent transparent;
         }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -99,155 +105,141 @@
             {% endif %}
         </div>
 
-        {% if symbol and recommendation %}
-        <div class="dashboard-grid">
-            
-            <div class="card col-8">
-                <div class="summary-header">
-                    <div>
-                        <div style="font-weight: 700; color: var(--text-muted);">{{ symbol }}</div>
-                        <div class="price-now">{{ "%.2f"|format(last_close_price) }} {{ currency_symbol }}</div>
-                        <div style="color: {% if daily_change > 0 %}var(--success){% else %}var(--danger){% endif %}; font-weight: 700;">
-                            {{ "+" if daily_change > 0 }}{{ "%.2f"|format(daily_change) }} ({{ "%.2f"|format(daily_change_percent) }}%)
+        {% if symbol %}
+            {% if recommendation %}
+            <div class="dashboard-grid">
+                <!-- Contenu du dashboard existant -->
+                <div class="card col-8">
+                    <div class="summary-header">
+                        <div>
+                            <div style="font-weight: 700; color: var(--text-muted);">{{ symbol }}</div>
+                            <div class="price-now">{{ "%.2f"|format(last_close_price) }} {{ currency_symbol }}</div>
+                            <div style="color: {% if daily_change > 0 %}var(--success){% else %}var(--danger){% endif %}; font-weight: 700;">
+                                {{ "+" if daily_change > 0 }}{{ "%.2f"|format(daily_change) }} ({{ "%.2f"|format(daily_change_percent) }}%)
+                            </div>
+                        </div>
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+                            <div class="badge {% if recommendation == 'Achat' %}badge-buy{% else %}badge-sell{% endif %}">
+                                {{ recommendation }}
+                            </div>
+                            {% if vol_spike > 1.5 %}
+                            <div class="badge" style="background: #fef3c7; color: #92400e; font-size: 0.7rem; animation: pulse 2s infinite;">
+                                🔥 Vol. x{{ "%.1f"|format(vol_spike) }}
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
-                    <div class="badge {% if recommendation == 'Achat' %}badge-buy{% else %}badge-sell{% endif %}">
-                        {{ recommendation }}
+                    
+                    <p style="background: #f8fafc; padding: 12px; border-radius: 10px; font-size: 0.9rem;"><strong>Signal :</strong> {{ reason }}</p>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="target-card target-buy">
+                            <span style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted);">ENTRÉE</span>
+                            <div style="font-size: 1.2rem; font-weight: 800; color: var(--success);">{{ short_term_entry_price }} {{ currency_symbol }}</div>
+                        </div>
+                        <div class="target-card target-sell">
+                            <span style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted);">SORTIE</span>
+                            <div style="font-size: 1.2rem; font-weight: 800; color: var(--danger);">{{ short_term_exit_price }} {{ currency_symbol }}</div>
+                        </div>
                     </div>
                 </div>
-                
-                <p style="background: #f8fafc; padding: 12px; border-radius: 10px; font-size: 0.9rem;"><strong>Signal :</strong> {{ reason }}</p>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                    <div class="target-card target-buy">
-                        <span style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted);">ENTRÉE</span>
-                        <div style="font-size: 1.2rem; font-weight: 800; color: var(--success);">{{ short_term_entry_price }} {{ currency_symbol }}</div>
+                <div class="card col-4">
+                    <h3 style="margin-top:0; font-size: 1rem;">Environnement & Secteur</h3>
+                    <div class="stat-group">
+                        <div class="stat-item">
+                            <span class="stat-label">Secteur</span>
+                            <span class="stat-val">{{ sector }}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Perf. Secteur</span>
+                            <span class="stat-val" style="color: {% if sector_avg > 0 %}var(--success){% else %}var(--danger){% endif %};">
+                                {{ "%.2f"|format(sector_avg) }}%
+                            </span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Force Relative (RS)</span>
+                            <span class="stat-val" style="color: {% if relative_strength > 0 %}var(--success){% else %}var(--danger){% endif %}; font-weight: 800;">
+                                {{ "+" if relative_strength > 0 }}{{ "%.2f"|format(relative_strength) }}
+                            </span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">P/E Ratio</span>
+                            <span class="stat-val">{{ pe_ratio }}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Rendement Div.</span>
+                            <span class="stat-val" style="color: var(--success);">{{ div_yield }}%</span>
+                        </div>
+                        <div class="stat-item" style="margin-top: 10px; padding-top: 10px; border-top: 2px solid #f1f5f9;">
+                            <span class="stat-label">Score ESG IA</span>
+                            <span class="badge" style="background: {% if esg_badge == 'A' %}#dcfce7{% elif esg_badge == 'B' %}#fef9c3{% else %}#fee2e2{% endif %}; color: #1e293b;">
+                                {{ esg_badge }} ({{ esg_score }})
+                            </span>
+                        </div>
                     </div>
-                    <div class="target-card target-sell">
-                        <span style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted);">SORTIE</span>
-                        <div style="font-size: 1.2rem; font-weight: 800; color: var(--danger);">{{ short_term_exit_price }} {{ currency_symbol }}</div>
+
+                    <h3 style="margin-top:1.5rem; font-size: 1rem;">Indicateurs Techniques</h3>
+                    <div class="stat-group">
+                        <div class="stat-item">
+                            <span class="stat-label">RSI (14)</span>
+                            <span class="stat-val" style="color: {% if rsi_value < 35 %}var(--success){% elif rsi_value > 65 %}var(--danger){% endif %};">{{ "%.2f"|format(rsi_value) }}</span>
+                        </div>
+                        <div class="stat-item"><span class="stat-label">MM 20</span><span class="stat-val">{{ mm20 }}</span></div>
+                        <div class="stat-item"><span class="stat-label">MM 50</span><span class="stat-val">{{ mm50 }}</span></div>
+                        <div class="stat-item"><span class="stat-label">MM 200</span><span class="stat-val">{{ mm200 }}</span></div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <button class="accordion-btn" style="background: #0f172a; margin-top: 0;" onclick="toggleSection('heatmap-accordion')">
+                        🗺️ VOIR LA HEATMAP DU CAC 40
+                    </button>
+                    <div id="heatmap-accordion" class="accordion-content" style="padding: 1.5rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px;">
+                            {% for item in heatmap_data %}
+                            <a href="{{ url_for('analyze_page', symbol=item.full_symbol) }}" 
+                               style="text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60px; border-radius: 8px; font-weight: 800; font-size: 0.75rem; color: white; transition: transform 0.2s;
+                                      background: {% if item.change > 2 %}#064e3b{% elif item.change > 0 %}#059669{% elif item.change > -2 %}#dc2626{% else %}#7f1d1d{% endif %};"
+                               onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                <span>{{ item.symbol }}</span>
+                                <span style="font-size: 0.65rem; opacity: 0.9;">{{ "%+.2f"|format(item.change) }}%</span>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <button class="accordion-btn" style="margin-top: 1.5rem;" onclick="toggleSection('chart-accordion')">
+                        📊 VOIR L'ANALYSE GRAPHIQUE
+                    </button>
+                    <div id="chart-accordion" class="accordion-content">
+                        {{ stock_chart_div | safe }}
                     </div>
                 </div>
             </div>
-
-            <div class="card col-4">
-                <h3 style="margin-top:0; font-size: 1rem;">Environnement & Secteur</h3>
-                <div class="stat-group">
-                    <div class="stat-item">
-                        <span class="stat-label">Secteur</span>
-                        <span class="stat-val">{{ sector }}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Perf. Secteur</span>
-                        <span class="stat-val" style="color: {% if sector_avg > 0 %}var(--success){% else %}var(--danger){% endif %};">
-                            {{ "%.2f"|format(sector_avg) }}%
-                        </span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Force Relative (RS)</span>
-                        <span class="stat-val" style="color: {% if relative_strength > 0 %}var(--success){% else %}var(--danger){% endif %}; font-weight: 800;">
-                            {{ "+" if relative_strength > 0 }}{{ "%.2f"|format(relative_strength) }}
-                        </span>
-                    </div>
-                    <div class="stat-item" style="margin-top: 10px; padding-top: 10px; border-top: 2px solid #f1f5f9;">
-                        <span class="stat-label">Score ESG IA</span>
-                        <span class="badge" style="background: {% if esg_badge == 'A' %}#dcfce7{% elif esg_badge == 'B' %}#fef9c3{% else %}#fee2e2{% endif %}; color: #1e293b;">
-                            {{ esg_badge }} ({{ esg_score }})
-                        </span>
-                    </div>
-                </div>
-
-                <h3 style="margin-top:1.5rem; font-size: 1rem;">Indicateurs Techniques</h3>
-                <div class="stat-group">
-                    <div class="stat-item">
-                        <span class="stat-label">RSI (14)</span>
-                        <span class="stat-val" style="color: {% if rsi_value < 35 %}var(--success){% elif rsi_value > 65 %}var(--danger){% endif %};">{{ "%.2f"|format(rsi_value) }}</span>
-                    </div>
-                    <div class="stat-item"><span class="stat-label">MM 20</span><span class="stat-val">{{ "%.2f"|format(mm20) if mm20 else 'N/A' }}</span></div>
-                    <div class="stat-item"><span class="stat-label">MM 50</span><span class="stat-val">{{ "%.2f"|format(mm50) if mm50 else 'N/A' }}</span></div>
-                    <div class="stat-item"><span class="stat-label">MM 200</span><span class="stat-val">{{ "%.2f"|format(mm200) if mm200 else 'N/A' }}</span></div>
-                </div>
-            </div>
-
-            {% if analyst_reco_chart_div %}
-            <div class="card col-12">
-                <h3 style="margin:0; font-size: 1.1rem; margin-bottom: 1rem;">Consensus des Analystes</h3>
-                <div style="max-height: 250px; overflow: hidden; display: flex; justify-content: center;">
-                    {{ analyst_reco_chart_div | safe }}
-                </div>
+            {% else %}
+            <div class="card" style="text-align: center; padding: 3rem;">
+                <div style="font-size: 2rem;">⏳</div>
+                <h3>Analyse de {{ symbol }} en cours...</h3>
+                <p>Le moteur récupère les données de Yahoo Finance. Cela peut prendre 5 à 10 secondes.</p>
+                <script>setTimeout(function(){ location.reload(); }, 5000);</script>
             </div>
             {% endif %}
-
-            <div class="col-12">
-                <button class="accordion-btn" style="background: #0f172a; margin-top: 0;" onclick="toggleSection('heatmap-accordion')">
-                    🗺️ VOIR LA HEATMAP DU CAC 40
-                </button>
-                <div id="heatmap-accordion" class="accordion-content" style="padding: 1.5rem;">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px;">
-                        {% for item in heatmap_data %}
-                        <a href="{{ url_for('analyze_page', symbol=item.full_symbol) }}" 
-                           style="text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60px; border-radius: 8px; font-weight: 800; font-size: 0.75rem; color: white; transition: transform 0.2s;
-                                  background: {% if item.change > 2 %}#064e3b{% elif item.change > 0 %}#059669{% elif item.change > -2 %}#dc2626{% else %}#7f1d1d{% endif %};"
-                           onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                            <span>{{ item.symbol }}</span>
-                            <span style="font-size: 0.65rem; opacity: 0.9;">{{ "%+.2f"|format(item.change) }}%</span>
-                        </a>
-                        {% endfor %}
-                    </div>
+        {% else %}
+            <!-- Pas de symbole : Afficher uniquement la Heatmap si dispo -->
+            <div class="col-12" style="margin-top: 2rem;">
+                <h3 style="text-align: center;">État du Marché</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; background: white; padding: 1.5rem; border-radius: 20px; border: 1px solid var(--border);">
+                    {% for item in heatmap_data %}
+                    <a href="{{ url_for('analyze_page', symbol=item.full_symbol) }}" 
+                       style="text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60px; border-radius: 8px; font-weight: 800; font-size: 0.75rem; color: white;
+                              background: {% if item.change > 2 %}#064e3b{% elif item.change > 0 %}#059669{% elif item.change > -2 %}#dc2626{% else %}#7f1d1d{% endif %};">
+                        <span>{{ item.symbol }}</span>
+                        <span style="font-size: 0.65rem; opacity: 0.9;">{{ "%+.2f"|format(item.change) }}%</span>
+                    </a>
+                    {% endfor %}
                 </div>
-
-                <button class="accordion-btn" style="margin-top: 1.5rem;" onclick="toggleSection('chart-accordion')">
-                    📊 VOIR L'ANALYSE GRAPHIQUE
-                </button>
-                <div id="chart-accordion" class="accordion-content">
-                    {{ stock_chart_div | safe }}
-                </div>
-
-                <button class="accordion-btn" style="margin-top: 1rem; background: #64748b;" onclick="toggleSection('news-accordion')">
-                    📰 LIRE LES ACTUALITÉS ({{ stock_news|length }})
-                </button>
-                <div id="news-accordion" class="accordion-content">
-                    <div style="padding: 1.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
-                        {% for item in stock_news %}
-                        <a href="{{ item.link }}" class="news-item" target="_blank">
-                            <div class="news-title">{{ item.title }}</div>
-                            <div style="font-size: 0.75rem; color: var(--text-muted);">{{ item.publisher }} • {{ item.date }}</div>
-                        </a>
-                        {% endfor %}
-                    </div>
-                </div>
-
-                {% if insiders %}
-                <button class="accordion-btn" style="margin-top: 1rem; background: #1e293b;" onclick="toggleSection('insider-accordion')">
-                    🕵️ VOIR LES TRANSACTIONS DES DIRIGEANTS
-                </button>
-                <div id="insider-accordion" class="accordion-content">
-                    <div style="padding: 1.5rem;">
-                        <table style="width: 100%; font-size: 0.85rem; border-collapse: collapse;">
-                            <thead>
-                                <tr style="text-align: left; color: var(--text-muted); border-bottom: 1px solid var(--border);">
-                                    <th style="padding: 8px;">Nom</th>
-                                    <th>Transaction</th>
-                                    <th style="text-align: right;">Volume (Actions)</th>
-                                    <th style="text-align: right;">Date</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for person in insiders %}
-                                <tr style="border-bottom: 1px solid #f1f5f9;">
-                                    <td style="padding: 8px;"><strong>{{ person.name }}</strong><br><small>{{ person.position }}</small></td>
-                                    <td>{{ person.type }}</td>
-                                    <td style="text-align: right; font-weight: 700;">{{ person.shares }}</td>
-                                    <td style="text-align: right;">{{ person.date }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                {% endif %}
             </div>
-        </div>
         {% endif %}
     </div>
 
