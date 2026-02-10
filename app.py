@@ -30,12 +30,14 @@ logger = logging.getLogger("TradingEngine")
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key-123")
-VERSION = "3.2.4 (Stealth Engine)"
+VERSION = "3.2.5 (Concurrency Fix)"
 DB_NAME = "users.db"
+
+# Verrou pour la sécurité des données entre threads
+market_lock = threading.Lock()
 
 cache = Cache(app, config={'CACHE_TYPE': 'SimpleCache', 'CACHE_DEFAULT_TIMEOUT': 300})
 
-# --- STATE ---
 MARKET_STATE = {
     'last_update': None,
     'tickers': {},  
@@ -54,7 +56,6 @@ def init_db():
             cursor.execute('''CREATE TABLE IF NOT EXISTS tickers (symbol TEXT PRIMARY KEY, name TEXT, sector TEXT)''')
             cursor.execute('''CREATE TABLE IF NOT EXISTS leads (email TEXT PRIMARY KEY, signup_date TEXT, marketing_consent INTEGER DEFAULT 0, ip_address TEXT)''')
             cursor.execute('''CREATE TABLE IF NOT EXISTS search_history (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT, symbol TEXT, found INTEGER, timestamp TEXT)''')
-            
             cac40 = [
                 ('AC.PA', 'Accor', 'Consommation'), ('AI.PA', 'Air Liquide', 'Industrie'), ('AIR.PA', 'Airbus', 'Aéronautique'), ('ALO.PA', 'Alstom', 'Industrie'),
                 ('MT.PA', 'ArcelorMittal', 'Matériaux'), ('CS.PA', 'AXA', 'Finance'), ('BNP.PA', 'BNP Paribas', 'Finance'), ('EN.PA', 'Bouygues', 'Industrie'),
@@ -76,19 +77,8 @@ init_db()
 
 # --- ENGINE ---
 
-def fetch_esg_and_fundamentals():
-    symbols = list(MARKET_STATE['tickers'].keys()) or ['MC.PA', 'AI.PA', 'AAPL']
-    for symbol in symbols:
-        try:
-            t = yf.Ticker(symbol)
-            info = t.info
-            MARKET_STATE['fundamentals'][symbol] = {'pe': info.get('trailingPE', 'N/A'), 'yield': info.get('dividendYield', 0) * 100 if info.get('dividendYield') else 0}
-            time.sleep(1) # Stealth delay
-        except Exception: continue
-
 def fetch_market_data_job():
-    """Moteur furtif : rafraîchit les actions une par une"""
-    logger.info("📡 ENGINE: Starting stealth refresh cycle...")
+    logger.info("📡 ENGINE: Cycle started...")
     symbols_info = {}
     try:
         with sqlite3.connect(DB_NAME) as conn:
@@ -98,18 +88,16 @@ def fetch_market_data_job():
     except Exception: return
 
     symbols = list(symbols_info.keys())
-    sector_stats = {} 
+    temp_tickers = {}
+    temp_dfs = {}
+    sector_stats = {}
 
     for symbol in symbols:
         try:
-            # Récupération individuelle (plus discret que Bulk sur Render)
             ticker = yf.Ticker(symbol)
             df = ticker.history(period="2y")
+            if df is None or df.empty: continue
             
-            if df is None or df.empty:
-                logger.warning(f"No data for {symbol}")
-                continue
-                
             df.columns = [col.lower() for col in df.columns]
             change_pct = ((df['close'].iloc[-1] - df['close'].iloc[-2]) / df['close'].iloc[-2] * 100) if len(df) > 1 else 0
             sector = symbols_info.get(symbol, 'Autre')
@@ -117,33 +105,37 @@ def fetch_market_data_job():
             if sector not in sector_stats: sector_stats[sector] = []
             sector_stats[sector].append(change_pct)
 
-            MARKET_STATE['dataframes'][symbol] = df
-            MARKET_STATE['tickers'][symbol] = {
-                'price': df['close'].iloc[-1], 'change_pct': change_pct, 'sector': sector,
-                'vol_spike': (df['volume'].iloc[-1] / df['volume'].tail(20).mean()) if df['volume'].tail(20).mean() > 0 else 1
+            temp_dfs[symbol] = df
+            temp_tickers[symbol] = {
+                'price': float(df['close'].iloc[-1]), 'change_pct': float(change_pct), 'sector': sector,
+                'vol_spike': float(df['volume'].iloc[-1] / df['volume'].tail(20).mean()) if df['volume'].tail(20).mean() > 0 else 1.0
             }
-            
-            # Analyse immédiate pour remplir le cache
-            sec_avg = sum(sector_stats[sector]) / len(sector_stats[sector])
+            time.sleep(0.5)
+        except Exception as e: 
+            logger.error(f"Refresh error {symbol}: {e}")
+            MARKET_STATE['last_error'] = str(e)
+
+    # Mise à jour atomique avec Verrou
+    with market_lock:
+        MARKET_STATE['tickers'].update(temp_tickers)
+        MARKET_STATE['dataframes'].update(temp_dfs)
+        for sec, changes in sector_stats.items():
+            MARKET_STATE['sectors'][sec] = sum(changes) / len(changes)
+        
+        # Analyse avec Force Relative
+        for symbol, info in MARKET_STATE['tickers'].items():
+            df = MARKET_STATE['dataframes'].get(symbol)
+            if df is None: continue
+            sec_avg = MARKET_STATE['sectors'].get(info['sector'], 0)
             reco, reason, rsi, mm20, mm50, mm100, mm200, entry, exit = analyze_stock(df, sec_avg)
-            MARKET_STATE['tickers'][symbol].update({
+            info.update({
                 'recommendation': reco, 'reason': reason, 'rsi': rsi,
                 'mm20': mm20, 'mm50': mm50, 'mm200': mm200,
                 'targets': {'entry': entry, 'exit': exit}, 'sector_avg': sec_avg,
-                'relative_strength': change_pct - sec_avg
+                'relative_strength': info['change_pct'] - sec_avg
             })
-            
-            time.sleep(0.5) # Anti-ban delay
-        except Exception as e:
-            logger.error(f"Error refreshing {symbol}: {e}")
-            MARKET_STATE['last_error'] = str(e)
-
-    # Mise à jour finale des moyennes sectorielles
-    for sec, changes in sector_stats.items():
-        MARKET_STATE['sectors'][sec] = sum(changes) / len(changes) if changes else 0
-
-    MARKET_STATE['last_update'] = datetime.now().isoformat()
-    logger.info(f"✅ ENGINE: Cycle complete. {len(MARKET_STATE['tickers'])} symbols in cache.")
+        MARKET_STATE['last_update'] = datetime.now().isoformat()
+    logger.info(f"✅ ENGINE: Cycle complete.")
 
 def analyze_stock(df, sector_avg_change=0):
     try:
@@ -160,8 +152,8 @@ def analyze_stock(df, sector_avg_change=0):
             if rsi < 40 or rs > 1.5: reco, reason = "Achat", "Tendance haussière"
         elif mm200 and close < mm200:
             if rsi > 70 or rs < -1.5: reco, reason = "Vente", "Faiblesse relative"
-        return reco, reason, rsi, last.get('SMA_20'), last.get('SMA_50'), None, mm200, close*0.98, close*1.05
-    except Exception: return "N/A", "Erreur", 50, None, None, None, None, None, None
+        return reco, reason, float(rsi), float(last.get('SMA_20', 0)), float(last.get('SMA_50', 0)), None, float(mm200 or 0), float(close*0.98), float(close*1.05)
+    except Exception: return "N/A", "Erreur", 50, 0, 0, None, 0, 0, 0
 
 def create_stock_chart(df, symbol):
     try:
@@ -172,18 +164,24 @@ def create_stock_chart(df, symbol):
 
 # --- HELPERS ---
 def get_global_context():
-    sorted_sectors = sorted(MARKET_STATE['sectors'].items(), key=lambda x: x[1], reverse=True)
+    with market_lock:
+        # Copie pour éviter RuntimeErrors
+        sectors = dict(MARKET_STATE['sectors'])
+        tickers = dict(MARKET_STATE['tickers'])
+        
+    sorted_sectors = sorted(sectors.items(), key=lambda x: x[1], reverse=True)
     top_sectors = [{'name': name, 'change': change} for name, change in sorted_sectors[:5]]
+    
     heatmap_data = []
-    for s, t_info in MARKET_STATE['tickers'].items():
+    for s, t_info in tickers.items():
         if '.PA' in s: heatmap_data.append({'symbol': s.replace('.PA', ''), 'change': t_info['change_pct'], 'full_symbol': s})
     return top_sectors, sorted(heatmap_data, key=lambda x: x['symbol'])
 
 # --- SCHEDULER ---
 scheduler = BackgroundScheduler()
-scheduler.add_job(func=fetch_market_data_job, trigger=IntervalTrigger(minutes=30), id='mkt_job')
+scheduler.add_job(func=fetch_market_data_job, trigger=IntervalTrigger(minutes=20), id='mkt_job')
 scheduler.start()
-threading.Timer(2.0, fetch_market_data_job).start()
+# Pas de thread automatique au démarrage pour laisser Gunicorn souffler sur Render
 
 # --- ROUTES ---
 @app.route('/')
@@ -201,6 +199,9 @@ def login():
                         (email, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 1 if request.form.get('accept_marketing')=='on' else 0, request.remote_addr))
         session['verified'] = True
         session['pending_email'] = email
+        # Déclenche le premier chargement si le cache est vide
+        if not MARKET_STATE['tickers']:
+            threading.Thread(target=fetch_market_data_job).start()
         return redirect(url_for('analyze_page'))
     except Exception: return redirect(url_for('index'))
 
@@ -208,7 +209,8 @@ def login():
 def search_tickers():
     query = request.args.get('query', '').upper()
     if not query: return jsonify([])
-    results = [{'symbol': s, 'name': ''} for s in MARKET_STATE['tickers'].keys() if query in s][:5]
+    with market_lock:
+        results = [{'symbol': s, 'name': ''} for s in MARKET_STATE['tickers'].keys() if query in s][:5]
     if not results:
         try:
             with sqlite3.connect(DB_NAME) as conn:
@@ -223,7 +225,7 @@ def analyze_page():
     if not session.get('verified'): return redirect(url_for('index'))
     symbol = request.args.get('symbol', 'MC.PA').upper().strip()
     
-    # 1. Résolution
+    # Résolution
     try:
         with sqlite3.connect(DB_NAME) as conn:
             cursor = conn.cursor()
@@ -232,10 +234,10 @@ def analyze_page():
             if row: symbol = row[0]
     except Exception: pass
     
-    info = MARKET_STATE['tickers'].get(symbol)
-    df = MARKET_STATE['dataframes'].get(symbol)
+    with market_lock:
+        info = MARKET_STATE['tickers'].get(symbol)
+        df = MARKET_STATE['dataframes'].get(symbol)
     
-    # FALLBACK SYNC SI CACHE VIDE
     if df is None:
         try:
             ticker = yf.Ticker(symbol)
@@ -243,32 +245,32 @@ def analyze_page():
             if not df.empty:
                 df.columns = [col.lower() for col in df.columns]
                 reco, reason, rsi, mm20, mm50, mm100, mm200, entry, exit = analyze_stock(df)
-                info = {'price': df['close'].iloc[-1], 'change_pct': 0, 'recommendation': reco, 'reason': reason, 'rsi': rsi, 'mm20': mm20, 'mm50': mm50, 'mm200': mm200, 'targets': {'entry': entry, 'exit': exit}, 'vol_spike': 1}
-        except Exception as e:
-            logger.error(f"Sync fallback failed for {symbol}: {e}")
+                info = {'price': float(df['close'].iloc[-1]), 'change_pct': 0.0, 'recommendation': reco, 'reason': reason, 'rsi': rsi, 'mm20': mm20, 'mm50': mm50, 'mm200': mm200, 'targets': {'entry': entry, 'exit': exit}, 'vol_spike': 1.0}
+        except Exception as e: logger.error(f"Fallback error: {e}")
 
     top_sectors, heatmap_data = get_global_context()
     esg = MARKET_STATE['esg_data'].get(symbol, {'score': 'N/A', 'badge': '-'})
     fund = MARKET_STATE['fundamentals'].get(symbol, {'pe': 'N/A', 'yield': 'N/A'})
 
     if df is not None and info is not None:
-        context = {
-            'symbol': symbol, 'last_close_price': info.get('price', 0), 'daily_change': 0, 'daily_change_percent': info.get('change_pct', 0),
-            'recommendation': info.get('recommendation', 'N/A'), 'reason': info.get('reason', 'N/A'), 'rsi_value': info.get('rsi', 50),
-            'mm20': info.get('mm20'), 'mm50': info.get('mm50'), 'mm200': info.get('mm200'),
-            'short_term_entry_price': f"{info.get('targets', {}).get('entry', 0):.2f}", 
-            'short_term_exit_price': f"{info.get('targets', {}).get('exit', 0):.2f}",
-            'sector': info.get('sector', 'N/A'), 'sector_avg': info.get('sector_avg', 0), 'relative_strength': info.get('relative_strength', 0), 'vol_spike': info.get('vol_spike', 1),
-            'esg_score': esg['score'], 'esg_badge': esg['badge'], 'pe_ratio': fund['pe'], 'div_yield': fund['yield'],
-            'currency_symbol': '€' if '.PA' in symbol else '$', 'stock_chart_div': create_stock_chart(df, symbol),
-            'engine_status': 'ONLINE', 'last_update': MARKET_STATE['last_update'], 'top_sectors': top_sectors, 'heatmap_data': heatmap_data
-        }
-        return render_template('index.html', **context)
+        try:
+            context = {
+                'symbol': symbol, 'last_close_price': info.get('price', 0), 'daily_change': 0, 'daily_change_percent': info.get('change_pct', 0),
+                'recommendation': info.get('recommendation', 'N/A'), 'reason': info.get('reason', 'N/A'), 'rsi_value': info.get('rsi', 50),
+                'mm20': info.get('mm20', 0), 'mm50': info.get('mm50', 0), 'mm200': info.get('mm200', 0),
+                'short_term_entry_price': f"{info.get('targets', {}).get('entry', 0):.2f}", 
+                'short_term_exit_price': f"{info.get('targets', {}).get('exit', 0):.2f}",
+                'sector': info.get('sector', 'N/A'), 'sector_avg': info.get('sector_avg', 0), 'relative_strength': info.get('relative_strength', 0), 'vol_spike': info.get('vol_spike', 1),
+                'esg_score': esg['score'], 'esg_badge': esg['badge'], 'pe_ratio': fund['pe'], 'div_yield': fund['yield'],
+                'currency_symbol': '€' if '.PA' in symbol else '$', 'stock_chart_div': create_stock_chart(df, symbol),
+                'engine_status': 'ONLINE', 'last_update': MARKET_STATE['last_update'], 'top_sectors': top_sectors, 'heatmap_data': heatmap_data
+            }
+            return render_template('index.html', **context)
+        except Exception as e: 
+            logger.error(f"Template context error: {e}")
+            return f"Erreur de rendu: {e}", 500
     
-    # Si toujours rien, on affiche une erreur explicite
-    msg = f"Yahoo Finance ne répond pas pour {symbol}. Réessayez dans 30 secondes."
-    if MARKET_STATE['last_error']: msg += f" (Détail: {MARKET_STATE['last_error']})"
-    flash(msg, "error")
+    flash(f"Instrument {symbol} introuvable.", "error")
     return render_template('index.html', symbol=symbol, recommendation=None, top_sectors=top_sectors, heatmap_data=heatmap_data)
 
 @app.route('/status')
