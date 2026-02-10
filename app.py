@@ -30,7 +30,7 @@ logger = logging.getLogger("TradingEngine")
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key-123-v3")
-VERSION = "3.3.2 (Anti-Crash)"
+VERSION = "3.3.3 (Zero-Crash Context)"
 DB_NAME = "users.db"
 
 market_lock = threading.Lock()
@@ -76,7 +76,7 @@ init_db()
 # --- ENGINE ---
 
 def fetch_market_data_job():
-    logger.info("📡 ENGINE: Refresh started...")
+    logger.info("📡 ENGINE: Cycle started...")
     symbols_info = {}
     try:
         with sqlite3.connect(DB_NAME) as conn:
@@ -214,7 +214,19 @@ def v3_analyze():
     top_sectors, heatmap_data = get_global_context()
     esg, fund = MARKET_STATE['esg_data'].get(symbol, {'score': 'N/A', 'badge': '-'}), MARKET_STATE['fundamentals'].get(symbol, {'pe': 'N/A', 'yield': 'N/A'})
 
-    context = {'symbol': symbol, 'top_sectors': top_sectors, 'heatmap_data': heatmap_data}
+    # --- CONTEXTE BLINDE (Valeurs par défaut pour Jinja2) ---
+    context = {
+        'symbol': symbol,
+        'last_close_price': 0, 'daily_change_percent': 0,
+        'recommendation': None, 'reason': 'Analyse en cours...', 'rsi_value': 50,
+        'mm20': 0, 'mm50': 0, 'mm200': 0,
+        'short_term_entry_price': "N/A", 'short_term_exit_price': "N/A",
+        'sector': "N/A", 'sector_avg': 0, 'relative_strength': 0, 'vol_spike': 1,
+        'esg_score': "N/A", 'esg_badge': "-", 'pe_ratio': "N/A", 'div_yield': "0",
+        'currency_symbol': "€", 'stock_chart_div': "",
+        'top_sectors': top_sectors, 'heatmap_data': heatmap_data,
+        'engine_status': 'ONLINE', 'last_update': MARKET_STATE['last_update'] or 'Chargement...'
+    }
 
     if df is not None and info is not None:
         context.update({
@@ -224,7 +236,7 @@ def v3_analyze():
             'short_term_entry_price': f"{info.get('targets', {}).get('entry', 0):.2f}", 
             'short_term_exit_price': f"{info.get('targets', {}).get('exit', 0):.2f}",
             'sector': info.get('sector', 'N/A'), 'sector_avg': info.get('sector_avg', 0), 'relative_strength': info.get('relative_strength', 0), 'vol_spike': info.get('vol_spike', 1),
-            'esg_score': esg['score'], 'esg_badge': esg['badge'], 'pe_ratio': fund['pe'], 'div_yield': fund['yield'],
+            'esg_score': esg.get('score', 'N/A'), 'esg_badge': esg.get('badge', '-'), 'pe_ratio': fund.get('pe', 'N/A'), 'div_yield': fund.get('yield', '0'),
             'currency_symbol': '€' if '.PA' in symbol else '$', 'stock_chart_div': create_stock_chart(df, symbol)
         })
     else:
