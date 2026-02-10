@@ -4,6 +4,8 @@ import random
 import string
 import smtplib
 import time
+import csv
+import io
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
@@ -17,45 +19,50 @@ from textblob import TextBlob
 
 load_dotenv()
 app = Flask(__name__)
-app.secret_key = "dev-secret-key-123"
-VERSION = "2.0.3"
+app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key-123")
+VERSION = "2.0.4"
 DB_NAME = "users.db"
 
 def init_db():
-    with sqlite3.connect(DB_NAME) as conn:
-        cursor = conn.cursor()
-        cursor.execute('''CREATE TABLE IF NOT EXISTS legal_audit (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT, ip_address TEXT, consent_date TEXT, user_agent TEXT)''')
-        cursor.execute('''CREATE TABLE IF NOT EXISTS leads (email TEXT PRIMARY KEY, signup_date TEXT, marketing_consent INTEGER DEFAULT 0, ip_address TEXT)''')
-        cursor.execute('''CREATE TABLE IF NOT EXISTS tickers (symbol TEXT PRIMARY KEY, name TEXT)''')
-        cursor.execute('''CREATE TABLE IF NOT EXISTS search_history (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT, symbol TEXT, found INTEGER, timestamp TEXT)''')
-        cac40 = [
-            ('AC.PA', 'Accor'), ('AI.PA', 'Air Liquide'), ('AIR.PA', 'Airbus'), ('ALO.PA', 'Alstom'),
-            ('MT.PA', 'ArcelorMittal'), ('CS.PA', 'AXA'), ('BNP.PA', 'BNP Paribas'), ('EN.PA', 'Bouygues'),
-            ('CAP.PA', 'Capgemini'), ('CA.PA', 'Carrefour'), ('ACA.PA', 'Crédit Agricole'), ('BN.PA', 'Danone'),
-            ('DSY.PA', 'Dassault Systèmes'), ('EDEN.PA', 'Edenred'), ('ENGI.PA', 'Engie'), ('EL.PA', 'EssilorLuxottica'),
-            ('ERF.PA', 'Eurofins Scientific'), ('RMS.PA', 'Hermès'), ('KER.PA', 'Kering'), ('OR.PA', "L'Oréal"),
-            ('LR.PA', 'Legrand'), ('MC.PA', 'LVMH'), ('ML.PA', 'Michelin'), ('ORA.PA', 'Orange'),
-            ('RI.PA', 'Pernod Ricard'), ('PUB.PA', 'Publicis'), ('RNO.PA', 'Renault'), ('SAF.PA', 'Safran'),
-            ('SGO.PA', 'Saint-Gobain'), ('SAN.PA', 'Sanofi'), ('SU.PA', 'Schneider Electric'), ('GLE.PA', 'Société Générale'),
-            ('STLAP.PA', 'Stellantis'), ('STMPA.PA', 'STMicroelectronics'), ('TEP.PA', 'Teleperformance'), ('HO.PA', 'Thales'),
-            ('TTE.PA', 'TotalEnergies'), ('URW.PA', 'Unibail-Rodamco-Westfield'), ('VIE.PA', 'Veolia'), ('DG.PA', 'Vinci'),
-            ('AYV.PA', 'Ayvens'), ('AAPL', 'Apple'), ('MSFT', 'Microsoft'), ('GOOGL', 'Alphabet (Google)'), ('AMZN', 'Amazon'),
-            ('TSLA', 'Tesla'), ('NVDA', 'NVIDIA'), ('BTC-USD', 'Bitcoin'), ('ETH-USD', 'Ethereum')
-        ]
-        cursor.executemany('INSERT OR IGNORE INTO tickers (symbol, name) VALUES (?, ?)', cac40)
-        conn.commit()
+    try:
+        with sqlite3.connect(DB_NAME) as conn:
+            cursor = conn.cursor()
+            cursor.execute('''CREATE TABLE IF NOT EXISTS legal_audit (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT, ip_address TEXT, consent_date TEXT, user_agent TEXT)''')
+            cursor.execute('''CREATE TABLE IF NOT EXISTS leads (email TEXT PRIMARY KEY, signup_date TEXT, marketing_consent INTEGER DEFAULT 0, ip_address TEXT)''')
+            cursor.execute('''CREATE TABLE IF NOT EXISTS tickers (symbol TEXT PRIMARY KEY, name TEXT)''')
+            cursor.execute('''CREATE TABLE IF NOT EXISTS search_history (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT, symbol TEXT, found INTEGER, timestamp TEXT)''')
+            cac40 = [
+                ('AC.PA', 'Accor'), ('AI.PA', 'Air Liquide'), ('AIR.PA', 'Airbus'), ('ALO.PA', 'Alstom'),
+                ('MT.PA', 'ArcelorMittal'), ('CS.PA', 'AXA'), ('BNP.PA', 'BNP Paribas'), ('EN.PA', 'Bouygues'),
+                ('CAP.PA', 'Capgemini'), ('CA.PA', 'Carrefour'), ('ACA.PA', 'Crédit Agricole'), ('BN.PA', 'Danone'),
+                ('DSY.PA', 'Dassault Systèmes'), ('EDEN.PA', 'Edenred'), ('ENGI.PA', 'Engie'), ('EL.PA', 'EssilorLuxottica'),
+                ('ERF.PA', 'Eurofins Scientific'), ('RMS.PA', 'Hermès'), ('KER.PA', 'Kering'), ('OR.PA', "L'Oréal"),
+                ('LR.PA', 'Legrand'), ('MC.PA', 'LVMH'), ('ML.PA', 'Michelin'), ('ORA.PA', 'Orange'),
+                ('RI.PA', 'Pernod Ricard'), ('PUB.PA', 'Publicis'), ('RNO.PA', 'Renault'), ('SAF.PA', 'Safran'),
+                ('SGO.PA', 'Saint-Gobain'), ('SAN.PA', 'Sanofi'), ('SU.PA', 'Schneider Electric'), ('GLE.PA', 'Société Générale'),
+                ('STLAP.PA', 'Stellantis'), ('STMPA.PA', 'STMicroelectronics'), ('TEP.PA', 'Teleperformance'), ('HO.PA', 'Thales'),
+                ('TTE.PA', 'TotalEnergies'), ('URW.PA', 'Unibail-Rodamco-Westfield'), ('VIE.PA', 'Veolia'), ('DG.PA', 'Vinci'),
+                ('AYV.PA', 'Ayvens'), ('AAPL', 'Apple'), ('MSFT', 'Microsoft'), ('GOOGL', 'Alphabet (Google)'), ('AMZN', 'Amazon'),
+                ('TSLA', 'Tesla'), ('NVDA', 'NVIDIA'), ('BTC-USD', 'Bitcoin'), ('ETH-USD', 'Ethereum')
+            ]
+            cursor.executemany('INSERT OR IGNORE INTO tickers (symbol, name) VALUES (?, ?)', cac40)
+            conn.commit()
+    except Exception as e:
+        print(f"CRITICAL: Database initialization failed: {e}")
 
 init_db()
 
 def analyze_news_sentiment(news_list):
     if not news_list: return 0
     total_sentiment = 0
+    valid_articles = 0
     for article in news_list:
         title = article.get('title', '')
         if title:
             analysis = TextBlob(title)
             total_sentiment += analysis.sentiment.polarity
-    return total_sentiment / len(news_list)
+            valid_articles += 1
+    return total_sentiment / valid_articles if valid_articles > 0 else 0
 
 def get_stock_data(symbol):
     try:
@@ -81,33 +88,37 @@ def analyze_stock(df, sentiment_score=0, info=None):
         except Exception: pass
 
     if len(df) < 200:
-        return "Conserver", "Données insuffisantes", 50, None, None, None, None, None, None
+        return "Conserver", "Données insuffisantes (besoin de 200 jours)", 50, None, None, None, None, None, None
 
-    # Calcul de toutes les moyennes mobiles demandées
-    df.ta.sma(length=20, append=True)
-    df.ta.sma(length=50, append=True)
-    df.ta.sma(length=100, append=True)
-    df.ta.sma(length=200, append=True)
-    df.ta.rsi(length=14, append=True)
-
-    last_row = df.iloc[-1]
-    mm20 = last_row['SMA_20']
-    mm50 = last_row['SMA_50']
-    mm100 = last_row['SMA_100']
-    mm200 = last_row['SMA_200']
-    rsi = last_row['RSI_14']
-    last_close_price = last_row['close']
+    # Calcul des indicateurs techniques
+    try:
+        df.ta.sma(length=20, append=True)
+        df.ta.sma(length=50, append=True)
+        df.ta.sma(length=100, append=True)
+        df.ta.sma(length=200, append=True)
+        df.ta.rsi(length=14, append=True)
+        
+        last_row = df.iloc[-1]
+        mm20 = last_row.get('SMA_20')
+        mm50 = last_row.get('SMA_50')
+        mm100 = last_row.get('SMA_100')
+        mm200 = last_row.get('SMA_200')
+        rsi = last_row.get('RSI_14', 50)
+        last_close_price = last_row['close']
+    except Exception as e:
+        print(f"DEBUG: Technical analysis failed: {e}")
+        return "Erreur", f"Erreur calcul technique: {e}", 50, None, None, None, None, None, None
 
     adjustment_factor = 1 + (sentiment_score * 0.05) + (fundamental_score * 0.02)
     recommendation = "Conserver"
     reason = "Analyse technique neutre."
 
-    if last_close_price > mm200 and rsi < 40:
+    if mm200 and last_close_price > mm200 and rsi < 40:
         recommendation = "Achat"
-        reason = "Tendance long terme haussière et zone de survente."
-    elif last_close_price < mm200 and rsi > 70:
+        reason = "Tendance long terme haussière (au-dessus MM200) et zone de survente (RSI < 40)."
+    elif mm200 and last_close_price < mm200 and rsi > 70:
         recommendation = "Vente"
-        reason = "Signal de faiblesse sous la MM200 avec surachat."
+        reason = "Signal de faiblesse sous la MM200 avec surachat (RSI > 70)."
     
     entry = last_close_price * 0.98
     exit = last_close_price * 1.05 * adjustment_factor
@@ -142,13 +153,16 @@ def login():
         session['verified'] = True
         session['pending_email'] = email
         return redirect(url_for('analyze_page'))
-    except Exception: return redirect(url_for('index'))
+    except Exception as e:
+        print(f"ERROR: Login failed: {e}")
+        flash(f"Erreur de connexion (Base de données): {e}", "error")
+        return redirect(url_for('index'))
 
 @app.route('/analyze', methods=['GET'])
 def analyze_page():
     if not session.get('verified'): return redirect(url_for('index'))
     symbol = request.args.get('symbol', '').upper().strip()
-    context = {'recommendation': None, 'symbol': symbol, 'stock_news': [], 'sentiment_score': 0, 'insiders': []}
+    context = {'recommendation': None, 'symbol': symbol, 'stock_news': [], 'sentiment_score': 0, 'insiders': [], 'analyst_reco_chart_div': None}
     
     if symbol:
         print(f"DEBUG: Analyse demandée pour {symbol}")
@@ -166,7 +180,7 @@ def analyze_page():
         # Résolution Yahoo si toujours rien
         if df is None:
             try:
-                search = yf.Search(symbol, max_results=1).tickers
+                search = yf.Search(symbol).tickers
                 if search:
                     symbol = search[0]['symbol']
                     df = get_stock_data(symbol)
@@ -179,7 +193,7 @@ def analyze_page():
             except Exception:
                 info = {'currency': 'USD'}
             
-            # Insiders (Réactivé avec Volume)
+            # Insiders
             insiders = []
             try:
                 it = ticker_yf.insider_transactions
@@ -194,13 +208,19 @@ def analyze_page():
                         })
             except Exception: pass
             
-            # News (Réduit à 8 articles pour la rapidité)
+            # News
             stock_news = []
             try:
                 raw_news = ticker_yf.news
-                for article in raw_news[:8]:
-                    content = article.get('content', {})
-                    stock_news.append({'title': content.get('title', 'Sans titre'), 'link': content.get('link') or content.get('canonicalUrl', {}).get('url', '#'), 'publisher': content.get('provider', {}).get('displayName', 'Inconnu'), 'date': str(content.get('pubDate', ''))})
+                if isinstance(raw_news, list):
+                    for article in raw_news[:8]:
+                        content = article.get('content', article) # Fallback for different yfinance versions
+                        stock_news.append({
+                            'title': content.get('title', 'Sans titre'), 
+                            'link': content.get('link') or content.get('canonicalUrl', {}).get('url', '#'), 
+                            'publisher': content.get('provider', {}).get('displayName', 'Inconnu'), 
+                            'date': str(content.get('pubDate', ''))
+                        })
             except Exception: pass
             
             sentiment_score = analyze_news_sentiment(stock_news)
@@ -220,9 +240,15 @@ def analyze_page():
                 'stock_news': stock_news, 'sentiment_score': sentiment_score,
                 'insiders': insiders
             })
+            
+            # Enregistrement de la recherche
+            try:
+                with sqlite3.connect(DB_NAME) as conn:
+                    conn.execute("INSERT INTO search_history (email, symbol, found, timestamp) VALUES (?, ?, ?, ?)", (session.get('pending_email'), symbol, 1, datetime.now().isoformat()))
+            except Exception: pass
         else:
             print(f"DEBUG: Aucune donnée pour {symbol}")
-            flash(f"Impossible de trouver des données pour {symbol}", "error")
+            flash(f"Impossible de trouver des données pour {symbol}. Vérifiez le ticker (ex: MC.PA, AAPL).", "error")
 
     return render_template('index.html', **context)
 
@@ -255,12 +281,38 @@ def admin_dashboard():
     try:
         with sqlite3.connect(DB_NAME) as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT email, signup_date, marketing_consent FROM leads ORDER BY signup_date DESC")
+            cursor.execute("SELECT email, signup_date, marketing_consent, ip_address FROM leads ORDER BY signup_date DESC")
             leads = cursor.fetchall()
             cursor.execute("SELECT symbol, COUNT(*) FROM search_history GROUP BY symbol ORDER BY 2 DESC LIMIT 10")
             stats = cursor.fetchall()
-        return render_template('admin.html', leads=leads, search_stats=stats, audit_logs=[])
-    except Exception: return "Erreur base de données"
+            cursor.execute("SELECT email, timestamp, ip_address FROM search_history ORDER BY timestamp DESC LIMIT 20")
+            audit_logs = cursor.fetchall()
+        return render_template('admin.html', leads=leads, search_stats=stats, audit_logs=audit_logs)
+    except Exception as e: return f"Erreur base de données: {e}"
+
+@app.route('/admin/export_leads')
+def export_leads():
+    admin_user = os.environ.get("ADMIN_USER", "admin")
+    admin_pass = os.environ.get("ADMIN_PASS", "password123")
+    auth = request.authorization
+    if not auth or not (auth.username == admin_user and auth.password == admin_pass):
+        return Response('Accès refusé.', 401, {'WWW-Authenticate': 'Basic realm="Login Required"'})
+    
+    try:
+        si = io.StringIO()
+        cw = csv.writer(si)
+        with sqlite3.connect(DB_NAME) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT email, signup_date, marketing_consent, ip_address FROM leads")
+            rows = cursor.fetchall()
+            cw.writerow(['Email', 'Signup Date', 'Marketing Consent', 'IP Address'])
+            cw.writerows(rows)
+        
+        output = si.getvalue()
+        return Response(output, mimetype="text/csv", headers={"Content-disposition": "attachment; filename=leads.csv"})
+    except Exception as e:
+        return f"Erreur lors de l'export: {e}"
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=True, host='0.0.0.0', port=port)
