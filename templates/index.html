@@ -24,12 +24,21 @@
         .accordion-content { display: none; margin-top: 1rem; background: white; border-radius: 20px; border: 1px solid var(--border); padding: 1rem; }
         .heatmap-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; }
         .heatmap-tile { text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60px; border-radius: 8px; color: white; font-weight: 800; font-size: 0.75rem; transition: 0.2s; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+        .flash { padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; text-align: center; }
+        .flash.warning { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1 style="text-align: center;">Trading Analyzer Pro</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
 
         <div class="search-box">
             <form action="{{ url_for('v3_search') }}" method="POST" class="search-form">
@@ -42,60 +51,60 @@
             <div style="margin-top: 1rem; display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px;">
                 {% for sec in top_sectors %}
                 <div style="background: white; border: 1px solid var(--border); padding: 6px 12px; border-radius: 99px; font-size: 0.8rem; white-space: nowrap;">
-                    {{ sec.name }} <span style="color: var(--success); font-weight: 700;">+{{ "%.2f"|format(sec.change) }}%</span>
+                    {{ sec.name }} <span style="color: var(--success); font-weight: 700;">+{{ "%.2f"|format(sec.change|default(0)) }}%</span>
                 </div>
                 {% endfor %}
             </div>
             {% endif %}
         </div>
 
-        {% if recommendation %}
+        {% if recommendation and last_close_price is defined %}
         <div class="dashboard-grid">
             <div class="card col-8">
                 <div style="display: flex; justify-content: space-between;">
                     <div>
                         <h2 style="margin:0;">{{ symbol }}</h2>
-                        <div style="font-size: 2.5rem; font-weight: 800;">{{ "%.2f"|format(last_close_price) }} {{ currency_symbol }}</div>
-                        <div style="color: {% if daily_change_percent > 0 %}var(--success){% else %}var(--danger){% endif %}; font-weight: 700;">
-                            {{ "%.2f"|format(daily_change_percent) }}%
+                        <div style="font-size: 2.5rem; font-weight: 800;">{{ "%.2f"|format(last_close_price|default(0)) }} {{ currency_symbol|default('€') }}</div>
+                        <div style="color: {% if daily_change_percent|default(0) > 0 %}var(--success){% else %}var(--danger){% endif %}; font-weight: 700;">
+                            {{ "%.2f"|format(daily_change_percent|default(0)) }}%
                         </div>
                     </div>
                     <div class="badge {% if recommendation == 'Achat' %}badge-buy{% else %}badge-sell{% endif %}" style="height: fit-content;">
                         {{ recommendation }}
                     </div>
                 </div>
-                <p style="background: #f8fafc; padding: 1rem; border-radius: 12px; margin-top: 1rem;"><strong>Signal :</strong> {{ reason }}</p>
+                <p style="background: #f8fafc; padding: 1rem; border-radius: 12px; margin-top: 1rem;"><strong>Signal :</strong> {{ reason|default('Analyse en cours') }}</p>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
                     <div style="background: #f0fdf4; padding: 1rem; border-radius: 12px; text-align: center;">
                         <small style="color: #64748b; font-weight: 800;">ENTRÉE</small>
-                        <div style="font-size: 1.2rem; font-weight: 800; color: var(--success);">{{ short_term_entry_price }}</div>
+                        <div style="font-size: 1.2rem; font-weight: 800; color: var(--success);">{{ short_term_entry_price|default('N/A') }}</div>
                     </div>
                     <div style="background: #fff1f2; padding: 1rem; border-radius: 12px; text-align: center;">
                         <small style="color: #64748b; font-weight: 800;">SORTIE</small>
-                        <div style="font-size: 1.2rem; font-weight: 800; color: var(--danger);">{{ short_term_exit_price }}</div>
+                        <div style="font-size: 1.2rem; font-weight: 800; color: var(--danger);">{{ short_term_exit_price|default('N/A') }}</div>
                     </div>
                 </div>
             </div>
 
             <div class="card col-4">
                 <h3 style="margin-top:0;">Statistiques</h3>
-                <div class="stat-item"><span class="stat-label">Secteur</span><span class="stat-val">{{ sector }}</span></div>
-                <div class="stat-item"><span class="stat-label">RSI (14)</span><span class="stat-val">{{ "%.2f"|format(rsi_value) }}</span></div>
-                <div class="stat-item"><span class="stat-label">P/E Ratio</span><span class="stat-val">{{ pe_ratio }}</span></div>
-                <div class="stat-item"><span class="stat-label">Dividende</span><span class="stat-val">{{ div_yield }}%</span></div>
-                <div class="stat-item" style="border:none;"><span class="stat-label">Score ESG</span><span class="badge" style="background:#f1f5f9;">{{ esg_badge }} ({{ esg_score }})</span></div>
+                <div class="stat-item"><span class="stat-label">Secteur</span><span class="stat-val">{{ sector|default('N/A') }}</span></div>
+                <div class="stat-item"><span class="stat-label">RSI (14)</span><span class="stat-val">{{ "%.2f"|format(rsi_value|default(50)) }}</span></div>
+                <div class="stat-item"><span class="stat-label">P/E Ratio</span><span class="stat-val">{{ pe_ratio|default('N/A') }}</span></div>
+                <div class="stat-item"><span class="stat-label">Dividende</span><span class="stat-val">{{ div_yield|default('0') }}%</span></div>
+                <div class="stat-item" style="border:none;"><span class="stat-label">Score ESG</span><span class="badge" style="background:#f1f5f9;">{{ esg_badge|default('-') }}</span></div>
             </div>
 
             <div class="col-12">
                 <button class="accordion-btn" onclick="toggleSection('chart-area')">📊 GRAPHIQUE TECHNIQUE</button>
-                <div id="chart-area" class="accordion-content">{{ stock_chart_div | safe }}</div>
+                <div id="chart-area" class="accordion-content">{{ stock_chart_div|default('Graphique non disponible')|safe }}</div>
             </div>
         </div>
         {% elif symbol %}
         <div class="card" style="text-align: center; padding: 3rem;">
             <h3>⏳ Analyse de {{ symbol }}...</h3>
-            <p>Données Yahoo Finance en cours de récupération. Cette page se rafraîchira automatiquement.</p>
-            <script>setTimeout(function(){ location.reload(); }, 5000);</script>
+            <p>Le moteur récupère les données. Cette page se rafraîchira automatiquement.</p>
+            <script>setTimeout(function(){ location.reload(); }, 8000);</script>
         </div>
         {% endif %}
 
@@ -104,8 +113,8 @@
             <div class="card heatmap-grid">
                 {% for item in heatmap_data %}
                 <a href="{{ url_for('v3_analyze', symbol=item.full_symbol) }}" class="heatmap-tile" 
-                   style="background: {% if item.change > 1 %}#064e3b{% elif item.change > 0 %}#059669{% elif item.change > -1 %}#dc2626{% else %}#7f1d1d{% endif %};">
-                    {{ item.symbol }}<br><small style="font-size: 0.6rem; opacity: 0.8;">{{ "%+.1f"|format(item.change) }}%</small>
+                   style="background: {% if item.change|default(0) > 1 %}#064e3b{% elif item.change|default(0) > 0 %}#059669{% elif item.change|default(0) > -1 %}#dc2626{% else %}#7f1d1d{% endif %};">
+                    {{ item.symbol }}<br><small style="font-size: 0.6rem; opacity: 0.8;">{{ "%+.1f"|format(item.change|default(0)) }}%</small>
                 </a>
                 {% endfor %}
             </div>
@@ -124,7 +133,8 @@
                 if (data.length > 0) {
                     res.style.display = 'block';
                     data.forEach(s => {
-                        const a = document.createElement('a'); a.href = `/analyze?symbol=${s.symbol}`;
+                        const a = document.createElement('a'); 
+                        a.href = "/analyze?symbol=" + encodeURIComponent(s.symbol);
                         a.style.display = 'block'; a.style.padding = '10px'; a.style.textDecoration = 'none'; a.style.color = '#000'; a.style.borderBottom = '1px solid #eee';
                         a.innerHTML = `<strong>${s.symbol}</strong> - ${s.name}`;
                         res.appendChild(a);
