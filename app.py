@@ -238,7 +238,9 @@ def search_tickers():
 def analyze_page():
     if not session.get('verified'): return redirect(url_for('index'))
     symbol = request.args.get('symbol', 'MC.PA').upper().strip()
+    
     try:
+        # Résolution
         with sqlite3.connect(DB_NAME) as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT symbol FROM tickers WHERE name LIKE ? OR symbol = ?", (f'%{symbol}%', symbol))
@@ -246,35 +248,73 @@ def analyze_page():
             if row: symbol = row[0]
     except Exception: pass
     
+    # Données globales (Safe)
+    top_sectors, heatmap_data = [], []
+    try:
+        top_sectors, heatmap_data = get_global_context()
+    except Exception as e:
+        logger.error(f"Global Context Error: {e}")
+
+    # Récupération Info (Safe)
     info = MARKET_STATE['tickers'].get(symbol)
     df = MARKET_STATE['dataframes'].get(symbol)
     
+    # Fallback
     if df is None:
         try:
             df = yf.Ticker(symbol).history(period="2y")
             if not df.empty:
                 df.columns = [col.lower() for col in df.columns]
                 reco, reason, rsi, mm20, mm50, mm100, mm200, entry, exit = analyze_stock(df)
-                info = {'price': df['close'].iloc[-1], 'change_pct': 0, 'recommendation': reco, 'reason': reason, 'rsi': rsi, 'mm20': mm20, 'mm50': mm50, 'mm200': mm200, 'targets': {'entry': entry, 'exit': exit}, 'vol_spike': 1}
-        except Exception: pass
+                info = {
+                    'price': df['close'].iloc[-1], 'change_pct': 0, 'recommendation': reco, 'reason': reason, 
+                    'rsi': rsi, 'mm20': mm20, 'mm50': mm50, 'mm200': mm200, 'targets': {'entry': entry, 'exit': exit}, 
+                    'vol_spike': 1, 'sector': 'Inconnu', 'sector_avg': 0, 'relative_strength': 0
+                }
+        except Exception as e:
+            logger.error(f"Fallback Error for {symbol}: {e}")
 
-    esg = MARKET_STATE['esg_data'].get(symbol, {'score': 'N/A', 'badge': '-'})
-    fund = MARKET_STATE['fundamentals'].get(symbol, {'pe': 'N/A', 'yield': 'N/A'})
-    top_sectors, heatmap_data = get_global_context()
+    # Construction Contexte (Blindée)
+    try:
+        esg = MARKET_STATE['esg_data'].get(symbol, {'score': 'N/A', 'badge': '-'})
+        fund = MARKET_STATE['fundamentals'].get(symbol, {'pe': 'N/A', 'yield': 'N/A'})
 
-    if df is not None and info is not None:
-        context = {
-            'symbol': symbol, 'last_close_price': info['price'], 'daily_change': 0, 'daily_change_percent': info['change_pct'],
-            'recommendation': info['recommendation'], 'reason': info['reason'], 'rsi_value': info['rsi'],
-            'mm20': info.get('mm20'), 'mm50': info.get('mm50'), 'mm200': info.get('mm200'),
-            'short_term_entry_price': f"{info['targets']['entry']:.2f}", 'short_term_exit_price': f"{info['targets']['exit']:.2f}",
-            'sector': info.get('sector', 'N/A'), 'sector_avg': info.get('sector_avg', 0), 'relative_strength': info.get('relative_strength', 0), 'vol_spike': info.get('vol_spike', 1),
-            'esg_score': esg['score'], 'esg_badge': esg['badge'], 'pe_ratio': fund['pe'], 'div_yield': fund['yield'],
-            'currency_symbol': '€' if '.PA' in symbol else '$', 'stock_chart_div': create_stock_chart(df, symbol),
-            'stock_news': [], 'engine_status': 'ONLINE', 'last_update': MARKET_STATE['last_update'], 'top_sectors': top_sectors, 'heatmap_data': heatmap_data
-        }
-        return render_template('index.html', **context)
+        if df is not None and info is not None:
+            context = {
+                'symbol': symbol,
+                'last_close_price': info.get('price', 0),
+                'daily_change': 0, 
+                'daily_change_percent': info.get('change_pct', 0),
+                'recommendation': info.get('recommendation', 'N/A'),
+                'reason': info.get('reason', 'N/A'),
+                'rsi_value': info.get('rsi', 50),
+                'mm20': info.get('mm20'), 'mm50': info.get('mm50'), 'mm200': info.get('mm200'),
+                'short_term_entry_price': f"{info.get('targets', {}).get('entry', 0):.2f}",
+                'short_term_exit_price': f"{info.get('targets', {}).get('exit', 0):.2f}",
+                'sector': info.get('sector', 'N/A'),
+                'sector_avg': info.get('sector_avg', 0),
+                'relative_strength': info.get('relative_strength', 0),
+                'vol_spike': info.get('vol_spike', 1),
+                'esg_score': esg.get('score', 'N/A'),
+                'esg_badge': esg.get('badge', '-'),
+                'pe_ratio': fund.get('pe', 'N/A'),
+                'div_yield': fund.get('yield', 'N/A'),
+                'currency_symbol': '€' if '.PA' in symbol else '$',
+                'stock_chart_div': create_stock_chart(df, symbol),
+                'stock_news': [],
+                'engine_status': 'ONLINE',
+                'last_update': MARKET_STATE['last_update'] or 'N/A',
+                'top_sectors': top_sectors,
+                'heatmap_data': heatmap_data
+            }
+            return render_template('index.html', **context)
+            
+    except Exception as e:
+        logger.error(f"Rendering Error for {symbol}: {e}\n{traceback.format_exc()}")
+        flash(f"Erreur d'affichage pour {symbol}. Contactez le support.", "error")
+        return render_template('index.html', symbol=symbol, recommendation=None, top_sectors=top_sectors, heatmap_data=heatmap_data)
     
+    flash(f"Données non disponibles pour {symbol}.", "error")
     return render_template('index.html', symbol=symbol, recommendation=None, top_sectors=top_sectors, heatmap_data=heatmap_data)
 
 @app.route('/status')
