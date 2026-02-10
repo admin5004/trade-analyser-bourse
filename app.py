@@ -63,7 +63,7 @@ def init_db():
             cursor.execute('''CREATE TABLE IF NOT EXISTS search_history (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT, symbol TEXT, found INTEGER, timestamp TEXT)''')
             cac40 = [
                 ('AC.PA', 'Accor', 'Consommation'), ('AI.PA', 'Air Liquide', 'Industrie'), ('AIR.PA', 'Airbus', 'Aéronautique'), ('ALO.PA', 'Alstom', 'Industrie'),
-                ('MT.PA', 'ArcelorMittal', 'Matériaux'), ('CS.PA', 'AXA', 'Finance'), ('BNP.PA', 'BNP Paribas', 'Finance'), ('EN.PA', 'Bouygues', 'Industrie'),
+                ('MT.AS', 'ArcelorMittal', 'Matériaux'), ('CS.PA', 'AXA', 'Finance'), ('BNP.PA', 'BNP Paribas', 'Finance'), ('EN.PA', 'Bouygues', 'Industrie'),
                 ('CAP.PA', 'Capgemini', 'Technologie'), ('CA.PA', 'Carrefour', 'Consommation'), ('ACA.PA', 'Crédit Agricole', 'Finance'), ('BN.PA', 'Danone', 'Consommation'),
                 ('DSY.PA', 'Dassault Systèmes', 'Technologie'), ('EDEN.PA', 'Edenred', 'Finance'), ('ENGI.PA', 'Engie', 'Services Publics'), ('EL.PA', 'EssilorLuxottica', 'Santé'),
                 ('ERF.PA', 'Eurofins Scientific', 'Santé'), ('RMS.PA', 'Hermès', 'Luxe'), ('KER.PA', 'Kering', 'Luxe'), ('OR.PA', "L'Oréal", 'Consommation'),
@@ -138,25 +138,33 @@ def create_stock_chart(df, symbol):
     except Exception: return ""
 
 def get_global_context():
+    # Récupérer les données live
     with market_lock:
         sectors, tickers = dict(MARKET_STATE['sectors']), dict(MARKET_STATE['tickers'])
     
-    # Si les tickers sont vides (moteur pas encore fini), on affiche au moins les symboles prévus
-    if not tickers:
-        try:
-            with sqlite3.connect(DB_NAME) as conn:
-                cursor = conn.cursor()
-                cursor.execute("SELECT symbol FROM tickers LIMIT 20")
-                tickers = {row[0]: {'change_pct': 0, 'symbol': row[0]} for row in cursor.fetchall()}
-        except Exception: pass
+    # Récupérer TOUS les symboles de la base pour garantir que la heatmap n'est jamais vide
+    all_symbols = {}
+    try:
+        with sqlite3.connect(DB_NAME) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT symbol, name FROM tickers")
+            for row in cursor.fetchall():
+                all_symbols[row[0]] = {'symbol': row[0].replace('.PA', ''), 'change': 0}
+    except Exception: pass
+
+    # Fusionner avec les données live (écraser les placeholders par les vraies variations)
+    for s, t_info in tickers.items():
+        if s in all_symbols:
+            all_symbols[s]['change'] = t_info.get('change_pct', 0)
+        else:
+            all_symbols[s] = {'symbol': s.replace('.PA', ''), 'change': t_info.get('change_pct', 0)}
 
     sorted_sectors = sorted(sectors.items(), key=lambda x: x[1], reverse=True)
     top_sectors = [{'name': name, 'change': change} for name, change in sorted_sectors[:5]]
+    
     heatmap_data = []
-    for s, t_info in tickers.items():
-        # Affiche tout, mais enlève .PA pour la lisibilité
-        display_name = s.replace('.PA', '')
-        heatmap_data.append({'symbol': display_name, 'change': t_info.get('change_pct', 0), 'full_symbol': s})
+    for s, data in all_symbols.items():
+        heatmap_data.append({'symbol': data['symbol'], 'change': data['change'], 'full_symbol': s})
     
     return top_sectors, sorted(heatmap_data, key=lambda x: x['symbol'])
 
@@ -271,7 +279,7 @@ def ultra_analyze():
 
     # --- INITIALISATION SYSTEMATIQUE ---
     context = {
-        'symbol': symbol, 'last_close_price': 0, 'daily_change_percent': 0, 'recommendation': None, 'reason': 'Analyse en cours...', 
+        'symbol': symbol, 'last_close_price': None, 'daily_change_percent': 0, 'recommendation': None, 'reason': 'Analyse en cours...', 
         'rsi_value': 50, 'mm20': 0, 'mm50': 0, 'mm200': 0, 'short_term_entry_price': "N/A", 'short_term_exit_price': "N/A",
         'sector': "N/A", 'sector_avg': 0, 'relative_strength': 0, 'vol_spike': 1, 'esg_score': "N/A", 'esg_badge': "-", 
         'pe_ratio': "N/A", 'div_yield': "0", 'currency_symbol': "€", 'stock_chart_div': "", 'top_sectors': top_sectors, 
@@ -279,12 +287,14 @@ def ultra_analyze():
     }
 
     if df is not None and info is not None:
+        price = info.get('price', 0)
         context.update({
-            'last_close_price': info.get('price', 0), 'daily_change_percent': info.get('change_pct', 0),
+            'last_close_price': price if price > 0 else 0.001, # Évite le loop du loader si prix est 0
+            'daily_change_percent': info.get('change_pct', 0),
             'recommendation': info.get('recommendation', 'Conserver'), 'reason': info.get('reason', 'N/A'), 'rsi_value': info.get('rsi', 50),
             'mm20': info.get('mm20', 0), 'mm50': info.get('mm50', 0), 'mm200': info.get('mm200', 0),
-            'short_term_entry_price': f"{info.get('targets', {}).get('entry', 0):.2f}", 
-            'short_term_exit_price': f"{info.get('targets', {}).get('exit', 0):.2f}",
+            'short_term_entry_price': f"{info.get('targets', {}).get('entry', 0):.2f}" if info.get('targets') else "N/A", 
+            'short_term_exit_price': f"{info.get('targets', {}).get('exit', 0):.2f}" if info.get('targets') else "N/A",
             'sector': info.get('sector', 'N/A'), 'sector_avg': info.get('sector_avg', 0), 'relative_strength': info.get('relative_strength', 0), 'vol_spike': info.get('vol_spike', 1),
             'esg_score': esg.get('score', 'N/A'), 'esg_badge': esg.get('badge', '-'), 'pe_ratio': fund.get('pe', 'N/A'), 'div_yield': fund.get('yield', '0'),
             'currency_symbol': '€' if '.PA' in symbol else '$', 'stock_chart_div': create_stock_chart(df, symbol)
