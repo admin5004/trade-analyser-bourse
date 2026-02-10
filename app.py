@@ -138,47 +138,35 @@ def create_stock_chart(df, symbol):
     except Exception: return ""
 
 def get_global_context():
-    # Récupérer les données live
     with market_lock:
-        sectors, tickers = dict(MARKET_STATE['sectors']), dict(MARKET_STATE['tickers'])
+        live_tickers = dict(MARKET_STATE['tickers'])
+        live_sectors = dict(MARKET_STATE['sectors'])
     
-    # Récupérer TOUS les symboles de la base pour garantir que la heatmap n'est jamais vide
-    all_symbols_data = {}
+    heatmap_data = []
+    # D'abord, récupérer tout de la DB
     try:
         with sqlite3.connect(DB_NAME) as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT symbol, name FROM tickers")
-            for row in cursor.fetchall():
-                symbol_full = row[0]
-                all_symbols_data[symbol_full] = {
-                    'symbol_short': symbol_full.replace('.PA', ''),
-                    'change': 0,
-                    'full_symbol': symbol_full
-                }
+            cursor.execute("SELECT symbol FROM tickers")
+            all_db_symbols = [row[0] for row in cursor.fetchall()]
+            
+            for s in all_db_symbols:
+                # Si on a de la donnée live, on l'utilise
+                if s in live_tickers:
+                    change = live_tickers[s].get('change_pct', 0)
+                else:
+                    change = 0
+                
+                heatmap_data.append({
+                    'symbol': s.replace('.PA', ''),
+                    'change': change,
+                    'full_symbol': s
+                })
     except Exception as e:
-        logger.error(f"Error fetching symbols for heatmap: {e}")
+        logger.error(f"Heatmap error: {e}")
 
-    # Fusionner avec les données live
-    for s, t_info in tickers.items():
-        if s in all_symbols_data:
-            all_symbols_data[s]['change'] = t_info.get('change_pct', 0)
-        else:
-            all_symbols_data[s] = {
-                'symbol_short': s.replace('.PA', ''),
-                'change': t_info.get('change_pct', 0),
-                'full_symbol': s
-            }
-
-    sorted_sectors = sorted(sectors.items(), key=lambda x: x[1], reverse=True)
+    sorted_sectors = sorted(live_sectors.items(), key=lambda x: x[1], reverse=True)
     top_sectors = [{'name': name, 'change': change} for name, change in sorted_sectors[:5]]
-    
-    heatmap_data = []
-    for s, data in all_symbols_data.items():
-        heatmap_data.append({
-            'symbol': data['symbol_short'],
-            'change': data['change'],
-            'full_symbol': data['full_symbol']
-        })
     
     return top_sectors, sorted(heatmap_data, key=lambda x: x['symbol'])
 
@@ -331,16 +319,21 @@ def ultra_analyze():
 
     if df is not None and info is not None:
         price = info.get('price', 0)
+        targets = info.get('targets', {})
         context.update({
-            'last_close_price': price if price > 0 else 0.001, # Évite le loop du loader si prix est 0
+            'last_close_price': price if price > 0 else 0.001,
             'daily_change_percent': info.get('change_pct', 0),
-            'recommendation': info.get('recommendation', 'Conserver'), 'reason': info.get('reason', 'N/A'), 'rsi_value': info.get('rsi', 50),
-            'mm20': info.get('mm20', 0), 'mm50': info.get('mm50', 0), 'mm200': info.get('mm200', 0),
-            'short_term_entry_price': f"{info.get('targets', {}).get('entry', 0):.2f}" if info.get('targets') else "N/A", 
-            'short_term_exit_price': f"{info.get('targets', {}).get('exit', 0):.2f}" if info.get('targets') else "N/A",
-            'sector': info.get('sector', 'N/A'), 'sector_avg': info.get('sector_avg', 0), 'relative_strength': info.get('relative_strength', 0), 'vol_spike': info.get('vol_spike', 1),
-            'esg_score': esg.get('score', 'N/A'), 'esg_badge': esg.get('badge', '-'), 'pe_ratio': fund.get('pe', 'N/A'), 'div_yield': fund.get('yield', '0'),
-            'currency_symbol': '€' if '.PA' in symbol else '$', 'stock_chart_div': create_stock_chart(df, symbol)
+            'recommendation': info.get('recommendation', 'Conserver'), 
+            'reason': info.get('reason', 'N/A'), 
+            'rsi_value': info.get('rsi', 50),
+            'mm20': info.get('mm20', 0), 
+            'mm50': info.get('mm50', 0), 
+            'mm200': info.get('mm200', 0),
+            'short_term_entry_price': f"{targets.get('entry', 0):.2f}" if targets.get('entry') else "N/A", 
+            'short_term_exit_price': f"{targets.get('exit', 0):.2f}" if targets.get('exit') else "N/A",
+            'sector': info.get('sector', 'N/A'),
+            'vol_spike': info.get('vol_spike', 1),
+            'stock_chart_div': create_stock_chart(df, symbol)
         })
     
     return render_template('index.html', **context)
