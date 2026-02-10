@@ -29,8 +29,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger("TradingEngine")
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key-123-v3-final")
-VERSION = "3.3.4 (Hardened Context)"
+app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key-v3-ultra")
+VERSION = "3.3.5 (Cache-Breaker Edition)"
 DB_NAME = "users.db"
 
 market_lock = threading.Lock()
@@ -145,13 +145,13 @@ scheduler = BackgroundScheduler()
 scheduler.add_job(func=fetch_market_data_job, trigger=IntervalTrigger(minutes=20), id='mkt_job')
 scheduler.start()
 
-# --- ROUTES ---
+# --- ROUTES (ULTRA UNIQUE NAMES) ---
 
-@app.route('/v3_search_engine', methods=['POST'])
-def v3_search():
+@app.route('/ultra_search_handler', methods=['POST'])
+def ultra_search():
     query = request.form.get('query', '').strip()
-    if not query: return redirect(url_for('v3_analyze'))
-    return redirect(url_for('v3_analyze', symbol=query.upper()))
+    if not query: return redirect(url_for('ultra_analyze'))
+    return redirect(url_for('ultra_analyze', symbol=query.upper()))
 
 @app.route('/api/search_tickers')
 def api_search_tickers():
@@ -169,28 +169,26 @@ def api_search_tickers():
     return jsonify(results)
 
 @app.route('/')
-def v3_home():
-    if session.get('verified'): return redirect(url_for('v3_analyze'))
+def ultra_home():
+    if session.get('verified'): return redirect(url_for('ultra_analyze'))
     return render_template('welcome.html')
 
 @app.route('/login', methods=['POST'])
-def v3_login():
+def ultra_login():
     email = request.form.get('email', '').strip()
-    if not email: return redirect(url_for('v3_home'))
+    if not email: return redirect(url_for('ultra_home'))
     try:
         with sqlite3.connect(DB_NAME) as conn:
             conn.execute('INSERT OR REPLACE INTO leads (email, signup_date, marketing_consent, ip_address) VALUES (?, ?, ?, ?)', (email, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 1 if request.form.get('accept_marketing')=='on' else 0, request.remote_addr))
         session['verified'] = True; session['pending_email'] = email
         if not MARKET_STATE['tickers']: threading.Thread(target=fetch_market_data_job).start()
-        return redirect(url_for('v3_analyze'))
-    except Exception: return redirect(url_for('v3_home'))
+        return redirect(url_for('ultra_analyze'))
+    except Exception: return redirect(url_for('ultra_home'))
 
 @app.route('/analyze')
-def v3_analyze():
-    if not session.get('verified'): return redirect(url_for('v3_home'))
+def ultra_analyze():
+    if not session.get('verified'): return redirect(url_for('ultra_home'))
     symbol = request.args.get('symbol', 'MC.PA').upper().strip()
-    
-    # Résolution symbole
     try:
         with sqlite3.connect(DB_NAME) as conn:
             cursor = conn.cursor()
@@ -216,18 +214,13 @@ def v3_analyze():
     top_sectors, heatmap_data = get_global_context()
     esg, fund = MARKET_STATE['esg_data'].get(symbol, {'score': 'N/A', 'badge': '-'}), MARKET_STATE['fundamentals'].get(symbol, {'pe': 'N/A', 'yield': 'N/A'})
 
-    # --- INITIALISATION SYSTEMATIQUE DE TOUTES LES VARIABLES ---
+    # --- INITIALISATION SYSTEMATIQUE ---
     context = {
-        'symbol': symbol,
-        'last_close_price': 0, 'daily_change_percent': 0,
-        'recommendation': None, 'reason': 'Données non disponibles', 'rsi_value': 50,
-        'mm20': 0, 'mm50': 0, 'mm200': 0,
-        'short_term_entry_price': "N/A", 'short_term_exit_price': "N/A",
-        'sector': "N/A", 'sector_avg': 0, 'relative_strength': 0, 'vol_spike': 1,
-        'esg_score': "N/A", 'esg_badge': "-", 'pe_ratio': "N/A", 'div_yield': "0",
-        'currency_symbol': "€", 'stock_chart_div': "",
-        'top_sectors': top_sectors, 'heatmap_data': heatmap_data,
-        'engine_status': 'ONLINE', 'last_update': MARKET_STATE['last_update'] or 'Chargement...'
+        'symbol': symbol, 'last_close_price': 0, 'daily_change_percent': 0, 'recommendation': None, 'reason': 'Analyse en cours...', 
+        'rsi_value': 50, 'mm20': 0, 'mm50': 0, 'mm200': 0, 'short_term_entry_price': "N/A", 'short_term_exit_price': "N/A",
+        'sector': "N/A", 'sector_avg': 0, 'relative_strength': 0, 'vol_spike': 1, 'esg_score': "N/A", 'esg_badge': "-", 
+        'pe_ratio': "N/A", 'div_yield': "0", 'currency_symbol': "€", 'stock_chart_div': "", 'top_sectors': top_sectors, 
+        'heatmap_data': heatmap_data, 'engine_status': 'ONLINE', 'last_update': MARKET_STATE['last_update'] or 'Chargement...'
     }
 
     if df is not None and info is not None:
@@ -246,7 +239,7 @@ def v3_analyze():
 
 @app.errorhandler(500)
 def handle_500(e):
-    return f"V3 CRITICAL ERROR:<br><pre>{traceback.format_exc()}</pre>", 500
+    return f"V3 CRITICAL ERROR DETECTED:<br><pre>{traceback.format_exc()}</pre>", 500
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))

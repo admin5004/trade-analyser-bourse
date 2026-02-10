@@ -47,3 +47,4 @@ webencodings==0.5.1
 websockets==16.0
 Werkzeug==3.1.5
 yfinance==0.2.54
+# Cache breaker: mar. 10 févr. 2026 09:36:52 CET
