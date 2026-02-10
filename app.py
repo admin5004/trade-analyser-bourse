@@ -202,6 +202,12 @@ def login():
         return redirect(url_for('analyze_page'))
     except Exception: return redirect(url_for('index'))
 
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+    query = request.form.get('query', '').strip() if request.method == 'POST' else request.args.get('query', '').strip()
+    if not query: return redirect(url_for('analyze_page'))
+    return redirect(url_for('analyze_page', symbol=query))
+
 @app.route('/api/search_tickers')
 def search_tickers():
     query = request.args.get('query', '').upper()
