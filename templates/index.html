@@ -98,17 +98,21 @@
                 <div id="chart-area" class="accordion-content">{{ stock_chart_div|safe }}</div>
             </div>
             {% endif %}
+        </div> <!-- Fin de dashboard-grid -->
 
-            <div class="col-12" style="margin-top: 2rem;">
-                <h3>🗺️ Heatmap du Marché</h3>
-                <div class="card heatmap-grid">
+        <div class="col-12" style="margin-top: 2rem;">
+            <h3>🗺️ Heatmap du Marché</h3>
+            <div class="card heatmap-grid">
+                {% if heatmap_data %}
                     {% for item in heatmap_data %}
                     <a href="/analyze?symbol={{ item.full_symbol }}" class="heatmap-tile" 
                        style="background: {% if item.change|default(0) > 1 %}#064e3b{% elif item.change|default(0) > 0 %}#059669{% elif item.change|default(0) > -1 %}#dc2626{% else %}#7f1d1d{% endif %};">
                         {{ item.symbol }}<br><small style="font-size: 0.6rem; opacity: 0.8;">{{ item.change|default(0)|round(1) }}%</small>
                     </a>
                     {% endfor %}
-                </div>
+                {% else %}
+                    <p style="text-align:center; color: #64748b; padding: 1rem;">Chargement des données du marché...</p>
+                {% endif %}
             </div>
         </div>
     </div>
