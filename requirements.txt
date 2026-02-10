@@ -6,6 +6,8 @@ charset-normalizer==3.4.4
 click==8.3.1
 curl_cffi==0.13.0
 Flask==3.0.3
+Flask-Caching==2.3.0
+APScheduler==3.10.4
 frozendict==2.4.7
 gunicorn==22.0.0
 html5lib==1.1
@@ -27,6 +29,7 @@ peewee==3.19.0
 platformdirs==4.5.1
 plotly==5.22.0
 protobuf==6.33.5
+pyarrow==19.0.0
 pycparser==3.0
 python-dateutil==2.9.0.post0
 python-dotenv==1.2.1
