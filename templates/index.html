@@ -24,6 +24,8 @@
         .accordion-content { display: none; margin-top: 1rem; background: white; border-radius: 20px; border: 1px solid var(--border); padding: 1rem; }
         .heatmap-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; }
         .heatmap-tile { text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60px; border-radius: 8px; color: white; font-weight: 800; font-size: 0.75rem; transition: 0.2s; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 2s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -48,8 +50,21 @@
             {% endif %}
         </div>
 
-        {% if recommendation %}
         <div class="dashboard-grid">
+            {% if not symbol %}
+            <div class="card col-12" style="text-align: center; padding: 4rem 2rem;">
+                <div style="font-size: 4rem; margin-bottom: 1rem;">📈</div>
+                <h2>Prêt pour l'analyse</h2>
+                <p style="color: #64748b;">Entrez un code boursier pour obtenir les signaux d'achat/vente et les graphiques.</p>
+            </div>
+            {% elif not last_close_price %}
+            <div class="card col-12" style="text-align: center; padding: 4rem 2rem;">
+                <div class="loader" style="margin: 0 auto 1rem;"></div>
+                <h2>Récupération des données pour {{ symbol }}...</h2>
+                <p>Cela peut prendre quelques secondes.</p>
+                <script>setTimeout(function(){ location.reload(); }, 5000);</script>
+            </div>
+            {% else %}
             <div class="card col-8">
                 <div style="display: flex; justify-content: space-between;">
                     <div>
@@ -61,11 +76,13 @@
                             {{ daily_change_percent|default(0)|round(2) }}%
                         </div>
                     </div>
+                    {% if recommendation %}
                     <div class="badge {% if recommendation == 'Achat' %}badge-buy{% else %}badge-sell{% endif %}" style="height: fit-content;">
                         {{ recommendation }}
                     </div>
+                    {% endif %}
                 </div>
-                <p style="background: #f8fafc; padding: 1rem; border-radius: 12px; margin-top: 1rem;"><strong>Signal :</strong> {{ reason|default('N/A') }}</p>
+                <p style="background: #f8fafc; padding: 1rem; border-radius: 12px; margin-top: 1rem;"><strong>Signal :</strong> {{ reason|default('Analyse technique en cours...') }}</p>
             </div>
 
             <div class="card col-4">
@@ -80,24 +97,18 @@
                 <button class="accordion-btn" onclick="toggleSection('chart-area')">📊 GRAPHIQUE TECHNIQUE</button>
                 <div id="chart-area" class="accordion-content">{{ stock_chart_div|safe }}</div>
             </div>
-        </div>
-        {% elif symbol %}
-        <div class="card" style="text-align: center; padding: 3rem;">
-            <h3>⏳ Analyse de {{ symbol }}...</h3>
-            <p>Données Yahoo Finance en cours de récupération. Cette page se rafraîchira automatiquement.</p>
-            <script>setTimeout(function(){ location.reload(); }, 8000);</script>
-        </div>
-        {% endif %}
+            {% endif %}
 
-        <div class="col-12" style="margin-top: 2rem;">
-            <h3>🗺️ Heatmap du Marché</h3>
-            <div class="card heatmap-grid">
-                {% for item in heatmap_data %}
-                <a href="/analyze?symbol={{ item.full_symbol }}" class="heatmap-tile" 
-                   style="background: {% if item.change|default(0) > 1 %}#064e3b{% elif item.change|default(0) > 0 %}#059669{% elif item.change|default(0) > -1 %}#dc2626{% else %}#7f1d1d{% endif %};">
-                    {{ item.symbol }}<br><small style="font-size: 0.6rem; opacity: 0.8;">{{ item.change|default(0)|round(1) }}%</small>
-                </a>
-                {% endfor %}
+            <div class="col-12" style="margin-top: 2rem;">
+                <h3>🗺️ Heatmap du Marché</h3>
+                <div class="card heatmap-grid">
+                    {% for item in heatmap_data %}
+                    <a href="/analyze?symbol={{ item.full_symbol }}" class="heatmap-tile" 
+                       style="background: {% if item.change|default(0) > 1 %}#064e3b{% elif item.change|default(0) > 0 %}#059669{% elif item.change|default(0) > -1 %}#dc2626{% else %}#7f1d1d{% endif %};">
+                        {{ item.symbol }}<br><small style="font-size: 0.6rem; opacity: 0.8;">{{ item.change|default(0)|round(1) }}%</small>
+                    </a>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>

@@ -25,12 +25,18 @@ from textblob import TextBlob
 
 # --- CONFIGURATION ---
 load_dotenv()
+
+# Désactiver toute tentative d'interface graphique (évite les erreurs Firefox/X11 sur Render)
+os.environ['QT_QPA_PLATFORM'] = 'offscreen'
+os.environ['PYDEVD_DISABLE_FILE_VALIDATION'] = '1'
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger("TradingEngine")
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key-v3-ultra")
-VERSION = "3.3.5 (Cache-Breaker Edition)"
+# Génère une clé unique au démarrage si SECRET_KEY n'est pas dans les variables d'environnement
+app.secret_key = os.environ.get("SECRET_KEY", "".join(random.choices(string.ascii_letters + string.digits, k=32)))
+VERSION = "3.4.0 (Stable Edition)"
 DB_NAME = "users.db"
 
 market_lock = threading.Lock()
@@ -175,20 +181,39 @@ def ultra_home():
 
 @app.route('/login', methods=['POST'])
 def ultra_login():
-    email = request.form.get('email', '').strip()
-    if not email: return redirect(url_for('ultra_home'))
+    email = request.form.get('email', '').strip().lower()
+    if not email or not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
+        flash("Veuillez entrer une adresse email valide.", "error")
+        return redirect(url_for('ultra_home'))
     try:
         with sqlite3.connect(DB_NAME) as conn:
-            conn.execute('INSERT OR REPLACE INTO leads (email, signup_date, marketing_consent, ip_address) VALUES (?, ?, ?, ?)', (email, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 1 if request.form.get('accept_marketing')=='on' else 0, request.remote_addr))
-        session['verified'] = True; session['pending_email'] = email
+            # Utilisation de requêtes paramétrées (sécurisé contre injection SQL)
+            conn.execute('INSERT OR REPLACE INTO leads (email, signup_date, marketing_consent, ip_address) VALUES (?, ?, ?, ?)', 
+                         (email, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 1 if request.form.get('accept_marketing')=='on' else 0, request.remote_addr))
+        session['verified'] = True
+        session['pending_email'] = email
         if not MARKET_STATE['tickers']: threading.Thread(target=fetch_market_data_job).start()
         return redirect(url_for('ultra_analyze'))
-    except Exception: return redirect(url_for('ultra_home'))
+    except Exception as e: 
+        logger.error(f"Login Error: {e}")
+        return redirect(url_for('ultra_home'))
 
 @app.route('/analyze')
 def ultra_analyze():
     if not session.get('verified'): return redirect(url_for('ultra_home'))
-    symbol = request.args.get('symbol', 'MC.PA').upper().strip()
+    
+    # Symbole vide par défaut pour que la barre soit propre
+    symbol = request.args.get('symbol', '').upper().strip()
+    
+    # Si aucun symbole n'est demandé, on n'affiche pas de données vides
+    if not symbol:
+        top_sectors, heatmap_data = get_global_context()
+        return render_template('index.html', 
+            symbol="", last_close_price=None, recommendation=None, 
+            reason="Veuillez entrer un symbole boursier pour commencer l'analyse.",
+            top_sectors=top_sectors, heatmap_data=heatmap_data,
+            engine_status='READY', last_update=MARKET_STATE['last_update'])
+
     try:
         with sqlite3.connect(DB_NAME) as conn:
             cursor = conn.cursor()
@@ -236,6 +261,28 @@ def ultra_analyze():
         })
     
     return render_template('index.html', **context)
+
+@app.route('/export_leads_secret_v3')
+def export_leads():
+    # Note: Dans une version réelle, vous devriez ajouter une vérification de mot de passe ici
+    try:
+        with sqlite3.connect(DB_NAME) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT email, signup_date, marketing_consent, ip_address FROM leads ORDER BY signup_date DESC")
+            rows = cursor.fetchall()
+        
+        output = io.StringIO()
+        writer = csv.writer(output)
+        writer.writerow(['Email', 'Date Inscription', 'Consentement Marketing', 'IP'])
+        writer.writerows(rows)
+        
+        return Response(
+            output.getvalue(),
+            mimetype="text/csv",
+            headers={"Content-disposition": f"attachment; filename=leads_export_{datetime.now().strftime('%Y%m%d')}.csv"}
+        )
+    except Exception as e:
+        return f"Erreur lors de l'export : {e}", 500
 
 @app.errorhandler(500)
 def handle_500(e):

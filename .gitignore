@@ -1,3 +1,7 @@
-__pycache__/\n*.pyc\nusers.db\nvenv/\n.env
-users.db
+venv/
 __pycache__/
+*.pyc
+.env
+users.db
+*.log
+.DS_Store
