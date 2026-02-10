@@ -169,6 +169,10 @@ def get_global_context():
             cursor.execute("SELECT symbol FROM tickers")
             all_db_symbols = [row[0] for row in cursor.fetchall()]
             
+            # Si la DB est vide mais qu'on a des données live, on utilise le live
+            if not all_db_symbols and live_tickers:
+                all_db_symbols = list(live_tickers.keys())
+
             for s in all_db_symbols:
                 # Si on a de la donnée live, on l'utilise
                 if s in live_tickers:
@@ -183,6 +187,13 @@ def get_global_context():
                 })
     except Exception as e:
         logger.error(f"Heatmap error: {e}")
+        # Fallback sur les données live si erreur DB
+        for s, info in live_tickers.items():
+            heatmap_data.append({
+                'symbol': s.replace('.PA', ''),
+                'change': info.get('change_pct', 0),
+                'full_symbol': s
+            })
 
     sorted_sectors = sorted(live_sectors.items(), key=lambda x: x[1], reverse=True)
     top_sectors = [{'name': name, 'change': change} for name, change in sorted_sectors[:5]]
