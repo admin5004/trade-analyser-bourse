@@ -29,8 +29,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger("TradingEngine")
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key-123-v3")
-VERSION = "3.3.3 (Zero-Crash Context)"
+app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key-123-v3-final")
+VERSION = "3.3.4 (Hardened Context)"
 DB_NAME = "users.db"
 
 market_lock = threading.Lock()
@@ -189,6 +189,8 @@ def v3_login():
 def v3_analyze():
     if not session.get('verified'): return redirect(url_for('v3_home'))
     symbol = request.args.get('symbol', 'MC.PA').upper().strip()
+    
+    # Résolution symbole
     try:
         with sqlite3.connect(DB_NAME) as conn:
             cursor = conn.cursor()
@@ -214,11 +216,11 @@ def v3_analyze():
     top_sectors, heatmap_data = get_global_context()
     esg, fund = MARKET_STATE['esg_data'].get(symbol, {'score': 'N/A', 'badge': '-'}), MARKET_STATE['fundamentals'].get(symbol, {'pe': 'N/A', 'yield': 'N/A'})
 
-    # --- CONTEXTE BLINDE (Valeurs par défaut pour Jinja2) ---
+    # --- INITIALISATION SYSTEMATIQUE DE TOUTES LES VARIABLES ---
     context = {
         'symbol': symbol,
         'last_close_price': 0, 'daily_change_percent': 0,
-        'recommendation': None, 'reason': 'Analyse en cours...', 'rsi_value': 50,
+        'recommendation': None, 'reason': 'Données non disponibles', 'rsi_value': 50,
         'mm20': 0, 'mm50': 0, 'mm200': 0,
         'short_term_entry_price': "N/A", 'short_term_exit_price': "N/A",
         'sector': "N/A", 'sector_avg': 0, 'relative_strength': 0, 'vol_spike': 1,
@@ -239,8 +241,6 @@ def v3_analyze():
             'esg_score': esg.get('score', 'N/A'), 'esg_badge': esg.get('badge', '-'), 'pe_ratio': fund.get('pe', 'N/A'), 'div_yield': fund.get('yield', '0'),
             'currency_symbol': '€' if '.PA' in symbol else '$', 'stock_chart_div': create_stock_chart(df, symbol)
         })
-    else:
-        flash(f"Données Yahoo Finance pour {symbol} temporairement indisponibles.", "warning")
     
     return render_template('index.html', **context)
 
