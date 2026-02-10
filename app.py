@@ -247,6 +247,10 @@ def analyze_page():
     df = MARKET_STATE['dataframes'].get(symbol)
     esg = MARKET_STATE['esg_data'].get(symbol, {'score': 'N/A', 'badge': '-'})
 
+    # TOP 5 SECTEURS (Calculé dynamiquement depuis la mémoire)
+    sorted_sectors = sorted(MARKET_STATE['sectors'].items(), key=lambda x: x[1], reverse=True)
+    top_sectors = [{'name': name, 'change': change} for name, change in sorted_sectors[:5]]
+
     if df is not None:
         context = {
             'symbol': symbol,
@@ -267,7 +271,8 @@ def analyze_page():
             'currency_symbol': '€' if '.PA' in symbol else '$',
             'stock_chart_div': create_stock_chart(df, symbol),
             'engine_status': 'ONLINE',
-            'last_update': MARKET_STATE['last_update']
+            'last_update': MARKET_STATE['last_update'],
+            'top_sectors': top_sectors
         }
         return render_template('index.html', **context)
     
