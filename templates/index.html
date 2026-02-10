@@ -86,7 +86,7 @@
         </header>
 
         <div class="search-box">
-            <form action="{{ url_for('search') }}" method="POST" class="search-form">
+            <form action="{{ url_for('perform_search') }}" method="POST" class="search-form">
                 <input type="text" name="query" id="search-input" placeholder="Symbole..." required autocomplete="off" value="{{ symbol if symbol else '' }}">
                 <button type="submit" class="btn-search">Analyser</button>
             </form>
