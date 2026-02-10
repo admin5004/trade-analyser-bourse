@@ -149,21 +149,28 @@
 
         <!-- Section Information / Menus additionnels -->
         <div class="col-12" style="margin-top: 2rem; margin-bottom: 4rem;">
-            <button class="accordion-btn" style="background: #64748b;" onclick="toggleSection('info-area')">ℹ️ MÉTHODOLOGIE & INFORMATIONS</button>
+            <button class="accordion-btn" style="background: #64748b;" onclick="toggleSection('info-area')">ℹ️ MÉTHODOLOGIE & GUIDE D'UTILISATION</button>
             <div id="info-area" class="accordion-content">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                     <div>
-                        <h4>🔍 Méthodologie</h4>
-                        <p style="font-size: 0.9rem; color: #475569;">L'analyse repose sur un croisement d'indicateurs techniques (RSI, Moyennes Mobiles 20/50/200) et de force relative sectorielle. Les signaux sont générés automatiquement par l'algorithme Trading Analyzer V3.</p>
+                        <h4 style="color: var(--primary); margin-bottom: 10px;">📊 Glossaire des Indicateurs</h4>
+                        <div style="font-size: 0.85rem; line-height: 1.5;">
+                            <p><strong>• RSI (14) :</strong> Évalue la force du prix. Un RSI sous 40 indique une zone d'opportunité, au-dessus de 70 une zone de prudence.</p>
+                            <p><strong>• MM200 :</strong> Moyenne des 200 derniers jours. Si le cours est au-dessus, la tendance est dite "Haussière".</p>
+                            <p><strong>• Volume Ratio :</strong> Compare les échanges du jour à la veille pour valider la conviction des investisseurs.</p>
+                        </div>
                     </div>
                     <div>
-                        <h4>📊 Indicateurs utilisés</h4>
-                        <ul style="font-size: 0.9rem; color: #475569;">
-                            <li><strong>RSI (14)</strong> : Mesure la vitesse et le changement des mouvements de prix.</li>
-                            <li><strong>MM200</strong> : Détermine la tendance de fond à long terme.</li>
-                            <li><strong>Force Relative</strong> : Comparaison de la performance de l'action par rapport à son secteur.</li>
-                        </ul>
+                        <h4 style="color: var(--primary); margin-bottom: 10px;">🎯 Comprendre les Prix Cibles</h4>
+                        <div style="font-size: 0.85rem; line-height: 1.5;">
+                            <p><strong>• Prix d'Entrée :</strong> Calculé pour optimiser le ratio gain/risque en fonction de la volatilité récente.</p>
+                            <p><strong>• Objectif :</strong> Cible de sortie court terme basée sur le momentum et les résistances calculées.</p>
+                            <p><strong>• Recommandation :</strong> Synthèse des indicateurs techniques et du consensus des analystes externes.</p>
+                        </div>
                     </div>
+                </div>
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee; font-size: 0.8rem; color: #64748b; font-style: italic;">
+                    Note : Les analyses sont mises à jour toutes les 20 minutes durant les heures d'ouverture des marchés.
                 </div>
             </div>
         </div>
