@@ -140,11 +140,24 @@ def create_stock_chart(df, symbol):
 def get_global_context():
     with market_lock:
         sectors, tickers = dict(MARKET_STATE['sectors']), dict(MARKET_STATE['tickers'])
+    
+    # Si les tickers sont vides (moteur pas encore fini), on affiche au moins les symboles prévus
+    if not tickers:
+        try:
+            with sqlite3.connect(DB_NAME) as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT symbol FROM tickers LIMIT 20")
+                tickers = {row[0]: {'change_pct': 0, 'symbol': row[0]} for row in cursor.fetchall()}
+        except Exception: pass
+
     sorted_sectors = sorted(sectors.items(), key=lambda x: x[1], reverse=True)
     top_sectors = [{'name': name, 'change': change} for name, change in sorted_sectors[:5]]
     heatmap_data = []
     for s, t_info in tickers.items():
-        if '.PA' in s: heatmap_data.append({'symbol': s.replace('.PA', ''), 'change': t_info['change_pct'], 'full_symbol': s})
+        # Affiche tout, mais enlève .PA pour la lisibilité
+        display_name = s.replace('.PA', '')
+        heatmap_data.append({'symbol': display_name, 'change': t_info.get('change_pct', 0), 'full_symbol': s})
+    
     return top_sectors, sorted(heatmap_data, key=lambda x: x['symbol'])
 
 # --- SCHEDULER ---
