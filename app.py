@@ -30,7 +30,7 @@ logger = logging.getLogger("TradingEngine")
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key-123")
-VERSION = "3.2.2 (Final Bug Fix)"
+VERSION = "3.2.3 (Routes Restored)"
 DB_NAME = "users.db"
 
 cache = Cache(app, config={'CACHE_TYPE': 'SimpleCache', 'CACHE_DEFAULT_TIMEOUT': 300})
@@ -95,7 +95,7 @@ def fetch_esg_and_fundamentals():
         except Exception: continue
 
 def fetch_market_data_job():
-    logger.info("📡 ENGINE: Refreshing...")
+    logger.info("📡 ENGINE: Refreshing market data...")
     symbols_info = {}
     try:
         with sqlite3.connect(DB_NAME) as conn:
@@ -150,7 +150,7 @@ def fetch_market_data_job():
             })
                 
         MARKET_STATE['last_update'] = datetime.now().isoformat()
-        logger.info(f"✅ ENGINE: Refreshed.")
+        logger.info(f"✅ ENGINE: Refreshed {len(MARKET_STATE['tickers'])} symbols.")
     except Exception as e: logger.error(f"❌ ENGINE CRITICAL: {e}")
 
 def analyze_stock(df, sector_avg_change=0):
@@ -214,6 +214,26 @@ def login():
         return redirect(url_for('analyze_page'))
     except Exception: return redirect(url_for('index'))
 
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+    query = request.form.get('query', '').strip() if request.method == 'POST' else request.args.get('query', '').strip()
+    if not query: return redirect(url_for('analyze_page'))
+    return redirect(url_for('analyze_page', symbol=query))
+
+@app.route('/api/search_tickers')
+def search_tickers():
+    query = request.args.get('query', '').upper()
+    if not query: return jsonify([])
+    results = [{'symbol': s, 'name': ''} for s in MARKET_STATE['tickers'].keys() if query in s][:5]
+    if not results:
+        try:
+            with sqlite3.connect(DB_NAME) as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT symbol, name FROM tickers WHERE symbol LIKE ? OR name LIKE ? LIMIT 5", (f'%{query}%', f'%{query}%'))
+                results = [{'symbol': row[0], 'name': row[1]} for row in cursor.fetchall()]
+        except Exception: pass
+    return jsonify(results)
+
 @app.route('/analyze')
 def analyze_page():
     if not session.get('verified'): return redirect(url_for('index'))
@@ -256,6 +276,23 @@ def analyze_page():
         return render_template('index.html', **context)
     
     return render_template('index.html', symbol=symbol, recommendation=None, top_sectors=top_sectors, heatmap_data=heatmap_data)
+
+@app.route('/status')
+def engine_status():
+    return jsonify({'version': VERSION, 'cached_instruments': len(MARKET_STATE['tickers']), 'sectors_tracked': len(MARKET_STATE['sectors']), 'last_update': MARKET_STATE['last_update']})
+
+@app.route('/admin/export_leads')
+def export_leads():
+    try:
+        si = io.StringIO()
+        cw = csv.writer(si)
+        with sqlite3.connect(DB_NAME) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT email, signup_date, marketing_consent, ip_address FROM leads")
+            cw.writerow(['Email', 'Signup Date', 'Marketing Consent', 'IP Address'])
+            cw.writerows(cursor.fetchall())
+        return Response(si.getvalue(), mimetype="text/csv", headers={"Content-disposition": "attachment; filename=leads.csv"})
+    except Exception: return "Erreur"
 
 @app.route('/debug')
 def debug_logs():
