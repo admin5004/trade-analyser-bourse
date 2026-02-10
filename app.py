@@ -262,10 +262,18 @@ def ultra_analyze():
         info, df = MARKET_STATE['tickers'].get(symbol), MARKET_STATE['dataframes'].get(symbol)
     
     # FALLBACK SYNC
+    news_list = []
+    analyst_info = "N/A"
     if df is None:
         try:
             ticker = yf.Ticker(symbol)
             df = ticker.history(period="2y")
+            # Fetch news and analyst info
+            news_list = ticker.news[:5] if ticker.news else []
+            try:
+                analyst_info = ticker.info.get('recommendationKey', 'N/A').replace('_', ' ').title()
+            except: pass
+
             if df is not None and not df.empty:
                 df.columns = [col.lower() for col in df.columns]
                 reco, reason, rsi, mm20, mm50, mm100, mm200, entry, exit = analyze_stock(df)
@@ -287,6 +295,13 @@ def ultra_analyze():
         except Exception as e:
             logger.error(f"Fallback fetch error for {symbol}: {e}")
             pass
+    else:
+        # If df was already in MARKET_STATE, we still need news for the specific symbol
+        try:
+            ticker = yf.Ticker(symbol)
+            news_list = ticker.news[:5] if ticker.news else []
+            analyst_info = ticker.info.get('recommendationKey', 'N/A').replace('_', ' ').title()
+        except: pass
 
     top_sectors, heatmap_data = get_global_context()
     esg, fund = MARKET_STATE['esg_data'].get(symbol, {'score': 'N/A', 'badge': '-'}), MARKET_STATE['fundamentals'].get(symbol, {'pe': 'N/A', 'yield': 'N/A'})
@@ -297,7 +312,8 @@ def ultra_analyze():
         'rsi_value': 50, 'mm20': 0, 'mm50': 0, 'mm200': 0, 'short_term_entry_price': "N/A", 'short_term_exit_price': "N/A",
         'sector': "N/A", 'sector_avg': 0, 'relative_strength': 0, 'vol_spike': 1, 'esg_score': "N/A", 'esg_badge': "-", 
         'pe_ratio': "N/A", 'div_yield': "0", 'currency_symbol': "€", 'stock_chart_div': "", 'top_sectors': top_sectors, 
-        'heatmap_data': heatmap_data, 'engine_status': 'ONLINE', 'last_update': MARKET_STATE['last_update'] or 'Chargement...'
+        'heatmap_data': heatmap_data, 'engine_status': 'ONLINE', 'last_update': MARKET_STATE['last_update'] or 'Chargement...',
+        'news': news_list, 'analyst_recommendation': analyst_info
     }
 
     if df is not None and info is not None:
