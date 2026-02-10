@@ -30,7 +30,7 @@ logger = logging.getLogger("TradingEngine")
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key-123")
-VERSION = "3.2.7 (Routing Priority Fix)"
+VERSION = "3.2.8 (Force Render Bypass)"
 DB_NAME = "users.db"
 
 market_lock = threading.Lock()
@@ -76,7 +76,7 @@ init_db()
 # --- ENGINE ---
 
 def fetch_market_data_job():
-    logger.info("📡 ENGINE: Started.")
+    logger.info("📡 ENGINE: Cycle started...")
     symbols_info = {}
     try:
         with sqlite3.connect(DB_NAME) as conn:
@@ -99,7 +99,7 @@ def fetch_market_data_job():
             sector_stats[sector].append(change_pct)
             temp_dfs[symbol] = df
             temp_tickers[symbol] = {'price': float(df['close'].iloc[-1]), 'change_pct': float(change_pct), 'sector': sector, 'vol_spike': float(df['volume'].iloc[-1] / df['volume'].tail(20).mean()) if df['volume'].tail(20).mean() > 0 else 1.0}
-            time.sleep(0.3)
+            time.sleep(0.5) # Plus lent pour éviter ban
         except Exception: continue
     with market_lock:
         MARKET_STATE['tickers'].update(temp_tickers)
@@ -113,7 +113,7 @@ def fetch_market_data_job():
             reco, reason, rsi, mm20, mm50, mm100, mm200, entry, exit = analyze_stock(df, sec_avg)
             info.update({'recommendation': reco, 'reason': reason, 'rsi': rsi, 'mm20': mm20, 'mm50': mm50, 'mm200': mm200, 'targets': {'entry': entry, 'exit': exit}, 'sector_avg': sec_avg, 'relative_strength': info['change_pct'] - sec_avg})
         MARKET_STATE['last_update'] = datetime.now().isoformat()
-    logger.info("✅ ENGINE: Ready.")
+    logger.info("✅ ENGINE: Cycle complete.")
 
 def analyze_stock(df, sector_avg_change=0):
     try:
@@ -151,13 +151,13 @@ scheduler = BackgroundScheduler()
 scheduler.add_job(func=fetch_market_data_job, trigger=IntervalTrigger(minutes=20), id='mkt_job')
 scheduler.start()
 
-# --- ROUTES (PRIORITY) ---
+# --- ROUTES ---
 
 @app.route('/perform_search', methods=['GET', 'POST'])
 def perform_search():
-    query = request.form.get('query', '').strip() if request.method == 'POST' else request.args.get('query', '').strip()
+    query = (request.form.get('query') or request.args.get('query') or '').strip()
     if not query: return redirect(url_for('analyze_page'))
-    return redirect(url_for('analyze_page', symbol=query))
+    return redirect(url_for('analyze_page', symbol=query.upper()))
 
 @app.route('/api/search_tickers')
 def search_tickers():
@@ -202,22 +202,29 @@ def analyze_page():
             row = cursor.fetchone()
             if row: symbol = row[0]
     except Exception: pass
+    
     with market_lock:
         info, df = MARKET_STATE['tickers'].get(symbol), MARKET_STATE['dataframes'].get(symbol)
+    
+    # FALLBACK SYNC AMÉLIORÉ
     if df is None:
         try:
-            df = yf.Ticker(symbol).history(period="2y")
-            if not df.empty:
+            ticker = yf.Ticker(symbol)
+            df = ticker.history(period="2y", timeout=5) # Timeout pour éviter blocage
+            if df is not None and not df.empty:
                 df.columns = [col.lower() for col in df.columns]
                 reco, reason, rsi, mm20, mm50, mm100, mm200, entry, exit = analyze_stock(df)
                 info = {'price': float(df['close'].iloc[-1]), 'change_pct': 0.0, 'recommendation': reco, 'reason': reason, 'rsi': rsi, 'mm20': mm20, 'mm50': mm50, 'mm200': mm200, 'targets': {'entry': entry, 'exit': exit}, 'vol_spike': 1.0}
         except Exception: pass
+
     top_sectors, heatmap_data = get_global_context()
     esg, fund = MARKET_STATE['esg_data'].get(symbol, {'score': 'N/A', 'badge': '-'}), MARKET_STATE['fundamentals'].get(symbol, {'pe': 'N/A', 'yield': 'N/A'})
+
     if df is not None and info is not None:
         context = {'symbol': symbol, 'last_close_price': info.get('price', 0), 'daily_change': 0, 'daily_change_percent': info.get('change_pct', 0), 'recommendation': info.get('recommendation', 'N/A'), 'reason': info.get('reason', 'N/A'), 'rsi_value': info.get('rsi', 50), 'mm20': info.get('mm20', 0), 'mm50': info.get('mm50', 0), 'mm200': info.get('mm200', 0), 'short_term_entry_price': f"{info.get('targets', {}).get('entry', 0):.2f}", 'short_term_exit_price': f"{info.get('targets', {}).get('exit', 0):.2f}", 'sector': info.get('sector', 'N/A'), 'sector_avg': info.get('sector_avg', 0), 'relative_strength': info.get('relative_strength', 0), 'vol_spike': info.get('vol_spike', 1), 'esg_score': esg['score'], 'esg_badge': esg['badge'], 'pe_ratio': fund['pe'], 'div_yield': fund['yield'], 'currency_symbol': '€' if '.PA' in symbol else '$', 'stock_chart_div': create_stock_chart(df, symbol), 'engine_status': 'ONLINE', 'last_update': MARKET_STATE['last_update'], 'top_sectors': top_sectors, 'heatmap_data': heatmap_data}
         return render_template('index.html', **context)
-    flash(f"Instrument {symbol} introuvable.", "error")
+    
+    # ÉVITE LE BLOCAGE : Si pas de données, on affiche quand même la structure
     return render_template('index.html', symbol=symbol, recommendation=None, top_sectors=top_sectors, heatmap_data=heatmap_data)
 
 @app.errorhandler(500)
