@@ -251,6 +251,17 @@ def analyze_page():
     sorted_sectors = sorted(MARKET_STATE['sectors'].items(), key=lambda x: x[1], reverse=True)
     top_sectors = [{'name': name, 'change': change} for name, change in sorted_sectors[:5]]
 
+    # HEATMAP DATA (Nouveau)
+    heatmap_data = []
+    for s, t_info in MARKET_STATE['tickers'].items():
+        if '.PA' in s: # On se concentre sur Euronext Paris pour la heatmap
+            heatmap_data.append({
+                'symbol': s.replace('.PA', ''),
+                'change': t_info['change_pct'],
+                'full_symbol': s
+            })
+    heatmap_data = sorted(heatmap_data, key=lambda x: x['symbol'])
+
     if df is not None:
         context = {
             'symbol': symbol,
@@ -272,7 +283,8 @@ def analyze_page():
             'stock_chart_div': create_stock_chart(df, symbol),
             'engine_status': 'ONLINE',
             'last_update': MARKET_STATE['last_update'],
-            'top_sectors': top_sectors
+            'top_sectors': top_sectors,
+            'heatmap_data': heatmap_data # Ajout à la Heatmap
         }
         return render_template('index.html', **context)
     

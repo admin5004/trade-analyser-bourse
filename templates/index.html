@@ -179,7 +179,24 @@
             {% endif %}
 
             <div class="col-12">
-                <button class="accordion-btn" onclick="toggleSection('chart-accordion')">
+                <button class="accordion-btn" style="background: #0f172a; margin-top: 0;" onclick="toggleSection('heatmap-accordion')">
+                    🗺️ VOIR LA HEATMAP DU CAC 40
+                </button>
+                <div id="heatmap-accordion" class="accordion-content" style="padding: 1.5rem;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px;">
+                        {% for item in heatmap_data %}
+                        <a href="{{ url_for('analyze_page', symbol=item.full_symbol) }}" 
+                           style="text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60px; border-radius: 8px; font-weight: 800; font-size: 0.75rem; color: white; transition: transform 0.2s;
+                                  background: {% if item.change > 2 %}#064e3b{% elif item.change > 0 %}#059669{% elif item.change > -2 %}#dc2626{% else %}#7f1d1d{% endif %};"
+                           onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                            <span>{{ item.symbol }}</span>
+                            <span style="font-size: 0.65rem; opacity: 0.9;">{{ "%+.2f"|format(item.change) }}%</span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <button class="accordion-btn" style="margin-top: 1.5rem;" onclick="toggleSection('chart-accordion')">
                     📊 VOIR L'ANALYSE GRAPHIQUE
                 </button>
                 <div id="chart-accordion" class="accordion-content">
