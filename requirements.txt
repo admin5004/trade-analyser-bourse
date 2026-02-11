@@ -9,4 +9,4 @@ textblob
 apscheduler
 python-dotenv
 gunicorn
-sqlite3-api
+curl_cffi
