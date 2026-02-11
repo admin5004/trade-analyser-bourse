@@ -23,9 +23,16 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 import plotly.graph_objects as go
 from textblob import TextBlob
+import requests
 
 # --- CONFIGURATION ---
 load_dotenv()
+
+# Configuration de la session pour yfinance
+session = requests.Session()
+session.headers.update({
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+})
 
 os.environ['QT_QPA_PLATFORM'] = 'offscreen'
 os.environ['PYDEVD_DISABLE_FILE_VALIDATION'] = '1'
@@ -128,7 +135,7 @@ def fetch_market_data_job():
     
     for symbol in symbols:
         try:
-            ticker = yf.Ticker(symbol)
+            ticker = yf.Ticker(symbol, session=session)
             # Utilisation de 1y pour avoir assez de données pour SMA 200
             df = ticker.history(period="1y", timeout=20)
             if df is None or df.empty:
@@ -275,7 +282,7 @@ def ultra_analyze():
     # Force sync fetch if not in cache or if cache is empty skeleton
     if df is None or (info and info.get('price') == 0):
         try:
-            ticker = yf.Ticker(symbol)
+            ticker = yf.Ticker(symbol, session=session)
             df = ticker.history(period="1y")
             news_list = ticker.news[:5] if ticker.news else []
             analyst_info = ticker.info.get('recommendationKey', 'N/A').replace('_', ' ').title()
@@ -289,7 +296,9 @@ def ultra_analyze():
                     'recommendation': reco, 'reason': reason, 'rsi': rsi, 'mm20': mm20, 'mm50': mm50, 'mm200': mm200,
                     'targets': {'entry': entry, 'exit': exit}, 'sector': 'Autre'
                 }
-        except: pass
+        except Exception as e: 
+            logger.error(f"Fallback error for {symbol}: {e}")
+            analyst_info = f"Erreur: {str(e)[:20]}"
 
     sentiment_score, sentiment_label = analyze_sentiment(news_list)
 
@@ -297,7 +306,7 @@ def ultra_analyze():
         'symbol': symbol, 'last_close_price': info.get('price') if info else 0.001,
         'daily_change_percent': info.get('change_pct', 0) if info else 0,
         'recommendation': info.get('recommendation', 'Analyse...') if info else 'Indisponible',
-        'reason': info.get('reason', 'Récupération des données en cours') if info else 'Erreur de connexion API',
+        'reason': info.get('reason', 'Récupération des données en cours') if info else 'Échec de connexion aux serveurs boursiers (Yahoo Finance)',
         'rsi_value': info.get('rsi', 50) if info else 50,
         'mm20': info.get('mm20', 0) if info else 0,
         'mm50': info.get('mm50', 0) if info else 0,
