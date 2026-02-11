@@ -93,8 +93,9 @@ def get_global_context():
             for s in all_db_symbols:
                 info = live_tickers.get(s, {})
                 change = info.get('change_pct', 0)
-                # Sensibilité accrue : 1% de variation = 100% d'intensité
-                intensity = min(abs(change) * 100, 100)
+                # Échelle de 10% : chaque 0,01% compte pour 0,1 unit d'intensité
+                # (10% de variation = 100 d'intensité)
+                intensity = min(abs(change) * 10, 100)
                 
                 heatmap_data.append({
                     'symbol': s.replace('.PA', ''),
