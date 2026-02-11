@@ -307,7 +307,7 @@ def ultra_analyze():
         'sector': info.get('sector', 'N/A') if info else 'N/A',
         'pe_ratio': "N/A", 'div_yield': "0", 'currency_symbol': "€", 
         'stock_chart_div': create_stock_chart(df, symbol) if df is not None else "",
-        'top_sectors': [], 'heatmap_data': heatmap_data, 'engine_status': 'ONLINE',
+        'top_sectors': [], 'heatmap_data': heatmap_data, 'engine_status': 'ONLINE', 'version': VERSION,
         'last_update': MARKET_STATE['last_update'], 'news': news_list, 'analyst_recommendation': analyst_info,
         'sentiment_score': sentiment_score, 'sentiment_label': sentiment_label
     }
