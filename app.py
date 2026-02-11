@@ -91,30 +91,50 @@ def fetch_market_data_job():
             cursor.execute("SELECT symbol, sector FROM tickers")
             for row in cursor.fetchall(): symbols_info[row[0]] = row[1]
     except Exception: return
+    
     symbols = list(symbols_info.keys())
     temp_tickers, temp_dfs, sector_stats = {}, {}, {}
+    
+    # Pré-remplir avec des données par défaut pour éviter le 0
+    for symbol in symbols:
+        temp_tickers[symbol] = {'price': 0, 'change_pct': 0, 'sector': symbols_info.get(symbol, 'Autre'), 'vol_spike': 1.0}
+
     for symbol in symbols:
         try:
             ticker = yf.Ticker(symbol)
-            df = ticker.history(period="2y", timeout=10)
+            # Utilisation de 1mo au lieu de 2y pour être plus léger au démarrage
+            df = ticker.history(period="1mo", timeout=15)
             if df is None or df.empty: continue
+            
             df.columns = [col.lower() for col in df.columns]
-            if len(df) < 2 or df['close'].iloc[-2] == 0: continue
-            change_pct = ((df['close'].iloc[-1] - df['close'].iloc[-2]) / df['close'].iloc[-2] * 100)
+            if len(df) < 2: continue
+            
+            close_now = df['close'].iloc[-1]
+            close_prev = df['close'].iloc[-2]
+            change_pct = ((close_now - close_prev) / close_prev * 100) if close_prev != 0 else 0
+            
             sector = symbols_info.get(symbol, 'Autre')
             if sector not in sector_stats: sector_stats[sector] = []
             sector_stats[sector].append(change_pct)
+            
             temp_dfs[symbol] = df
-            temp_tickers[symbol] = {'price': float(df['close'].iloc[-1]), 'change_pct': float(change_pct), 'sector': sector, 'vol_spike': float(df['volume'].iloc[-1] / df['volume'].tail(20).mean()) if df['volume'].tail(20).mean() > 0 else 1.0}
-            time.sleep(0.5)
-        except Exception: continue
+            temp_tickers[symbol].update({
+                'price': float(close_now),
+                'change_pct': float(change_pct),
+                'vol_spike': float(df['volume'].iloc[-1] / df['volume'].tail(10).mean()) if df['volume'].tail(10).mean() > 0 else 1.0
+            })
+            time.sleep(0.2) # Petit délai pour éviter le ban IP
+        except Exception as e: 
+            logger.warning(f"Error fetching {symbol}: {e}")
+            continue
+            
     with market_lock:
         MARKET_STATE['tickers'].update(temp_tickers)
         MARKET_STATE['dataframes'].update(temp_dfs)
         for sec, changes in sector_stats.items():
             if changes: MARKET_STATE['sectors'][sec] = sum(changes) / len(changes)
         MARKET_STATE['last_update'] = datetime.now().isoformat()
-    logger.info("✅ ENGINE: Cycle complete.")
+    logger.info(f"✅ ENGINE: Cycle complete. Cached: {len(MARKET_STATE['tickers'])}")
 
 def analyze_stock(df, sector_avg_change=0):
     try:
