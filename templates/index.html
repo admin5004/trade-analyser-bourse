@@ -125,20 +125,21 @@
 
         <div class="col-12" style="margin-top: 2rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <h3 style="margin: 0;">🗺️ Carte thermique du Marché</h3>
+                <h3 style="margin: 0;">🗺️ Carte thermique du Marché (Variation 0 à 10%)</h3>
                 <div style="display: flex; gap: 10px; font-size: 0.75rem; align-items: center; background: white; padding: 5px 15px; border-radius: 99px; border: 1px solid var(--border);">
-                    <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #064e3b; border-radius: 2px;"></span> > +1%</span>
-                    <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #059669; border-radius: 2px;"></span> Hausse</span>
-                    <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #dc2626; border-radius: 2px;"></span> Baisse</span>
-                    <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #7f1d1d; border-radius: 2px;"></span> < -1%</span>
+                    <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: rgba(16, 185, 129, 1); border-radius: 2px;"></span> +10%</span>
+                    <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: rgba(16, 185, 129, 0.3); border-radius: 2px;"></span> Neutre</span>
+                    <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: rgba(239, 68, 68, 1); border-radius: 2px;"></span> -10%</span>
                 </div>
             </div>
             <div class="card heatmap-grid">
                 {% if heatmap_data %}
                     {% for item in heatmap_data %}
+                    {% set intensity = item.intensity|default(0) / 100 %}
                     <a href="/analyze?symbol={{ item.full_symbol }}" class="heatmap-tile" 
-                       style="background: {% if item.change|default(0) > 1 %}#064e3b{% elif item.change|default(0) > 0 %}#059669{% elif item.change|default(0) > -1 %}#dc2626{% else %}#7f1d1d{% endif %};">
-                        {{ item.symbol }}<br><small style="font-size: 0.6rem; opacity: 0.8;">{{ item.change|default(0)|round(1) }}%</small>
+                       style="background: {% if item.change|default(0) > 0 %}rgba(16, 185, 129, {{ 0.3 + (intensity * 0.7) }}){% else %}rgba(239, 68, 68, {{ 0.3 + (intensity * 0.7) }}){% endif %};
+                              color: {% if 0.3 + (intensity * 0.7) > 0.6 %}white{% else %}#0f172a{% endif %};">
+                        {{ item.symbol }}<br><small style="font-size: 0.6rem; font-weight: 700;">{{ item.change|default(0)|round(1) }}%</small>
                     </a>
                     {% endfor %}
                 {% else %}

@@ -191,10 +191,14 @@ def get_global_context():
                 else:
                     change = 0
                 
+                # Intensité basée sur 0-10% (10% = 100% de couleur)
+                intensity = min(abs(change) * 10, 100)
+                
                 heatmap_data.append({
                     'symbol': s.replace('.PA', ''),
                     'change': change,
-                    'full_symbol': s
+                    'full_symbol': s,
+                    'intensity': intensity
                 })
     except Exception as e:
         logger.error(f"Heatmap error: {e}")
@@ -228,15 +232,21 @@ def ultra_search():
 def api_search_tickers():
     query = request.args.get('query', '').upper()
     if not query: return jsonify([])
-    with market_lock:
-        results = [{'symbol': s, 'name': ''} for s in MARKET_STATE['tickers'].keys() if query in s][:5]
+    
+    results = []
+    # Priorité à la DB pour avoir des noms complets
+    try:
+        with sqlite3.connect(DB_NAME) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT symbol, name FROM tickers WHERE symbol LIKE ? OR name LIKE ? LIMIT 10", (f'%{query}%', f'%{query}%'))
+            results = [{'symbol': row[0], 'name': row[1]} for row in cursor.fetchall()]
+    except Exception: pass
+    
+    # Si pas de DB ou vide, on check le live
     if not results:
-        try:
-            with sqlite3.connect(DB_NAME) as conn:
-                cursor = conn.cursor()
-                cursor.execute("SELECT symbol, name FROM tickers WHERE symbol LIKE ? OR name LIKE ? LIMIT 10", (f'%{query}%', f'%{query}%'))
-                results = [{'symbol': row[0], 'name': row[1]} for row in cursor.fetchall()]
-        except Exception: pass
+        with market_lock:
+            results = [{'symbol': s, 'name': ''} for s in MARKET_STATE['tickers'].keys() if query in s][:5]
+            
     return jsonify(results)
 
 @app.route('/')
@@ -421,5 +431,13 @@ def handle_500(e):
     return f"V3 CRITICAL ERROR DETECTED:<br><pre>{traceback.format_exc()}</pre>", 500
 
 if __name__ == '__main__':
+
+    # Lancement d'un cycle initial en arrière-plan
+
+    threading.Thread(target=fetch_market_data_job).start()
+
+    
+
     port = int(os.environ.get("PORT", 5000))
+
     app.run(debug=True, host='0.0.0.0', port=port, use_reloader=False)
