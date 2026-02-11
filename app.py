@@ -28,12 +28,6 @@ import requests
 # --- CONFIGURATION ---
 load_dotenv()
 
-# Configuration de la session pour yfinance
-session = requests.Session()
-session.headers.update({
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-})
-
 os.environ['QT_QPA_PLATFORM'] = 'offscreen'
 os.environ['PYDEVD_DISABLE_FILE_VALIDATION'] = '1'
 
@@ -135,7 +129,7 @@ def fetch_market_data_job():
     
     for symbol in symbols:
         try:
-            ticker = yf.Ticker(symbol, session=session)
+            ticker = yf.Ticker(symbol)
             # Utilisation de 1y pour avoir assez de données pour SMA 200
             df = ticker.history(period="1y", timeout=20)
             if df is None or df.empty:
@@ -282,7 +276,7 @@ def ultra_analyze():
     # Force sync fetch if not in cache or if cache is empty skeleton
     if df is None or (info and info.get('price') == 0):
         try:
-            ticker = yf.Ticker(symbol, session=session)
+            ticker = yf.Ticker(symbol)
             df = ticker.history(period="1y")
             news_list = ticker.news[:5] if ticker.news else []
             analyst_info = ticker.info.get('recommendationKey', 'N/A').replace('_', ' ').title()
