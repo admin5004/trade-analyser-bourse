@@ -156,6 +156,17 @@ def create_stock_chart(df, symbol):
         return fig.to_html(full_html=False, include_plotlyjs='cdn')
     except Exception: return ""
 
+def analyze_sentiment(news_list):
+    if not news_list: return 0, "Neutre"
+    sentiments = []
+    for n in news_list:
+        text = n.get('title', '')
+        blob = TextBlob(text)
+        sentiments.append(blob.sentiment.polarity)
+    avg = sum(sentiments) / len(sentiments) if sentiments else 0
+    label = "Positif" if avg > 0.1 else "Négatif" if avg < -0.1 else "Neutre"
+    return avg, label
+
 def get_global_context():
     with market_lock:
         live_tickers = dict(MARKET_STATE['tickers'])
@@ -336,6 +347,7 @@ def ultra_analyze():
 
     top_sectors, heatmap_data = get_global_context()
     esg, fund = MARKET_STATE['esg_data'].get(symbol, {'score': 'N/A', 'badge': '-'}), MARKET_STATE['fundamentals'].get(symbol, {'pe': 'N/A', 'yield': 'N/A'})
+    sentiment_score, sentiment_label = analyze_sentiment(news_list)
 
     # --- INITIALISATION SYSTEMATIQUE ---
     context = {
@@ -344,7 +356,8 @@ def ultra_analyze():
         'sector': "N/A", 'sector_avg': 0, 'relative_strength': 0, 'vol_spike': 1, 'esg_score': "N/A", 'esg_badge': "-", 
         'pe_ratio': "N/A", 'div_yield': "0", 'currency_symbol': "€", 'stock_chart_div': "", 'top_sectors': top_sectors, 
         'heatmap_data': heatmap_data, 'engine_status': 'ONLINE', 'last_update': MARKET_STATE['last_update'] or 'Chargement...',
-        'news': news_list, 'analyst_recommendation': analyst_info
+        'news': news_list, 'analyst_recommendation': analyst_info,
+        'sentiment_score': sentiment_score, 'sentiment_label': sentiment_label
     }
 
     if df is not None and info is not None:
@@ -367,6 +380,19 @@ def ultra_analyze():
         })
     
     return render_template('index.html', **context)
+
+@app.route('/status')
+def ultra_status():
+    with market_lock:
+        running = scheduler.running
+        last_upd = MARKET_STATE['last_update']
+        count = len(MARKET_STATE['tickers'])
+    return jsonify({
+        'engine_running': running,
+        'last_update': last_upd,
+        'cached_instruments': count,
+        'version': VERSION
+    })
 
 @app.route('/export_leads_secret_v3')
 def export_leads():
