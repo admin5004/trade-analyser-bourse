@@ -23,21 +23,23 @@ def fetch_company_website(symbol):
     return None
 
 def fetch_balo_news(symbol, name=None):
-    """
-    Tente de récupérer les dernières annonces BALO.
-    Note: Utilise une approche simplifiée via recherche publique ou API ouverte si disponible.
-    """
-    # Pour l'instant, on génère un lien vers la recherche officielle BALO
-    # car l'API DILA nécessite souvent un token et une inscription.
+    """Génère un lien vers la recherche officielle BALO."""
     search_query = name if name else symbol.replace('.PA', '')
     balo_url = f"https://www.journal-officiel.gouv.fr/pages/balo/recherche-resultats/?search={search_query}"
-    
-    # On pourrait parser le HTML ici, mais pour la stabilité on propose le lien direct
-    # et on simule une récupération d'actualités législatives.
     return {
         'title': "Annonces Légales (BALO)",
         'link': balo_url,
         'source': "Journal Officiel"
+    }
+
+def fetch_bodacc_news(symbol, name=None):
+    """Génère un lien vers la recherche officielle BODACC (Procédures collectives, ventes...)."""
+    search_query = name if name else symbol.replace('.PA', '')
+    bodacc_url = f"https://www.bodacc.fr/pages/annonces-commerciales-recherche-resultats/?search={search_query}"
+    return {
+        'title': "Procédures & Ventes (BODACC)",
+        'link': bodacc_url,
+        'source': "BODACC"
     }
 
 def get_company_legal_info(symbol):

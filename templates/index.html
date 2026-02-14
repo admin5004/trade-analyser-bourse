@@ -193,13 +193,25 @@
                 {% endif %}
 
                 {% if balo_news %}
-                <button class="accordion-btn" style="background: #0f172a;" onclick="toggleSection('legal-area')">⚖️ ACTUALITÉS LÉGALES (BALO)</button>
+                <button class="accordion-btn" style="background: #0f172a;" onclick="toggleSection('legal-area')">⚖️ ACTUALITÉS LÉGALES (BALO & BODACC)</button>
                 <div id="legal-area" class="accordion-content">
-                    <div style="padding: 1rem;">
-                        <p>Consultez les annonces légales obligatoires (augmentations de capital, assemblées générales, rapports annuels) sur le site officiel :</p>
-                        <a href="{{ balo_news.link }}" target="_blank" style="display: inline-block; background: var(--primary); color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600;">
-                            Consulter le BALO pour {{ symbol }}
-                        </a>
+                    <div style="padding: 1rem; display: flex; flex-direction: column; gap: 15px;">
+                        <div>
+                            <p style="margin-top:0;"><strong>BALO :</strong> Annonces obligatoires (Assemblées, Augmentations de capital...)</p>
+                            <a href="{{ balo_news.link }}" target="_blank" style="display: inline-block; background: var(--primary); color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+                                Consulter le BALO pour {{ symbol }}
+                            </a>
+                        </div>
+                        
+                        {% if bodacc_news %}
+                        <div style="border-top: 1px solid #eee; padding-top: 15px;">
+                            <p><strong>BODACC :</strong> Vie civile et commerciale (Cessions, Procédures collectives...)</p>
+                            <a href="{{ bodacc_news.link }}" target="_blank" style="display: inline-block; background: #dc2626; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+                                Consulter le BODACC pour {{ symbol }}
+                            </a>
+                        </div>
+                        {% endif %}
+                        
                         <div style="font-size: 0.8rem; color: #64748b; margin-top: 10px;">Source : Direction de l'information légale et administrative (DILA)</div>
                     </div>
                 </div>
