@@ -11,3 +11,4 @@ python-dotenv
 gunicorn
 curl_cffi
 feedparser
+bcrypt

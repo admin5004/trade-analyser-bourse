@@ -26,6 +26,29 @@ def init_db():
                 cursor.execute("ALTER TABLE tickers ADD COLUMN website_url TEXT")
             except: pass
 
+            cursor.execute('''CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT UNIQUE,
+                password_hash TEXT,
+                is_active INTEGER DEFAULT 0,
+                created_at TEXT
+            )''')
+            
+            cursor.execute('''CREATE TABLE IF NOT EXISTS activation_codes (
+                email TEXT PRIMARY KEY,
+                code TEXT,
+                type TEXT, -- 'activation' or 'login'
+                expires_at TEXT
+            )''')
+
+            cursor.execute('''CREATE TABLE IF NOT EXISTS devices (
+                user_id INTEGER,
+                device_id TEXT,
+                device_name TEXT,
+                last_login TEXT,
+                PRIMARY KEY (user_id, device_id)
+            )''')
+
             cursor.execute('''CREATE TABLE IF NOT EXISTS leads (email TEXT PRIMARY KEY, signup_date TEXT, marketing_consent INTEGER DEFAULT 0, ip_address TEXT)''')
             cursor.execute('''CREATE TABLE IF NOT EXISTS search_history (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT, symbol TEXT, found INTEGER, timestamp TEXT)''')
             

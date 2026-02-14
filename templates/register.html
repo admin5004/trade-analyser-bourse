@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription - Trading Analyzer</title>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        h1 { color: #1a73e8; margin-bottom: 1.5rem; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #1a73e8; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .flash { padding: 10px; margin-bottom: 15px; border-radius: 8px; font-size: 0.9rem; }
+        .flash.error { background: #fce8e6; color: #c5221f; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Créer un compte</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}{% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}{% endif %}
+        {% endwith %}
+        <form action="/register" method="POST">
+            <input type="email" name="email" placeholder="Votre email" required>
+            <input type="password" name="password" placeholder="Choisir un mot de passe" required>
+            <button type="submit">S'inscrire</button>
+        </form>
+        <p style="margin-top: 1.5rem; font-size: 0.9rem;"><a href="/">Retour à la connexion</a></p>
+    </div>
+</body>
+</html>
