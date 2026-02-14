@@ -50,9 +50,19 @@ def ultra_home():
 @app.route('/login', methods=['POST'])
 def ultra_login():
     email = request.form.get('email', '').strip().lower()
+    password = request.form.get('password', '').strip()
+    
+    # Mot de passe de sécurité défini dans l'environnement ou valeur par défaut
+    admin_password = os.environ.get("ADMIN_PASSWORD", "Corentin2026!")
+    
     if not email or not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
         flash("Email invalide", "error")
         return redirect(url_for('ultra_home'))
+    
+    if password != admin_password:
+        flash("Accès refusé : Mot de passe incorrect", "error")
+        return redirect(url_for('ultra_home'))
+        
     session['verified'] = True
     return redirect(url_for('ultra_analyze'))
 
@@ -167,4 +177,4 @@ if __name__ == '__main__':
     threading.Thread(target=fetch_market_data_job).start()
     
     port = int(os.environ.get("PORT", 5000))
-    app.run(debug=True, host='0.0.0.0', port=port, use_reloader=False)
+    app.run(debug=False, host='0.0.0.0', port=port, use_reloader=False)
