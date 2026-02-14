@@ -50,7 +50,30 @@ def analyze_sentiment(news_list):
 
 def create_stock_chart(df, symbol):
     try:
-        fig = go.Figure(data=[go.Candlestick(x=df.index, open=df['open'], high=df['high'], low=df['low'], close=df['close'])])
-        fig.update_layout(title=f'{symbol}', height=400, template='plotly_white', margin=dict(l=10, r=10, t=30, b=10), xaxis_rangeslider_visible=False)
+        fig = go.Figure()
+        
+        # Chandeliers
+        fig.add_trace(go.Candlestick(x=df.index, open=df['open'], high=df['high'], low=df['low'], close=df['close'], name='Cours'))
+        
+        # Moyennes Mobiles
+        if 'SMA_20' in df.columns:
+            fig.add_trace(go.Scatter(x=df.index, y=df['SMA_20'], name='MM20', line=dict(color='blue', width=1)))
+        
+        if 'SMA_50' in df.columns:
+            fig.add_trace(go.Scatter(x=df.index, y=df['SMA_50'], name='MM50', line=dict(color='orange', width=1.5)))
+            
+        if 'SMA_200' in df.columns:
+            fig.add_trace(go.Scatter(x=df.index, y=df['SMA_200'], name='MM200', line=dict(color='red', width=2)))
+
+        fig.update_layout(
+            title=f'Analyse Technique - {symbol}',
+            height=500,
+            template='plotly_white',
+            margin=dict(l=10, r=10, t=50, b=10),
+            xaxis_rangeslider_visible=False,
+            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+        )
         return fig.to_html(full_html=False, include_plotlyjs='cdn')
-    except Exception: return ""
+    except Exception as e:
+        logger.error(f"Chart Error: {e}")
+        return "<p style='color:red;'>Erreur lors de la génération du graphique.</p>"
