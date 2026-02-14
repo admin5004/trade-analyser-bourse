@@ -24,7 +24,7 @@
         <div class="search-results">
             <ul>
                 {% for result in results %}
-                <li><a href="{{ url_for('analyze_page', symbol=result.symbol) }}">{{ result.symbol }} - {{ result.name }}</a></li>
+                <li><a href="{{ url_for('ultra_analyze', symbol=result.symbol) }}">{{ result.symbol }} - {{ result.name }}</a></li>
                 {% endfor %}
             </ul>
         </div>
@@ -33,7 +33,7 @@
         {% endif %}
 
         <div class="back-link">
-            <a href="{{ url_for('analyze_page') }}">Nouvelle Recherche</a>
+            <a href="{{ url_for('ultra_analyze') }}">Nouvelle Recherche</a>
         </div>
     </div>
 
