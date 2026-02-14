@@ -95,7 +95,9 @@ def ultra_register():
                              (email, token, 'activation', (datetime.now() + timedelta(hours=24)).isoformat()))
                 conn.commit()
             
-            activation_link = url_for('ultra_activate', token=token, _external=True)
+            # On utilise le nom de domaine pour les liens externes
+            base_url = "https://aibourse.freeboxos.fr" # ou http si vous n'avez pas encore de SSL
+            activation_link = f"{base_url}/activate/{token}"
             subject = "Activation de votre compte Trading Analyzer"
             body = f"Cliquez ici pour activer votre compte : <a href='{activation_link}'>{activation_link}</a>"
             
