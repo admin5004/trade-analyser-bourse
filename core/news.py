@@ -17,10 +17,15 @@ def fetch_google_finance_news(symbol, name=None):
     news_items = []
     try:
         feed = feedparser.parse(rss_url)
-        for entry in feed.entries[:8]:  # On prend les 8 premières news
+        for entry in feed.entries[:8]:
+            title = getattr(entry, 'title', None)
+            link = getattr(entry, 'link', None)
+            if not title or not link or title.lower() == 'none':
+                continue
+                
             news_items.append({
-                'title': entry.title,
-                'link': entry.link,
+                'title': title,
+                'link': link,
                 'publisher': entry.source.get('title', 'Google News'),
                 'published': entry.published if hasattr(entry, 'published') else 'N/A'
             })
@@ -33,13 +38,18 @@ def get_combined_news(ticker_obj, symbol, name=None):
     """Combine les news de yfinance et de Google News."""
     combined = []
     
-    # 1. News yfinance (souvent en anglais)
+    # 1. News yfinance
     try:
         yf_news = ticker_obj.news
         for n in yf_news[:5]:
+            title = n.get('title')
+            link = n.get('link')
+            if not title or not link or title.lower() == 'none':
+                continue
+                
             combined.append({
-                'title': n.get('title'),
-                'link': n.get('link'),
+                'title': title,
+                'link': link,
                 'publisher': n.get('publisher', 'Yahoo Finance'),
                 'published': datetime.fromtimestamp(n.get('providerPublishTime')).strftime('%d/%m/%Y %H:%M') if n.get('providerPublishTime') else 'N/A'
             })
