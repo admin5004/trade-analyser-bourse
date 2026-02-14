@@ -16,7 +16,8 @@ import yfinance as yf
 from core.database import init_db, get_db_connection
 from core.analysis import analyze_stock, analyze_sentiment, create_stock_chart
 from core.market import MARKET_STATE, market_lock, fetch_market_data_job, get_global_context
-from core.legal import get_company_legal_info, fetch_balo_news, fetch_bodacc_news
+from core.legal import get_company_legal_info
+from core.news import get_combined_news
 
 # --- CONFIGURATION ---
 load_dotenv()
@@ -183,18 +184,17 @@ def ultra_analyze():
     sentiment_score, sentiment_label = analyze_sentiment(news_list)
     top_sectors, _ = get_global_context()
     
-    # Infos Légales (BALO, BODACC, Site Web)
+    # Infos Légales (Site Web)
     legal_info = get_company_legal_info(symbol)
-    balo_news = fetch_balo_news(symbol, legal_info['name'] if legal_info else None)
-    bodacc_news = fetch_bodacc_news(symbol, legal_info['name'] if legal_info else None)
     
     # Détection Devise
     currency_code = 'EUR'
     try:
         if df is not None and not df.empty:
-            # yfinance stocke souvent la devise dans info ou metadata
             ticker_obj = yf.Ticker(symbol)
             currency_code = ticker_obj.info.get('currency', 'EUR')
+            # Actualités enrichies (Google News + Yahoo)
+            news_list = get_combined_news(ticker_obj, symbol, legal_info['name'] if legal_info else None)
     except: pass
     currency_symbol = CURRENCY_MAP.get(currency_code, currency_code)
 
@@ -221,8 +221,6 @@ def ultra_analyze():
         'version': VERSION,
         'last_update': MARKET_STATE['last_update'], 
         'news': news_list, 
-        'balo_news': balo_news,
-        'bodacc_news': bodacc_news,
         'website_url': legal_info.get('website') if legal_info else None,
         'analyst_recommendation': analyst_info,
         'sentiment_score': sentiment_score, 
