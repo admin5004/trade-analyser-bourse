@@ -36,6 +36,9 @@ scheduler = BackgroundScheduler()
 scheduler.add_job(func=fetch_market_data_job, trigger=IntervalTrigger(minutes=20), id='mkt_job')
 scheduler.start()
 
+# Lancer un premier scan immédiatement en arrière-plan sans bloquer le démarrage
+threading.Thread(target=fetch_market_data_job, daemon=True).start()
+
 # --- ROUTES ---
 
 @app.route('/')
