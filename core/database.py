@@ -8,8 +8,24 @@ def init_db():
     try:
         with sqlite3.connect(DB_NAME) as conn:
             cursor = conn.cursor()
-            cursor.execute("DROP TABLE IF EXISTS tickers")
-            cursor.execute('''CREATE TABLE IF NOT EXISTS tickers (symbol TEXT PRIMARY KEY, name TEXT, sector TEXT)''')
+            # On ne supprime plus la table pour garder les données enrichies (SIREN, etc.)
+            # cursor.execute("DROP TABLE IF EXISTS tickers")
+            cursor.execute('''CREATE TABLE IF NOT EXISTS tickers (
+                symbol TEXT PRIMARY KEY, 
+                name TEXT, 
+                sector TEXT,
+                siren TEXT,
+                website_url TEXT
+            )''')
+            
+            # Mise à jour schéma si colonnes manquantes
+            try:
+                cursor.execute("ALTER TABLE tickers ADD COLUMN siren TEXT")
+            except: pass
+            try:
+                cursor.execute("ALTER TABLE tickers ADD COLUMN website_url TEXT")
+            except: pass
+
             cursor.execute('''CREATE TABLE IF NOT EXISTS leads (email TEXT PRIMARY KEY, signup_date TEXT, marketing_consent INTEGER DEFAULT 0, ip_address TEXT)''')
             cursor.execute('''CREATE TABLE IF NOT EXISTS search_history (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT, symbol TEXT, found INTEGER, timestamp TEXT)''')
             
@@ -26,7 +42,10 @@ def init_db():
                 ('TTE.PA', 'TotalEnergies', 'Énergie'), ('URW.PA', 'Unibail-Rodamco', 'Immobilier'), ('VIE.PA', 'Veolia', 'Services Publics'), ('DG.PA', 'Vinci', 'Industrie'),
                 ('AAPL', 'Apple', 'Technologie'), ('MSFT', 'Microsoft', 'Technologie'), ('GOOGL', 'Google', 'Technologie'), ('TSLA', 'Tesla', 'Automobile')
             ]
-            cursor.executemany('INSERT OR IGNORE INTO tickers (symbol, name, sector) VALUES (?, ?, ?)', cac40)
+            
+            for symbol, name, sector in cac40:
+                cursor.execute('INSERT OR IGNORE INTO tickers (symbol, name, sector) VALUES (?, ?, ?)', (symbol, name, sector))
+            
             conn.commit()
     except Exception as e:
         logger.error(f"DB Error: {e}")
