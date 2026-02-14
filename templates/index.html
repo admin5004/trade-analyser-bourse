@@ -140,30 +140,9 @@
                         <strong>Note :</strong> L'avis des analystes (actuellement : <span style="color:var(--primary)">{{ analyst_recommendation }}</span>) reflète souvent un objectif à 12 mois basé sur les fondamentaux, tandis que notre signal est <strong>purement technique</strong> (immédiat). Une divergence peut apparaître si le titre est techniquement surchargé malgré un bon profil financier.
                     </p>
                 </div>
-            </div>
 
-            <div class="card col-4">
-                <h3 style="margin-top:0;">Statistiques</h3>
-                <div class="stat-item"><span class="stat-label">Secteur</span><span class="stat-val">{{ sector|default('N/A') }}</span></div>
-                <div class="stat-item"><span class="stat-label">RSI (14)</span><span class="stat-val">{{ rsi_value|default(50)|round(2) }}</span></div>
-                {% if pe_ratio %}
-                <div class="stat-item"><span class="stat-label">P/E Ratio</span><span class="stat-val">{{ pe_ratio|round(2) }}</span></div>
-                {% endif %}
-                {% if div_yield %}
-                <div class="stat-item"><span class="stat-label">Dividende</span><span class="stat-val">{{ div_yield|round(2) }}%</span></div>
-                {% endif %}
-                {% if analyst_recommendation and analyst_recommendation != 'N/A' %}
-                <div class="stat-item"><span class="stat-label">Analystes</span><span class="stat-val" style="color: var(--primary);">{{ analyst_recommendation }}</span></div>
-                {% endif %}
-                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 2px solid #f1f5f9;">
-                    <div class="stat-item"><span class="stat-label">Prix Entrée</span><span class="stat-val" style="color: var(--success);">{{ short_term_entry_price|default('N/A') }} {{ currency_symbol }}</span></div>
-                    <div class="stat-item"><span class="stat-label">Objectif</span><span class="stat-val" style="color: var(--primary);">{{ short_term_exit_price|default('N/A') }} {{ currency_symbol }}</span></div>
-                </div>
-            </div>
-
-            <div class="col-12">
-                <button class="accordion-btn" onclick="toggleSection('chart-area')">📊 GRAPHIQUE TECHNIQUE</button>
-                <div id="chart-area" class="accordion-content">
+                <div style="margin-top: 2rem;">
+                    <h3 style="margin-bottom: 1rem;">📊 GRAPHIQUE TECHNIQUE</h3>
                     <div style="display: flex; align-items: flex-start;">
                         <!-- Boutons à gauche -->
                         <div class="chart-controls">
@@ -179,16 +158,42 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <div class="col-4" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                <div class="card">
+                    <h3 style="margin-top:0;">Statistiques</h3>
+                    <div class="stat-item"><span class="stat-label">Secteur</span><span class="stat-val">{{ sector|default('N/A') }}</span></div>
+                    <div class="stat-item"><span class="stat-label">RSI (14)</span><span class="stat-val">{{ rsi_value|default(50)|round(2) }}</span></div>
+                    {% if pe_ratio %}
+                    <div class="stat-item"><span class="stat-label">P/E Ratio</span><span class="stat-val">{{ pe_ratio|round(2) }}</span></div>
+                    {% endif %}
+                    {% if div_yield %}
+                    <div class="stat-item"><span class="stat-label">Dividende</span><span class="stat-val">{{ div_yield|round(2) }}%</span></div>
+                    {% endif %}
+                    {% if analyst_recommendation and analyst_recommendation != 'N/A' %}
+                    <div class="stat-item"><span class="stat-label">Analystes</span><span class="stat-val" style="color: var(--primary);">{{ analyst_recommendation }}</span></div>
+                    {% endif %}
+                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 2px solid #f1f5f9;">
+                        <div class="stat-item"><span class="stat-label">Prix Entrée</span><span class="stat-val" style="color: var(--success);">{{ short_term_entry_price|default('N/A') }} {{ currency_symbol }}</span></div>
+                        <div class="stat-item"><span class="stat-label">Objectif</span><span class="stat-val" style="color: var(--primary);">{{ short_term_exit_price|default('N/A') }} {{ currency_symbol }}</span></div>
+                    </div>
+                </div>
 
                 {% if news %}
-                <button class="accordion-btn" style="background: #4f46e5;" onclick="toggleSection('news-area')">📰 ACTUALITÉS & RAPPORTS</button>
-                <div id="news-area" class="accordion-content">
-                    {% for item in news %}
-                    <div style="padding: 1rem; border-bottom: 1px solid #eee;">
-                        <a href="{{ item.link }}" target="_blank" style="text-decoration: none; color: var(--text-main); font-weight: 600;">{{ item.title }}</a>
-                        <div style="font-size: 0.8rem; color: #64748b; margin-top: 5px;">{{ item.publisher }} • {{ item.providerPublishTime|default('') }}</div>
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <div style="background: #4f46e5; color: white; padding: 1rem; font-weight: 700;">📰 ACTUALITÉS</div>
+                    <div style="max-height: 600px; overflow-y: auto;">
+                        {% for item in news %}
+                        <div style="padding: 1rem; border-bottom: 1px solid #f1f5f9;">
+                            <a href="{{ item.link }}" target="_blank" style="text-decoration: none; color: var(--text-main); font-weight: 600; font-size: 0.85rem; display: block; line-height: 1.4;">{{ item.title }}</a>
+                            <div style="font-size: 0.7rem; color: #64748b; margin-top: 8px; display: flex; justify-content: space-between;">
+                                <span>{{ item.publisher }}</span>
+                                <span>{{ item.published }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
                 </div>
                 {% endif %}
             </div>
