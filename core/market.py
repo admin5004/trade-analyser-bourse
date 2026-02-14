@@ -91,11 +91,14 @@ def get_global_context():
             all_db_symbols = [row[0] for row in cursor.fetchall()]
             
             for s in all_db_symbols:
-                info = live_tickers.get(s, {})
+                info = live_tickers.get(s)
+                if not info or info.get('price', 0) == 0:
+                    continue
+                
                 change = info.get('change_pct', 0)
-                # Échelle de 10% : chaque 0,01% compte pour 0,1 unit d'intensité
-                # (10% de variation = 100 d'intensité)
-                intensity = min(abs(change) * 10, 100)
+                # On sature l'intensité à 5% de variation pour plus de visibilité
+                # 5% * 20 = 100
+                intensity = min(abs(change) * 20, 100)
                 
                 heatmap_data.append({
                     'symbol': s.replace('.PA', ''),
@@ -103,5 +106,8 @@ def get_global_context():
                     'full_symbol': s,
                     'intensity': intensity
                 })
-    except Exception: pass
+    except Exception as e:
+        logger.error(f"Error in get_global_context: {e}")
+    
+    # Trier par variation absolue (les plus gros mouvements en premier) ou par nom
     return [], sorted(heatmap_data, key=lambda x: x['symbol'])
