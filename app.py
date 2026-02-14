@@ -89,40 +89,42 @@ def ultra_search():
     query = request.form.get('query', '').strip()
     if not query: return redirect(url_for('ultra_analyze'))
     
-    # 1. Vérifier si c'est un symbole direct connu en DB
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute("SELECT symbol FROM tickers WHERE symbol = ?", (query.upper(),))
-        row = cursor.fetchone()
-        if row:
-            return redirect(url_for('ultra_analyze', symbol=row[0]))
-
-    # 2. Sinon, faire une recherche via yfinance
+    # Détection si c'est un ISIN (ex: FR0000120271)
+    is_isin = re.match(r'^[A-Z]{2}[A-Z0-9]{9}[0-9]$', query.upper())
+    
     try:
-        # On utilise Ticker().info ou une recherche rapide pour valider/trouver
-        search_results = []
-        # On tente de voir si le symbole direct marche sur Yahoo
-        t = yf.Ticker(query.upper())
-        if t.history(period="1d").empty == False:
-            return redirect(url_for('ultra_analyze', symbol=query.upper()))
-            
-        # Sinon on fait une recherche textuelle (Simulée ici car yfinance Search est instable)
-        # On va chercher les correspondances partielles en DB pour commencer
-        with get_db_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT symbol, name FROM tickers WHERE symbol LIKE ? OR name LIKE ? LIMIT 10", (f'%{query}%', f'%{query}%'))
-            db_results = [{'symbol': r[0], 'name': r[1]} for r in cursor.fetchall()]
-            
-        if len(db_results) == 1:
-            return redirect(url_for('ultra_analyze', symbol=db_results[0]['symbol']))
-        elif len(db_results) > 1:
-            return render_template('search_results.html', query=query, results=db_results)
+        # Recherche via yfinance
+        from yfinance import Search
+        s = Search(query, max_results=10)
+        quotes = s.quotes
+        
+        if not quotes:
+            # Si Yahoo ne trouve rien, on tente quand même l'analyse directe si c'est un ticker
+            if not is_isin:
+                return redirect(url_for('ultra_analyze', symbol=query.upper()))
+            flash(f"Aucune valeur trouvée pour l'ISIN {query}", "error")
+            return redirect(url_for('ultra_home'))
+
+        # Si un seul résultat exact et c'est un ticker direct connu
+        if len(quotes) == 1:
+            return redirect(url_for('ultra_analyze', symbol=quotes[0]['symbol']))
+
+        # Si plusieurs résultats, on les propose à l'utilisateur
+        results = []
+        for q in quotes:
+            results.append({
+                'symbol': q['symbol'],
+                'name': q.get('shortname') or q.get('longname') or 'N/A',
+                'exchange': q.get('exchange', 'N/A'),
+                'type': q.get('quoteType', 'N/A')
+            })
+        
+        return render_template('search_results.html', query=query, results=results)
             
     except Exception as e:
-        logger.error(f"Search error: {e}")
-
-    # Si rien n'est trouvé, on tente quand même l'analyse directe (au cas où c'est un ticker US valide)
-    return redirect(url_for('ultra_analyze', symbol=query.upper()))
+        logger.error(f"Global search error for {query}: {e}")
+        # En cas d'erreur de l'API Search, on tente l'accès direct
+        return redirect(url_for('ultra_analyze', symbol=query.upper()))
 
 @app.route('/analyze')
 def ultra_analyze():
