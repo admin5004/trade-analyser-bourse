@@ -114,8 +114,13 @@ def ultra_analyze():
                 }
         except Exception as e:
             logger.error(f"Sync fetch error for {symbol}: {e}")
+    else:
+        # Si on a les données du cache, on s'assure que l'analyse est faite sur le DF pour le graphique
+        df.columns = [col.lower() for col in df.columns]
+        analyze_stock(df)
 
     sentiment_score, sentiment_label = analyze_sentiment(news_list)
+    top_sectors, _ = get_global_context()
 
     context = {
         'symbol': symbol, 
@@ -134,7 +139,7 @@ def ultra_analyze():
         'div_yield': info.get('yield') if info and info.get('yield') else None,
         'currency_symbol': "€", 
         'stock_chart_div': create_stock_chart(df, symbol) if df is not None else "",
-        'top_sectors': [], 
+        'top_sectors': top_sectors, 
         'heatmap_data': heatmap_data, 
         'engine_status': 'ONLINE', 
         'version': VERSION,
