@@ -84,30 +84,45 @@ def get_global_context():
         live_tickers = dict(MARKET_STATE['tickers'])
     
     heatmap_data = []
+    sector_perf = {}
+    
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT symbol FROM tickers")
-            all_db_symbols = [row[0] for row in cursor.fetchall()]
+            cursor.execute("SELECT symbol, sector FROM tickers")
+            db_symbols = cursor.fetchall()
             
-            for s in all_db_symbols:
+            for s, sector in db_symbols:
                 info = live_tickers.get(s)
                 if not info or info.get('price', 0) == 0:
                     continue
                 
                 change = info.get('change_pct', 0)
-                # On sature l'intensité à 5% de variation pour plus de visibilité
-                # 5% * 20 = 100
-                intensity = min(abs(change) * 20, 100)
                 
+                # Heatmap
+                intensity = min(abs(change) * 20, 100)
                 heatmap_data.append({
                     'symbol': s.replace('.PA', ''),
                     'change': change,
                     'full_symbol': s,
                     'intensity': intensity
                 })
+                
+                # Sectors
+                if sector not in sector_perf:
+                    sector_perf[sector] = []
+                sector_perf[sector].append(change)
+                
     except Exception as e:
         logger.error(f"Error in get_global_context: {e}")
     
-    # Trier par variation absolue (les plus gros mouvements en premier) ou par nom
-    return [], sorted(heatmap_data, key=lambda x: x['symbol'])
+    top_sectors = []
+    for sec, changes in sector_perf.items():
+        if changes:
+            avg_change = sum(changes) / len(changes)
+            top_sectors.append({'name': sec, 'change': avg_change})
+            
+    # Trier les secteurs par performance décroissante
+    top_sectors = sorted(top_sectors, key=lambda x: x['change'], reverse=True)
+    
+    return top_sectors, sorted(heatmap_data, key=lambda x: x['symbol'])
