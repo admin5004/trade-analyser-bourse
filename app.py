@@ -80,10 +80,10 @@ def ultra_analyze():
     if not session.get('verified'): return redirect(url_for('ultra_home'))
     symbol = request.args.get('symbol', '').upper().strip()
     
-    _, heatmap_data = get_global_context()
+    top_sectors, heatmap_data = get_global_context()
     
     if not symbol:
-        return render_template('index.html', symbol="", last_close_price=None, top_sectors=[], heatmap_data=heatmap_data, version=VERSION)
+        return render_template('index.html', symbol="", last_close_price=None, top_sectors=top_sectors, heatmap_data=heatmap_data, version=VERSION)
 
     # Récupération DATA depuis le cache
     with market_lock:
