@@ -47,7 +47,12 @@ def fetch_market_data_job():
             try:
                 info_data = ticker.info
                 pe = info_data.get('trailingPE')
-                dy = info_data.get('dividendYield', 0) * 100 if info_data.get('dividendYield') else 0
+                raw_yield = info_data.get('dividendYield')
+                dy = 0
+                if raw_yield:
+                    # Si yfinance renvoie > 1.0, c'est probablement déjà en pourcentage (ex: 2.4 pour 2.4%)
+                    # Sinon c'est un ratio (ex: 0.024 pour 2.4%)
+                    dy = float(raw_yield) if raw_yield > 1.0 else float(raw_yield) * 100
             except: pe, dy = None, None
 
             reco, reason, rsi, mm20, mm50, mm100, mm200, entry, exit = analyze_stock(df)
