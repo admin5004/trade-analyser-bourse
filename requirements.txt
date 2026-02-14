@@ -10,3 +10,4 @@ apscheduler
 python-dotenv
 gunicorn
 curl_cffi
+feedparser
