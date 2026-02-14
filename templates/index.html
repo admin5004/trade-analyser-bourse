@@ -11,6 +11,14 @@
         .container { max-width: 1000px; margin: 2rem auto; padding: 0 1.5rem; }
         .search-box { max-width: 600px; margin: 0 auto 2rem; position: relative; }
         .search-form { display: flex; gap: 10px; background: white; padding: 6px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        
+        /* Style pour le défilement automatique des secteurs */
+        .sector-ticker-container { margin-top: 1rem; overflow: hidden; white-space: nowrap; position: relative; background: transparent; padding: 5px 0; }
+        .sector-ticker-inner { display: inline-block; animation: ticker 40s linear infinite; padding-left: 100%; }
+        .sector-ticker-inner:hover { animation-play-state: paused; }
+        @keyframes ticker { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
+        .sector-badge { display: inline-block; background: white; border: 1px solid var(--border); padding: 6px 14px; border-radius: 99px; font-size: 0.8rem; margin-right: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        
         input[type="text"] { flex: 1; border: none; padding: 12px 20px; outline: none; font-size: 1rem; }
         button.btn-search { background: var(--primary); color: white; border: none; padding: 12px 28px; border-radius: 12px; font-weight: 600; cursor: pointer; }
         .dashboard-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 1.5rem; }
@@ -43,16 +51,24 @@
             </form>
             <div id="autocomplete-results" style="position:absolute; width:100%; background:white; z-index:100; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.1); display:none;"></div>
             
-            <div style="margin-top: 1rem; display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; min-height: 35px;">
-                {% if top_sectors %}
-                    {% for sec in top_sectors %}
-                    <div style="background: white; border: 1px solid var(--border); padding: 6px 14px; border-radius: 99px; font-size: 0.8rem; white-space: nowrap; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-                        {{ sec.symbol if sec.symbol else sec.name }} <span style="color: {% if sec.change|default(0) >= 0 %}var(--success){% else %}var(--danger){% endif %}; font-weight: 700;">{{ "+" if sec.change|default(0) > 0 }}{{ sec.change|default(0)|round(2) }}%</span>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <div style="color: #64748b; font-size: 0.75rem; padding: 5px;">Chargement des tendances sectorielles...</div>
-                {% endif %}
+            <div class="sector-ticker-container">
+                <div class="sector-ticker-inner">
+                    {% if top_sectors %}
+                        {% for sec in top_sectors %}
+                        <div class="sector-badge">
+                            {{ sec.name }} <span style="color: {% if sec.change|default(0) >= 0 %}var(--success){% else %}var(--danger){% endif %}; font-weight: 700;">{{ "+" if sec.change|default(0) > 0 }}{{ sec.change|default(0)|round(2) }}%</span>
+                        </div>
+                        {% endfor %}
+                        <!-- Doubler pour un défilement continu sans saut -->
+                        {% for sec in top_sectors %}
+                        <div class="sector-badge">
+                            {{ sec.name }} <span style="color: {% if sec.change|default(0) >= 0 %}var(--success){% else %}var(--danger){% endif %}; font-weight: 700;">{{ "+" if sec.change|default(0) > 0 }}{{ sec.change|default(0)|round(2) }}%</span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div style="color: #64748b; font-size: 0.75rem; padding: 5px;">Chargement des tendances sectorielles...</div>
+                    {% endif %}
+                </div>
             </div>
         </div>
 
