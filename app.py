@@ -4,7 +4,8 @@ import string
 import threading
 import logging
 import re
-from datetime import datetime
+import secrets
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session, flash
@@ -18,6 +19,8 @@ from core.analysis import analyze_stock, analyze_sentiment, create_stock_chart
 from core.market import MARKET_STATE, market_lock, fetch_market_data_job, get_global_context
 from core.legal import get_company_legal_info
 from core.news import get_combined_news
+from core.auth import hash_password, check_password, generate_code, generate_token, register_device, is_device_recognized
+from core.mailer import send_auth_email
 
 # --- CONFIGURATION ---
 load_dotenv()
@@ -66,27 +69,134 @@ threading.Thread(target=fetch_market_data_job, daemon=True).start()
 
 @app.route('/')
 def ultra_home():
-    if session.get('verified'): return redirect(url_for('ultra_analyze'))
+    if session.get('user_id') and session.get('device_verified'):
+        return redirect(url_for('ultra_analyze'))
     return render_template('welcome.html')
+
+@app.route('/register', methods=['GET', 'POST'])
+def ultra_register():
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip().lower()
+        password = request.form.get('password', '').strip()
+        
+        if not email or not password:
+            flash("Champs obligatoires manquants", "error")
+            return redirect(url_for('ultra_register'))
+            
+        hashed = hash_password(password)
+        token = generate_token()
+        
+        try:
+            with get_db_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("INSERT INTO users (email, password_hash, created_at) VALUES (?, ?, ?)", 
+                             (email, hashed, datetime.now().isoformat()))
+                cursor.execute("INSERT OR REPLACE INTO activation_codes (email, code, type, expires_at) VALUES (?, ?, ?, ?)",
+                             (email, token, 'activation', (datetime.now() + timedelta(hours=24)).isoformat()))
+                conn.commit()
+            
+            activation_link = url_for('ultra_activate', token=token, _external=True)
+            subject = "Activation de votre compte Trading Analyzer"
+            body = f"Cliquez ici pour activer votre compte : <a href='{activation_link}'>{activation_link}</a>"
+            
+            if send_auth_email(email, subject, body):
+                flash("Lien d'activation envoyé par email !", "success")
+            else:
+                logger.warning(f"Email d'activation non envoyé à {email}. Lien : {activation_link}")
+                flash("Compte créé, mais l'envoi du mail a échoué. Contactez l'admin.", "error")
+                
+            return redirect(url_for('ultra_home'))
+        except Exception as e:
+            flash("Cet email est déjà utilisé", "error")
+            return redirect(url_for('ultra_register'))
+            
+    return render_template('register.html')
+
+@app.route('/activate/<token>')
+def ultra_activate(token):
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT email FROM activation_codes WHERE code = ? AND type = 'activation'", (token,))
+            row = cursor.fetchone()
+            if row:
+                email = row[0]
+                cursor.execute("UPDATE users SET is_active = 1 WHERE email = ?", (email,))
+                cursor.execute("DELETE FROM activation_codes WHERE email = ?", (email,))
+                conn.commit()
+                flash("Compte activé ! Vous pouvez vous connecter.", "success")
+            else:
+                flash("Lien invalide ou expiré", "error")
+    except Exception:
+        flash("Erreur lors de l'activation", "error")
+    return redirect(url_for('ultra_home'))
 
 @app.route('/login', methods=['POST'])
 def ultra_login():
     email = request.form.get('email', '').strip().lower()
     password = request.form.get('password', '').strip()
     
-    # Mot de passe de sécurité défini dans l'environnement ou valeur par défaut
-    admin_password = os.environ.get("ADMIN_PASSWORD", "Corentin2026!")
-    
-    if not email or not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
-        flash("Email invalide", "error")
-        return redirect(url_for('ultra_home'))
-    
-    if password != admin_password:
-        flash("Accès refusé : Mot de passe incorrect", "error")
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, password_hash, is_active FROM users WHERE email = ?", (email,))
+        user = cursor.fetchone()
+        
+    if not user or not check_password(password, user[1]):
+        flash("Identifiants incorrects", "error")
         return redirect(url_for('ultra_home'))
         
-    session['verified'] = True
-    return redirect(url_for('ultra_analyze'))
+    if not user[2]:
+        flash("Veuillez activer votre compte via le lien reçu par email", "error")
+        return redirect(url_for('ultra_home'))
+
+    # Génération du code 2FA
+    code = generate_code()
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("INSERT OR REPLACE INTO activation_codes (email, code, type, expires_at) VALUES (?, ?, ?, ?)",
+                     (email, code, 'login', (datetime.now() + timedelta(minutes=10)).isoformat()))
+        conn.commit()
+        
+    subject = f"Votre code de connexion : {code}"
+    body = f"Saisissez ce code pour valider votre connexion : <strong>{code}</strong> (Valable 10 min)"
+    
+    send_auth_email(email, subject, body)
+    logger.info(f"CODE LOGIN POUR {email} : {code}") # Pour dépannage
+    
+    session['pending_email'] = email
+    session['pending_user_id'] = user[0]
+    return redirect(url_for('ultra_verify_page'))
+
+@app.route('/verify-code', methods=['GET', 'POST'])
+def ultra_verify_page():
+    email = session.get('pending_email')
+    if not email: return redirect(url_for('ultra_home'))
+    
+    if request.method == 'POST':
+        code = request.form.get('code', '').strip()
+        device_name = request.form.get('device_name', 'Terminal inconnu')
+        
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT email FROM activation_codes WHERE email = ? AND code = ? AND type = 'login'", (email, code))
+            if cursor.fetchone():
+                user_id = session.get('pending_user_id')
+                # Enregistrement du terminal (simple ID basé sur le nom pour l'instant)
+                device_id = "".join(secrets.choice(string.ascii_letters) for _ in range(16))
+                register_device(user_id, device_id, device_name)
+                
+                session['user_id'] = user_id
+                session['device_verified'] = True
+                session['verified'] = True # Pour compatibilité ancienne
+                
+                # On place un cookie de terminal
+                resp = redirect(url_for('ultra_analyze'))
+                resp.set_cookie('device_id', device_id, max_age=30*24*3600) # 30 jours
+                return resp
+            else:
+                flash("Code incorrect", "error")
+                
+    return render_template('verify.html', email=email)
 
 @app.route('/api/search_tickers')
 def api_search_tickers():

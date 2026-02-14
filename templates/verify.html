@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vérification - Trading Analyzer</title>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        h1 { color: #1a73e8; margin-bottom: 1rem; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; text-align: center; font-size: 1.5rem; letter-spacing: 5px; }
+        button { width: 100%; padding: 12px; background: #1a73e8; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .flash { padding: 10px; margin-bottom: 15px; border-radius: 8px; font-size: 0.9rem; }
+        .flash.error { background: #fce8e6; color: #c5221f; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Vérification</h1>
+        <p>Un code a été envoyé à <strong>{{ email }}</strong></p>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}{% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}{% endif %}
+        {% endwith %}
+        <form action="/verify-code" method="POST">
+            <input type="text" name="code" placeholder="000000" maxlength="6" required autofocus>
+            <input type="hidden" name="device_name" id="device_name">
+            <button type="submit">Valider la connexion</button>
+        </form>
+    </div>
+    <script>
+        // On récupère le nom du navigateur pour l'enregistrement du terminal
+        document.getElementById('device_name').value = navigator.userAgent.split(') ')[1] || 'Navigateur';
+    </script>
+</body>
+</html>
