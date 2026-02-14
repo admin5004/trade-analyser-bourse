@@ -21,10 +21,24 @@
         <h1>Résultats de Recherche pour "{{ query }}"</h1>
 
         {% if results %}
+        <p style="text-align: center; color: #64748b;">Plusieurs correspondances trouvées. Veuillez sélectionner la valeur à analyser :</p>
         <div class="search-results">
-            <ul>
+            <ul style="display: flex; flex-direction: column; gap: 12px;">
                 {% for result in results %}
-                <li><a href="{{ url_for('ultra_analyze', symbol=result.symbol) }}">{{ result.symbol }} - {{ result.name }}</a></li>
+                <li style="background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                    <a href="{{ url_for('ultra_analyze', symbol=result.symbol) }}" style="display: block; text-decoration: none; color: inherit;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong style="font-size: 1.1rem; color: #4f46e5;">{{ result.symbol }}</strong>
+                                <span style="margin-left: 10px; color: #0f172a; font-weight: 600;">{{ result.name }}</span>
+                            </div>
+                            <div style="text-align: right;">
+                                <span style="background: #e2e8f0; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">{{ result.exchange }}</span>
+                                <div style="font-size: 0.7rem; color: #64748b; margin-top: 4px;">{{ result.type }}</div>
+                            </div>
+                        </div>
+                    </a>
+                </li>
                 {% endfor %}
             </ul>
         </div>
