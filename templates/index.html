@@ -196,6 +196,48 @@
                     </div>
                 </div>
                 {% endif %}
+
+                {% if sector_peers %}
+                <button class="accordion-btn" style="background: #1e293b;" onclick="toggleSection('sector-area')">🔍 VALEURS DU SECTEUR : {{ sector }}</button>
+                <div id="sector-area" class="accordion-content" style="padding: 0;">
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left;">
+                            <thead>
+                                <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                                    <th style="padding: 12px;">Valeur</th>
+                                    <th style="padding: 12px;">Cours</th>
+                                    <th style="padding: 12px;">Signal</th>
+                                    <th style="padding: 12px;">Entrée</th>
+                                    <th style="padding: 12px;">Sortie</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for peer in sector_peers %}
+                                <tr style="border-bottom: 1px solid #f1f5f9;">
+                                    <td style="padding: 12px;">
+                                        <a href="/analyze?symbol={{ peer.symbol }}" style="text-decoration: none; color: var(--primary); font-weight: 700;">{{ peer.symbol }}</a>
+                                        <div style="font-size: 0.7rem; color: #64748b;">{{ peer.name }}</div>
+                                    </td>
+                                    <td style="padding: 12px;">
+                                        <strong>{{ peer.price|round(2) }} {{ currency_symbol }}</strong>
+                                        <div style="font-size: 0.7rem; color: {% if peer.change >= 0 %}var(--success){% else %}var(--danger){% endif %};">
+                                            {{ "+" if peer.change > 0 }}{{ peer.change|round(2) }}%
+                                        </div>
+                                    </td>
+                                    <td style="padding: 12px;">
+                                        <span class="badge {% if peer.reco == 'Achat' or peer.reco == 'Achat Fort' %}badge-buy{% elif peer.reco == 'Vendre' or peer.reco == 'Vente' %}badge-sell{% else %}badge-neutral{% endif %}" style="font-size: 0.65rem; padding: 4px 8px;">
+                                            {{ peer.reco }}
+                                        </span>
+                                    </td>
+                                    <td style="padding: 12px; color: var(--success); font-weight: 600;">{{ peer.entry|round(2) if peer.entry != 'N/A' else 'N/A' }}</td>
+                                    <td style="padding: 12px; color: var(--primary); font-weight: 600;">{{ peer.exit|round(2) if peer.exit != 'N/A' else 'N/A' }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
             </div>
             {% endif %}
         </div> <!-- Fin de dashboard-grid -->

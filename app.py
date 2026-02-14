@@ -205,7 +205,33 @@ def ultra_analyze():
     
     # Infos Légales (Site Web)
     legal_info = get_company_legal_info(symbol)
+    current_sector = info.get('sector', 'N/A') if info else 'N/A'
     
+    # Récupération des valeurs du même secteur
+    sector_peers = []
+    if current_sector != 'N/A':
+        try:
+            with get_db_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT symbol, name FROM tickers WHERE sector = ? AND symbol != ?", (current_sector, symbol))
+                peers = cursor.fetchall()
+                
+                with market_lock:
+                    for p_sym, p_name in peers:
+                        p_info = MARKET_STATE['tickers'].get(p_sym)
+                        if p_info and p_info.get('price', 0) > 0:
+                            sector_peers.append({
+                                'symbol': p_sym,
+                                'name': p_name,
+                                'price': p_info.get('price'),
+                                'reco': p_info.get('recommendation', 'N/A'),
+                                'entry': p_info.get('targets', {}).get('entry', 'N/A'),
+                                'exit': p_info.get('targets', {}).get('exit', 'N/A'),
+                                'change': p_info.get('change_pct', 0)
+                            })
+        except Exception as e:
+            logger.error(f"Error fetching sector peers: {e}")
+
     # Détection Devise
     currency_code = 'EUR'
     try:
@@ -235,6 +261,7 @@ def ultra_analyze():
         'currency_symbol': currency_symbol, 
         'stock_chart_div': create_stock_chart(df, symbol) if df is not None else "",
         'top_sectors': top_sectors, 
+        'sector_peers': sector_peers,
         'heatmap_data': heatmap_data, 
         'engine_status': 'ONLINE', 
         'version': VERSION,
