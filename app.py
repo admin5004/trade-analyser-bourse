@@ -25,7 +25,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger("TradingApp")
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "".join(random.choices(string.ascii_letters + string.digits, k=32)))
+# On s'assure d'avoir une clé secrète pour les sessions
+app.secret_key = os.environ.get("SECRET_KEY", "trading-analyzer-super-secret-key-12345")
 VERSION = "4.0.0 (Modular Edition)"
 
 # Initialisation de la DB au démarrage
