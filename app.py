@@ -32,6 +32,17 @@ CURRENCY_MAP = {
     'CAD': 'CA$',
 }
 
+ANALYST_MAP = {
+    'Strong Buy': 'Achat Fort',
+    'Buy': 'Achat',
+    'Hold': 'Conserver',
+    'Sell': 'Vendre',
+    'Strong Sell': 'Vente Forte',
+    'Underperform': 'Sous-performer',
+    'Outperform': 'Sur-performer',
+    'Neutral': 'Neutre',
+}
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger("TradingApp")
 
@@ -158,11 +169,12 @@ def ultra_analyze():
     # Force sync fetch if not in cache or if cache is empty skeleton
     if df is None or (info and info.get('price', 0) == 0):
         try:
-            ticker = yf.Ticker(symbol)
-            df = ticker.history(period="1y")
-            news_list = ticker.news[:5] if ticker.news else []
+            ticker_obj = yf.Ticker(symbol)
+            df = ticker_obj.history(period="1y")
+            news_list = ticker_obj.news[:5] if ticker_obj.news else []
             try:
-                analyst_info = ticker.info.get('recommendationKey', 'N/A').replace('_', ' ').title()
+                raw_reco = ticker_obj.info.get('recommendationKey', 'N/A').replace('_', ' ').title()
+                analyst_info = ANALYST_MAP.get(raw_reco, raw_reco)
             except: pass
             
             if df is not None and not df.empty:
@@ -172,12 +184,19 @@ def ultra_analyze():
                     'price': float(df['close'].iloc[-1]),
                     'change_pct': ((df['close'].iloc[-1] - df['close'].iloc[-2]) / df['close'].iloc[-2] * 100) if len(df) > 1 else 0,
                     'recommendation': reco, 'reason': reason, 'rsi': rsi, 'mm20': mm20, 'mm50': mm50, 'mm200': mm200,
-                    'targets': {'entry': entry, 'exit': exit}, 'sector': 'Autre'
+                    'targets': {'entry': entry, 'exit': exit}, 'sector': 'Autre', 'analyst_reco': analyst_info
                 }
         except Exception as e:
             logger.error(f"Sync fetch error for {symbol}: {e}")
     else:
-        # Si on a les données du cache, on s'assure que l'analyse est faite sur le DF pour le graphique
+        # Si on a les données du cache, on tente de récupérer la reco analyste
+        try:
+            analyst_info = info.get('analyst_reco', 'N/A')
+            if analyst_info == 'N/A':
+                ticker_obj = yf.Ticker(symbol)
+                raw_reco = ticker_obj.info.get('recommendationKey', 'N/A').replace('_', ' ').title()
+                analyst_info = ANALYST_MAP.get(raw_reco, raw_reco)
+        except: pass
         df.columns = [col.lower() for col in df.columns]
         analyze_stock(df)
 
