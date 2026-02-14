@@ -72,24 +72,9 @@ def create_stock_chart(df, symbol):
             margin=dict(l=10, r=10, t=50, b=10),
             xaxis_rangeslider_visible=False,
             legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-            xaxis=dict(
-                rangeselector=dict(
-                    buttons=list([
-                        dict(count=1, label="1m", step="month", stepmode="backward"),
-                        dict(count=3, label="3m", step="month", stepmode="backward"),
-                        dict(count=6, label="6m", step="month", stepmode="backward"),
-                        dict(count=1, label="YTD", step="year", stepmode="todate"),
-                        dict(count=1, label="1y", step="year", stepmode="backward"),
-                        dict(step="all", label="Tout")
-                    ]),
-                    bgcolor="#f8fafc",
-                    activecolor="#4f46e5",
-                    font=dict(size=11)
-                ),
-                type="date"
-            )
+            xaxis=dict(type="date")
         )
-        return fig.to_html(full_html=False, include_plotlyjs='cdn')
+        return fig.to_html(full_html=False, include_plotlyjs='cdn', div_id='main-plotly-chart')
     except Exception as e:
         logger.error(f"Chart Error: {e}")
         return "<p style='color:red;'>Erreur lors de la génération du graphique.</p>"

@@ -34,6 +34,13 @@
         .heatmap-tile { text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 70px; border-radius: 12px; color: white; font-weight: 800; font-size: 0.85rem; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
         .heatmap-tile:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.15); }
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 2s linear infinite; }
+        
+        /* Style des boutons de période du graphique */
+        .chart-controls { display: flex; flex-direction: column; gap: 8px; padding-right: 15px; border-right: 1px solid var(--border); }
+        .btn-period { background: white; border: 1px solid var(--border); color: var(--text-main); padding: 8px 12px; border-radius: 10px; font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: all 0.2s; min-width: 50px; }
+        .btn-period:hover { border-color: var(--primary); color: var(--primary); }
+        .btn-period.active { background: var(--primary); color: white; border-color: var(--primary); }
+
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
@@ -141,7 +148,22 @@
 
             <div class="col-12">
                 <button class="accordion-btn" onclick="toggleSection('chart-area')">📊 GRAPHIQUE TECHNIQUE</button>
-                <div id="chart-area" class="accordion-content">{{ stock_chart_div|safe }}</div>
+                <div id="chart-area" class="accordion-content">
+                    <div style="display: flex; align-items: flex-start;">
+                        <!-- Boutons à gauche -->
+                        <div class="chart-controls">
+                            <button class="btn-period" onclick="updateChartPeriod(1, 'month', this)">1M</button>
+                            <button class="btn-period" onclick="updateChartPeriod(3, 'month', this)">3M</button>
+                            <button class="btn-period" onclick="updateChartPeriod(6, 'month', this)">6M</button>
+                            <button class="btn-period" onclick="updateChartPeriod(1, 'year', this)">1Y</button>
+                            <button class="btn-period active" onclick="updateChartPeriod(0, 'all', this)">Tout</button>
+                        </div>
+                        <!-- Graphique à droite -->
+                        <div style="flex: 1; overflow: hidden;">
+                            {{ stock_chart_div|safe }}
+                        </div>
+                    </div>
+                </div>
 
                 {% if news %}
                 <button class="accordion-btn" style="background: #4f46e5;" onclick="toggleSection('news-area')">📰 ACTUALITÉS & RAPPORTS</button>
@@ -220,6 +242,32 @@
     </div>
 
     <script>
+        function updateChartPeriod(count, unit, btn) {
+            const gd = document.getElementById('main-plotly-chart');
+            if (!gd) return;
+
+            // Gérer l'état actif des boutons
+            document.querySelectorAll('.btn-period').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const now = new Date();
+            let start = new Date();
+
+            if (unit === 'month') {
+                start.setMonth(now.getMonth() - count);
+            } else if (unit === 'year') {
+                start.setFullYear(now.getFullYear() - count);
+            } else if (unit === 'all') {
+                Plotly.relayout(gd, { 'xaxis.autorange': true });
+                return;
+            }
+
+            Plotly.relayout(gd, {
+                'xaxis.range': [start.toISOString(), now.toISOString()],
+                'xaxis.autorange': false
+            });
+        }
+
         function toggleSection(id) { const e = document.getElementById(id); e.style.display = (e.style.display === 'block') ? 'none' : 'block'; }
         const input = document.getElementById('search-input');
         const res = document.getElementById('autocomplete-results');
