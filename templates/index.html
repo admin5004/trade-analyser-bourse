@@ -125,6 +125,16 @@
                         <span style="color: red; font-weight: 800;">●</span> MM200: <strong>{{ mm200|round(2) if mm200 else 'N/A' }}</strong>
                     </div>
                 </div>
+
+                <!-- Module de Justification -->
+                <div style="background: #f1f5f9; border-left: 4px solid var(--primary); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                    <h4 style="margin: 0 0 8px 0; font-size: 0.9rem; color: var(--primary);">🎯 Justification de la recommandation</h4>
+                    <p style="margin: 0; font-size: 0.85rem; line-height: 1.5; color: #334155;">
+                        {{ reason }}
+                        <br><br>
+                        <strong>Note :</strong> L'avis des analystes (actuellement : <span style="color:var(--primary)">{{ analyst_recommendation }}</span>) reflète souvent un objectif à 12 mois basé sur les fondamentaux, tandis que notre signal est <strong>purement technique</strong> (immédiat). Une divergence peut apparaître si le titre est techniquement surchargé malgré un bon profil financier.
+                    </p>
+                </div>
             </div>
 
             <div class="card col-4">

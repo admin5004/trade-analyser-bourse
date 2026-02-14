@@ -22,15 +22,26 @@ def analyze_stock(df):
         rsi = last.get('RSI_14', 50)
         mm200 = last.get('SMA_200')
         
-        reco, reason = "Conserver", "Analyse technique neutre"
+        reco, reason = "Conserver", "Le titre consolide horizontalement sans direction claire."
         
         if mm200 and not pd.isna(mm200):
             if close > mm200:
-                if rsi < 45: reco, reason = "Achat", "Tendance haussière & zone d'achat"
-                else: reco, reason = "Conserver", "Tendance haussière confirmée"
+                if rsi < 35: reco, reason = "Achat", f"Le titre est en tendance haussière long terme (au-dessus de la MM200) mais subit une correction excessive à court terme (RSI à {rsi:.0f}). C'est une opportunité d'achat sur repli."
+                elif rsi < 50: reco, reason = "Achat Fort", "Momentum haussier sain. Le prix est au-dessus de sa moyenne 200 jours et le RSI montre que le titre n'est pas encore surchargé."
+                elif rsi > 75: reco, reason = "Prudence", "Tendance haussière confirmée mais le titre est en zone de surchauffe (RSI élevé). Risque de prise de bénéfices imminent."
+                else: reco, reason = "Conserver", "Le titre maintient sa dynamique haussière au-dessus de la MM200. Pas de signal de retournement, la tendance reste porteuse."
             else:
-                if rsi > 65: reco, reason = "Vente", "Tendance baissière & surachat"
-                else: reco, reason = "Prudence", "Sous la moyenne mobile 200"
+                if rsi > 65: reco, reason = "Vente", f"Signal de vente technique : le titre est sous sa MM200 (tendance baissière) et tente un rebond qui sature déjà (RSI à {rsi:.0f})."
+                elif rsi < 30: reco, reason = "Spéculatif", "Le titre est en pleine chute libre sous la MM200. Bien que survendu, le couteau tombe encore. Attendre une stabilisation."
+                else: reco, reason = "Vendre", "Tendance baissière de fond. Le cours est durablement installé sous sa moyenne mobile 200 jours, agissant comme une résistance majeure."
+        
+        # Ajout d'une analyse de convergence des moyennes mobiles
+        mm20 = last.get('SMA_20', 0)
+        mm50 = last.get('SMA_50', 0)
+        if mm20 > mm50 and close > mm20:
+            reason += " Les moyennes mobiles de court terme confirment une accélération positive du cours."
+        elif mm20 < mm50 and close < mm20:
+            reason += " Le croisement baissier des moyennes mobiles de court terme suggère une poursuite de la correction."
         
         return reco, reason, float(rsi), float(last.get('SMA_20', 0)), float(last.get('SMA_50', 0)), None, float(mm200 or 0), float(close*0.98), float(close*1.05)
     except Exception as e:
