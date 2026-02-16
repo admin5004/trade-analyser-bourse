@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session, flash
+from werkzeug.middleware.proxy_fix import ProxyFix
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 import yfinance as yf
@@ -50,6 +51,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger("TradingApp")
 
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
 # On s'assure d'avoir une clé secrète pour les sessions
 app.secret_key = os.environ.get("SECRET_KEY", "trading-analyzer-super-secret-key-12345")
 VERSION = "4.0.0 (Modular Edition)"
@@ -168,6 +170,67 @@ def ultra_login():
     session['pending_email'] = email
     session['pending_user_id'] = user[0]
     return redirect(url_for('ultra_verify_page'))
+
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def ultra_forgot_password():
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip().lower()
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT id FROM users WHERE email = ?", (email,))
+            user = cursor.fetchone()
+            
+        if user:
+            token = generate_token()
+            with get_db_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("INSERT OR REPLACE INTO activation_codes (email, code, type, expires_at) VALUES (?, ?, ?, ?)",
+                             (email, token, 'reset', (datetime.now() + timedelta(hours=1)).isoformat()))
+                conn.commit()
+            
+            reset_url = url_for('ultra_reset_password', token=token, _external=True)
+            subject = "Réinitialisation de votre mot de passe"
+            body = f"Cliquez sur le lien suivant pour réinitialiser votre mot de passe : <a href='{reset_url}'>{reset_url}</a> (Lien valable 1 heure)"
+            send_auth_email(email, subject, body)
+            
+        flash("Si cet email existe, un lien de réinitialisation a été envoyé.", "success")
+        return redirect(url_for('ultra_forgot_password'))
+        
+    return render_template('forgot_password.html')
+
+@app.route('/reset-password/<token>', methods=['GET', 'POST'])
+def ultra_reset_password(token):
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT email FROM activation_codes WHERE code = ? AND type = 'reset' AND expires_at > ?", 
+                     (token, datetime.now().isoformat()))
+        row = cursor.fetchone()
+        
+    if not row:
+        flash("Lien invalide ou expiré", "error")
+        return redirect(url_for('ultra_home'))
+        
+    email = row[0]
+    
+    if request.method == 'POST':
+        password = request.form.get('password', '').strip()
+        confirm = request.form.get('confirm_password', '').strip()
+        
+        if not password or password != confirm:
+            flash("Les mots de passe ne correspondent pas", "error")
+            return render_template('reset_password.html')
+            
+        hashed = hash_password(password)
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("UPDATE users SET password_hash = ? WHERE email = ?", (hashed, email))
+            cursor.execute("DELETE FROM activation_codes WHERE email = ? AND type = 'reset'", (email,))
+            conn.commit()
+            
+        flash("Votre mot de passe a été réinitialisé avec succès.", "success")
+        return redirect(url_for('ultra_home'))
+        
+    return render_template('reset_password.html')
 
 @app.route('/verify-code', methods=['GET', 'POST'])
 def ultra_verify_page():
@@ -401,5 +464,5 @@ if __name__ == '__main__':
     # Lancement d'un cycle initial en arrière-plan
     threading.Thread(target=fetch_market_data_job).start()
     
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 8888))
     app.run(debug=False, host='0.0.0.0', port=port, use_reloader=False)
