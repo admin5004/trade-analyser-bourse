@@ -1,0 +1,548 @@
+[
+    {
+        "symbol": "TEP.PA",
+        "time": "2026-02-20 17:20:50",
+        "price": 52.7400016784668,
+        "volume": 113028,
+        "change_pct": 3.6149314291324455,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "Teleperformance abandonne 1,36% - Boursier.com",
+                "Ave IA, morituri call centers te salutant. Teleperformance le BlackBerry des call-centers et de la relation client - en-contact.com",
+                "Teleperformance sous pression \u00e0 un mois des r\u00e9sultats - Option Finance",
+                "L\u2019action Teleperformance peut-elle rebondir fin 2025 ? - Boursorama",
+                "Teleperformance : La croissance et les marges de l'ex-Teleperformance TP d\u00e9\u00e7oivent, l'action prend une nouvelle fois le bouillon \u00e0 la Bourse de Paris - BFM Bourse",
+                "Teleperformance termine en hausse - Boursier.com",
+                "Faut-il acheter l\u2019action Teleperformance fin 2025 ? - Caf\u00e9delabourse",
+                "Fallait pas l'inviter : Teleperformance - Zonebourse"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour TEP.PA."
+        }
+    },
+    {
+        "symbol": "URW.PA",
+        "time": "2026-02-20 17:20:50",
+        "price": 104.05000305175781,
+        "volume": 639108,
+        "change_pct": 1.2159532712957695,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "UNIBAIL-RODAMCO-WESTFIELD Cours Action URW, Cotation Bourse Euronext Paris - Boursorama",
+                "Unibail-Rodamco-Westfield l\u00e2che 0,10% - Boursier.com",
+                "Unibail-Rodamco-Westfield nomme Kathleen Verelsten directrice g\u00e9n\u00e9rale des investissements - Les Echos",
+                "Unibail-Rodamco-Westfield (URW) : loyers nets de 2,25 milliards d'euros en 2025, en baisse de 2,9% sur un an - Zonebourse Suisse",
+                "Comment acheter des actions Unibail-Rodamco-Westfield (URW) en 2025 ? - Cryptoast",
+                "URW d\u00e9passe son objectif de rentabilit\u00e9 en 2025 mais se veut prudent pour 2026 - ABC Bourse",
+                "Action Unibail-Rodamco-Westfield : un potentiel sous-\u00e9valu\u00e9 dans un environnement de march\u00e9s instables - Id\u00e9al Investisseur",
+                "Unibail-Rodamco-Westfield vise un RNRAPA de \u20ac9,15-9,30 en 2026 - Boursorama"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour URW.PA."
+        }
+    },
+    {
+        "symbol": "TTE.PA",
+        "time": "2026-02-20 17:20:50",
+        "price": 65.3499984741211,
+        "volume": 2031610,
+        "change_pct": -1.773636444952077,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "Cours de l'action TotalEnergies sur Euronext - TotalEnergies.com",
+                "Action TotalEnergies : est-ce le moment d'investir en Bourse ? - Caf\u00e9delabourse",
+                "Totalenergies : Pourquoi, malgr\u00e9 sa future pr\u00e9sence \u00e0 la Bourse de New York en plus de celle de Paris, Totalenergies n'aura pas de double cotation - BFM Bourse",
+                "TotalEnergies officialise sa cotation \u00e0 la Bourse de New York et annonce en parall\u00e8le acc\u00e9l\u00e9rer dans le gaz en Europe - Challenges",
+                "Les raisons de la cotation \u00e0 New York de TotalEnergies - Le Figaro",
+                "TotalEnergies accentue son virage vers les \u00c9tats-Unis. Que va y chercher le g\u00e9ant fran\u00e7ais? - Le magazine GEO",
+                "Lourde d\u00e9ception pour Dassault Syst\u00e8mes, soulagement chez Kering, TotalEnergies profite du sursaut des cours du p\u00e9trole - Les Echos",
+                "TotalEnergies SE : D\u00e9claration des Transactions sur Actions Propres - Business Wire"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour TTE.PA."
+        }
+    },
+    {
+        "symbol": "TTE.PA",
+        "time": "2026-02-20 17:20:51",
+        "price": 65.3499984741211,
+        "volume": 2031610,
+        "change_pct": -1.773636444952077,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "Cours de l'action TotalEnergies sur Euronext - TotalEnergies.com",
+                "Action TotalEnergies : est-ce le moment d'investir en Bourse ? - Caf\u00e9delabourse",
+                "Totalenergies : Pourquoi, malgr\u00e9 sa future pr\u00e9sence \u00e0 la Bourse de New York en plus de celle de Paris, Totalenergies n'aura pas de double cotation - BFM Bourse",
+                "TotalEnergies officialise sa cotation \u00e0 la Bourse de New York et annonce en parall\u00e8le acc\u00e9l\u00e9rer dans le gaz en Europe - Challenges",
+                "Les raisons de la cotation \u00e0 New York de TotalEnergies - Le Figaro",
+                "TotalEnergies accentue son virage vers les \u00c9tats-Unis. Que va y chercher le g\u00e9ant fran\u00e7ais? - Le magazine GEO",
+                "Lourde d\u00e9ception pour Dassault Syst\u00e8mes, soulagement chez Kering, TotalEnergies profite du sursaut des cours du p\u00e9trole - Les Echos",
+                "TotalEnergies SE : D\u00e9claration des Transactions sur Actions Propres - Business Wire"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour TTE.PA."
+        }
+    },
+    {
+        "symbol": "TTE.PA",
+        "time": "2026-02-20 17:20:51",
+        "price": 65.3499984741211,
+        "volume": 2031610,
+        "change_pct": -1.773636444952077,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "Cours de l'action TotalEnergies sur Euronext - TotalEnergies.com",
+                "Action TotalEnergies : est-ce le moment d'investir en Bourse ? - Caf\u00e9delabourse",
+                "Totalenergies : Pourquoi, malgr\u00e9 sa future pr\u00e9sence \u00e0 la Bourse de New York en plus de celle de Paris, Totalenergies n'aura pas de double cotation - BFM Bourse",
+                "TotalEnergies officialise sa cotation \u00e0 la Bourse de New York et annonce en parall\u00e8le acc\u00e9l\u00e9rer dans le gaz en Europe - Challenges",
+                "Les raisons de la cotation \u00e0 New York de TotalEnergies - Le Figaro",
+                "TotalEnergies accentue son virage vers les \u00c9tats-Unis. Que va y chercher le g\u00e9ant fran\u00e7ais? - Le magazine GEO",
+                "Lourde d\u00e9ception pour Dassault Syst\u00e8mes, soulagement chez Kering, TotalEnergies profite du sursaut des cours du p\u00e9trole - Les Echos",
+                "TotalEnergies SE : D\u00e9claration des Transactions sur Actions Propres - Business Wire"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour TTE.PA."
+        }
+    },
+    {
+        "symbol": "URW.PA",
+        "time": "2026-02-20 17:20:51",
+        "price": 104.05000305175781,
+        "volume": 639108,
+        "change_pct": 1.2159532712957695,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "UNIBAIL-RODAMCO-WESTFIELD Cours Action URW, Cotation Bourse Euronext Paris - Boursorama",
+                "Unibail-Rodamco-Westfield l\u00e2che 0,10% - Boursier.com",
+                "Unibail-Rodamco-Westfield nomme Kathleen Verelsten directrice g\u00e9n\u00e9rale des investissements - Les Echos",
+                "Unibail-Rodamco-Westfield (URW) : loyers nets de 2,25 milliards d'euros en 2025, en baisse de 2,9% sur un an - Zonebourse Suisse",
+                "Comment acheter des actions Unibail-Rodamco-Westfield (URW) en 2025 ? - Cryptoast",
+                "URW d\u00e9passe son objectif de rentabilit\u00e9 en 2025 mais se veut prudent pour 2026 - ABC Bourse",
+                "Action Unibail-Rodamco-Westfield : un potentiel sous-\u00e9valu\u00e9 dans un environnement de march\u00e9s instables - Id\u00e9al Investisseur",
+                "Unibail-Rodamco-Westfield vise un RNRAPA de \u20ac9,15-9,30 en 2026 - Boursorama"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour URW.PA."
+        }
+    },
+    {
+        "symbol": "URW.PA",
+        "time": "2026-02-20 17:20:51",
+        "price": 104.05000305175781,
+        "volume": 639108,
+        "change_pct": 1.2159532712957695,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "UNIBAIL-RODAMCO-WESTFIELD Cours Action URW, Cotation Bourse Euronext Paris - Boursorama",
+                "Unibail-Rodamco-Westfield l\u00e2che 0,10% - Boursier.com",
+                "Unibail-Rodamco-Westfield nomme Kathleen Verelsten directrice g\u00e9n\u00e9rale des investissements - Les Echos",
+                "Unibail-Rodamco-Westfield (URW) : loyers nets de 2,25 milliards d'euros en 2025, en baisse de 2,9% sur un an - Zonebourse Suisse",
+                "Comment acheter des actions Unibail-Rodamco-Westfield (URW) en 2025 ? - Cryptoast",
+                "URW d\u00e9passe son objectif de rentabilit\u00e9 en 2025 mais se veut prudent pour 2026 - ABC Bourse",
+                "Action Unibail-Rodamco-Westfield : un potentiel sous-\u00e9valu\u00e9 dans un environnement de march\u00e9s instables - Id\u00e9al Investisseur",
+                "Unibail-Rodamco-Westfield vise un RNRAPA de \u20ac9,15-9,30 en 2026 - Boursorama"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour URW.PA."
+        }
+    },
+    {
+        "symbol": "VIE.PA",
+        "time": "2026-02-20 17:20:51",
+        "price": 34.459999084472656,
+        "volume": 814861,
+        "change_pct": 0.8487004128402472,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "VEOLIA Cours Action VIE, Cotation Bourse Euronext Paris - Boursorama",
+                "Bourse Direct Vie : rendement, supports, avis - MoneyVox",
+                "Sophie Adenot, une vie \u00e0 r\u00eaver d'espace - Boursorama",
+                "Avis assurance vie Bourse Direct : \u00e0 lire avant de souscrire - cafedupatrimoine.com",
+                "Les cours de bourse ne veulent pas baisser ! D\u00e9sancrage entre la bourse et la vie r\u00e9elle de l\u2019\u00e9conomie. - Le blog Patrimoine",
+                "Assurance-vie, Bourse, livrets\u2026 l'\u00e9pargne des Fran\u00e7ais atteint un nouveau record - Capital.fr",
+                "Ynsect : l'argent public n'est pas un puits sans fond - labourseetlavie.com",
+                "Quels placements \u00e0 court terme ? Nos conseils - Finance H\u00e9ros"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour VIE.PA."
+        }
+    },
+    {
+        "symbol": "AAPL",
+        "time": "2026-02-20 17:20:51",
+        "price": 262.1300048828125,
+        "volume": 12843691,
+        "change_pct": 0.594833982047587,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "Apple TV s'associe \u00e0 EverPass Media pour proposer des programmes sportifs dans les bars et les h\u00f4tels - Boursorama",
+                "AAPL : Berkshire Hathaway r\u00e9duit sa participation dans Apple apr\u00e8s le d\u00e9part de Warren Buffett - iPhoneAddict.fr",
+                "Bourse \u00bb Aper\u00e7u des r\u00e9sultats d'Apple (AAPL) du T4 - Forex Quebec",
+                "Les ventes et les b\u00e9n\u00e9fices d'Apple d\u00e9passent les estimations - Boursorama",
+                "Apple : Apr\u00e8s Nvidia et Microsoft, Apple franchit \u00e0 son tour les 4.000 milliards de dollars de capitalisation boursi\u00e8re - BFM Bourse",
+                "Acheter des actions Apple : Notre guide pour les d\u00e9butants (2026) - Cryptonaute",
+                "\u00c0 l\u2019approche des r\u00e9sultats, que faire de l\u2019action Apple ? - Morningstar Canada",
+                "Quand l\u2019iPhone va, tout va : Apple retrouve des sommets en bourse - MacGeneration"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour AAPL."
+        }
+    },
+    {
+        "symbol": "VIE.PA",
+        "time": "2026-02-20 17:20:51",
+        "price": 34.459999084472656,
+        "volume": 814861,
+        "change_pct": 0.8487004128402472,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "VEOLIA Cours Action VIE, Cotation Bourse Euronext Paris - Boursorama",
+                "Bourse Direct Vie : rendement, supports, avis - MoneyVox",
+                "Sophie Adenot, une vie \u00e0 r\u00eaver d'espace - Boursorama",
+                "Avis assurance vie Bourse Direct : \u00e0 lire avant de souscrire - cafedupatrimoine.com",
+                "Les cours de bourse ne veulent pas baisser ! D\u00e9sancrage entre la bourse et la vie r\u00e9elle de l\u2019\u00e9conomie. - Le blog Patrimoine",
+                "Assurance-vie, Bourse, livrets\u2026 l'\u00e9pargne des Fran\u00e7ais atteint un nouveau record - Capital.fr",
+                "Ynsect : l'argent public n'est pas un puits sans fond - labourseetlavie.com",
+                "Quels placements \u00e0 court terme ? Nos conseils - Finance H\u00e9ros"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour VIE.PA."
+        }
+    },
+    {
+        "symbol": "GOOGL",
+        "time": "2026-02-20 17:20:51",
+        "price": 314.19000244140625,
+        "volume": 19383777,
+        "change_pct": 3.7444266499418717,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "Acheter des actions Alphabet GOOG : investir en Bourse - IG Group",
+                "Udemy lance l'abonnement \u00ab Learn AI with Google \u00bb - Zonebourse Suisse",
+                "Google lance la fonctionnalit\u00e9 photoshoot dans Pomelli - Zonebourse Suisse",
+                "Google vis\u00e9 par une plainte des \u00e9diteurs europ\u00e9ens au sujet d'AI Overviews - Boursorama",
+                "Google et Sea, maison m\u00e8re de Shopee, s'associent pour d\u00e9velopper des outils d'IA destin\u00e9s au e-commerce et au jeu vid\u00e9o - Zonebourse Suisse",
+                "Google cibl\u00e9 par l'UE pour ses pratiques d'ench\u00e8res en mati\u00e8re de publicit\u00e9 dans les moteurs de recherche - Boursorama",
+                "Les dirigeants de Google saluent le potentiel de l'Inde en mati\u00e8re d'IA - Zonebourse Suisse",
+                "Google fait l'objet d'une nouvelle enqu\u00eate concurrence de l'UE concernant la tarification des annonces de rech - Boursorama"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour GOOGL."
+        }
+    },
+    {
+        "symbol": "AAPL",
+        "time": "2026-02-20 17:20:51",
+        "price": 262.1300048828125,
+        "volume": 12843696,
+        "change_pct": 0.594833982047587,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "Apple TV s'associe \u00e0 EverPass Media pour proposer des programmes sportifs dans les bars et les h\u00f4tels - Boursorama",
+                "AAPL : Berkshire Hathaway r\u00e9duit sa participation dans Apple apr\u00e8s le d\u00e9part de Warren Buffett - iPhoneAddict.fr",
+                "Bourse \u00bb Aper\u00e7u des r\u00e9sultats d'Apple (AAPL) du T4 - Forex Quebec",
+                "Les ventes et les b\u00e9n\u00e9fices d'Apple d\u00e9passent les estimations - Boursorama",
+                "Apple : Apr\u00e8s Nvidia et Microsoft, Apple franchit \u00e0 son tour les 4.000 milliards de dollars de capitalisation boursi\u00e8re - BFM Bourse",
+                "Acheter des actions Apple : Notre guide pour les d\u00e9butants (2026) - Cryptonaute",
+                "\u00c0 l\u2019approche des r\u00e9sultats, que faire de l\u2019action Apple ? - Morningstar Canada",
+                "Quand l\u2019iPhone va, tout va : Apple retrouve des sommets en bourse - MacGeneration"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour AAPL."
+        }
+    },
+    {
+        "symbol": "TTE.PA",
+        "time": "2026-02-20 17:20:51",
+        "price": 65.3499984741211,
+        "volume": 2031610,
+        "change_pct": -1.773636444952077,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "Cours de l'action TotalEnergies sur Euronext - TotalEnergies.com",
+                "Action TotalEnergies : est-ce le moment d'investir en Bourse ? - Caf\u00e9delabourse",
+                "Totalenergies : Pourquoi, malgr\u00e9 sa future pr\u00e9sence \u00e0 la Bourse de New York en plus de celle de Paris, Totalenergies n'aura pas de double cotation - BFM Bourse",
+                "TotalEnergies officialise sa cotation \u00e0 la Bourse de New York et annonce en parall\u00e8le acc\u00e9l\u00e9rer dans le gaz en Europe - Challenges",
+                "Les raisons de la cotation \u00e0 New York de TotalEnergies - Le Figaro",
+                "TotalEnergies accentue son virage vers les \u00c9tats-Unis. Que va y chercher le g\u00e9ant fran\u00e7ais? - Le magazine GEO",
+                "Lourde d\u00e9ception pour Dassault Syst\u00e8mes, soulagement chez Kering, TotalEnergies profite du sursaut des cours du p\u00e9trole - Les Echos",
+                "TotalEnergies SE : D\u00e9claration des Transactions sur Actions Propres - Business Wire"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour TTE.PA."
+        }
+    },
+    {
+        "symbol": "AAPL",
+        "time": "2026-02-20 17:20:51",
+        "price": 262.1300048828125,
+        "volume": 12843691,
+        "change_pct": 0.594833982047587,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "Apple TV s'associe \u00e0 EverPass Media pour proposer des programmes sportifs dans les bars et les h\u00f4tels - Boursorama",
+                "AAPL : Berkshire Hathaway r\u00e9duit sa participation dans Apple apr\u00e8s le d\u00e9part de Warren Buffett - iPhoneAddict.fr",
+                "Bourse \u00bb Aper\u00e7u des r\u00e9sultats d'Apple (AAPL) du T4 - Forex Quebec",
+                "Les ventes et les b\u00e9n\u00e9fices d'Apple d\u00e9passent les estimations - Boursorama",
+                "Apple : Apr\u00e8s Nvidia et Microsoft, Apple franchit \u00e0 son tour les 4.000 milliards de dollars de capitalisation boursi\u00e8re - BFM Bourse",
+                "Acheter des actions Apple : Notre guide pour les d\u00e9butants (2026) - Cryptonaute",
+                "\u00c0 l\u2019approche des r\u00e9sultats, que faire de l\u2019action Apple ? - Morningstar Canada",
+                "Quand l\u2019iPhone va, tout va : Apple retrouve des sommets en bourse - MacGeneration"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour AAPL."
+        }
+    },
+    {
+        "symbol": "URW.PA",
+        "time": "2026-02-20 17:20:51",
+        "price": 104.05000305175781,
+        "volume": 639108,
+        "change_pct": 1.2159532712957695,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "UNIBAIL-RODAMCO-WESTFIELD Cours Action URW, Cotation Bourse Euronext Paris - Boursorama",
+                "Unibail-Rodamco-Westfield l\u00e2che 0,10% - Boursier.com",
+                "Unibail-Rodamco-Westfield nomme Kathleen Verelsten directrice g\u00e9n\u00e9rale des investissements - Les Echos",
+                "Unibail-Rodamco-Westfield (URW) : loyers nets de 2,25 milliards d'euros en 2025, en baisse de 2,9% sur un an - Zonebourse Suisse",
+                "Comment acheter des actions Unibail-Rodamco-Westfield (URW) en 2025 ? - Cryptoast",
+                "URW d\u00e9passe son objectif de rentabilit\u00e9 en 2025 mais se veut prudent pour 2026 - ABC Bourse",
+                "Action Unibail-Rodamco-Westfield : un potentiel sous-\u00e9valu\u00e9 dans un environnement de march\u00e9s instables - Id\u00e9al Investisseur",
+                "Unibail-Rodamco-Westfield vise un RNRAPA de \u20ac9,15-9,30 en 2026 - Boursorama"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour URW.PA."
+        }
+    },
+    {
+        "symbol": "GOOGL",
+        "time": "2026-02-20 17:20:52",
+        "price": 314.19000244140625,
+        "volume": 19383777,
+        "change_pct": 3.7444266499418717,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "Acheter des actions Alphabet GOOG : investir en Bourse - IG Group",
+                "Udemy lance l'abonnement \u00ab Learn AI with Google \u00bb - Zonebourse Suisse",
+                "Google lance la fonctionnalit\u00e9 photoshoot dans Pomelli - Zonebourse Suisse",
+                "Google vis\u00e9 par une plainte des \u00e9diteurs europ\u00e9ens au sujet d'AI Overviews - Boursorama",
+                "Google et Sea, maison m\u00e8re de Shopee, s'associent pour d\u00e9velopper des outils d'IA destin\u00e9s au e-commerce et au jeu vid\u00e9o - Zonebourse Suisse",
+                "Google cibl\u00e9 par l'UE pour ses pratiques d'ench\u00e8res en mati\u00e8re de publicit\u00e9 dans les moteurs de recherche - Boursorama",
+                "Les dirigeants de Google saluent le potentiel de l'Inde en mati\u00e8re d'IA - Zonebourse Suisse",
+                "Google fait l'objet d'une nouvelle enqu\u00eate concurrence de l'UE concernant la tarification des annonces de rech - Boursorama"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour GOOGL."
+        }
+    },
+    {
+        "symbol": "VIE.PA",
+        "time": "2026-02-20 17:20:52",
+        "price": 34.459999084472656,
+        "volume": 814861,
+        "change_pct": 0.8487004128402472,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "VEOLIA Cours Action VIE, Cotation Bourse Euronext Paris - Boursorama",
+                "Bourse Direct Vie : rendement, supports, avis - MoneyVox",
+                "Sophie Adenot, une vie \u00e0 r\u00eaver d'espace - Boursorama",
+                "Avis assurance vie Bourse Direct : \u00e0 lire avant de souscrire - cafedupatrimoine.com",
+                "Les cours de bourse ne veulent pas baisser ! D\u00e9sancrage entre la bourse et la vie r\u00e9elle de l\u2019\u00e9conomie. - Le blog Patrimoine",
+                "Assurance-vie, Bourse, livrets\u2026 l'\u00e9pargne des Fran\u00e7ais atteint un nouveau record - Capital.fr",
+                "Ynsect : l'argent public n'est pas un puits sans fond - labourseetlavie.com",
+                "Quels placements \u00e0 court terme ? Nos conseils - Finance H\u00e9ros"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour VIE.PA."
+        }
+    },
+    {
+        "symbol": "GOOGL",
+        "time": "2026-02-20 17:20:52",
+        "price": 314.1600036621094,
+        "volume": 19386195,
+        "change_pct": 3.7345211592064285,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "Acheter des actions Alphabet GOOG : investir en Bourse - IG Group",
+                "Udemy lance l'abonnement \u00ab Learn AI with Google \u00bb - Zonebourse Suisse",
+                "Google lance la fonctionnalit\u00e9 photoshoot dans Pomelli - Zonebourse Suisse",
+                "Google vis\u00e9 par une plainte des \u00e9diteurs europ\u00e9ens au sujet d'AI Overviews - Boursorama",
+                "Google et Sea, maison m\u00e8re de Shopee, s'associent pour d\u00e9velopper des outils d'IA destin\u00e9s au e-commerce et au jeu vid\u00e9o - Zonebourse Suisse",
+                "Google cibl\u00e9 par l'UE pour ses pratiques d'ench\u00e8res en mati\u00e8re de publicit\u00e9 dans les moteurs de recherche - Boursorama",
+                "Les dirigeants de Google saluent le potentiel de l'Inde en mati\u00e8re d'IA - Zonebourse Suisse",
+                "Google fait l'objet d'une nouvelle enqu\u00eate concurrence de l'UE concernant la tarification des annonces de rech - Boursorama"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour GOOGL."
+        }
+    },
+    {
+        "symbol": "AAPL",
+        "time": "2026-02-20 17:20:52",
+        "price": 262.1300048828125,
+        "volume": 12843691,
+        "change_pct": 0.594833982047587,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "Apple TV s'associe \u00e0 EverPass Media pour proposer des programmes sportifs dans les bars et les h\u00f4tels - Boursorama",
+                "AAPL : Berkshire Hathaway r\u00e9duit sa participation dans Apple apr\u00e8s le d\u00e9part de Warren Buffett - iPhoneAddict.fr",
+                "Bourse \u00bb Aper\u00e7u des r\u00e9sultats d'Apple (AAPL) du T4 - Forex Quebec",
+                "Les ventes et les b\u00e9n\u00e9fices d'Apple d\u00e9passent les estimations - Boursorama",
+                "Apple : Apr\u00e8s Nvidia et Microsoft, Apple franchit \u00e0 son tour les 4.000 milliards de dollars de capitalisation boursi\u00e8re - BFM Bourse",
+                "Acheter des actions Apple : Notre guide pour les d\u00e9butants (2026) - Cryptonaute",
+                "\u00c0 l\u2019approche des r\u00e9sultats, que faire de l\u2019action Apple ? - Morningstar Canada",
+                "Quand l\u2019iPhone va, tout va : Apple retrouve des sommets en bourse - MacGeneration"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour AAPL."
+        }
+    },
+    {
+        "symbol": "GOOGL",
+        "time": "2026-02-20 17:20:52",
+        "price": 314.1600036621094,
+        "volume": 19386195,
+        "change_pct": 3.7345211592064285,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "Acheter des actions Alphabet GOOG : investir en Bourse - IG Group",
+                "Udemy lance l'abonnement \u00ab Learn AI with Google \u00bb - Zonebourse Suisse",
+                "Google lance la fonctionnalit\u00e9 photoshoot dans Pomelli - Zonebourse Suisse",
+                "Google vis\u00e9 par une plainte des \u00e9diteurs europ\u00e9ens au sujet d'AI Overviews - Boursorama",
+                "Google et Sea, maison m\u00e8re de Shopee, s'associent pour d\u00e9velopper des outils d'IA destin\u00e9s au e-commerce et au jeu vid\u00e9o - Zonebourse Suisse",
+                "Google cibl\u00e9 par l'UE pour ses pratiques d'ench\u00e8res en mati\u00e8re de publicit\u00e9 dans les moteurs de recherche - Boursorama",
+                "Les dirigeants de Google saluent le potentiel de l'Inde en mati\u00e8re d'IA - Zonebourse Suisse",
+                "Google fait l'objet d'une nouvelle enqu\u00eate concurrence de l'UE concernant la tarification des annonces de rech - Boursorama"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour GOOGL."
+        }
+    },
+    {
+        "symbol": "AIR.PA",
+        "time": "2026-02-20 17:20:52",
+        "price": 0,
+        "volume": 0,
+        "change_pct": 0,
+        "type": "INITIAL_ANALYSIS",
+        "analysis": {
+            "potential_causes": [
+                "AIRBUS Cours Action AIR, Cotation Bourse Euronext Paris - Boursorama",
+                "Airbus abaisse son objectif de production, invoque des retards de Pratt & Whitney - Boursorama",
+                "Air France-KLM, Renault, Pernod Ricard...les valeurs \u00e0 suivre aujourd'hui \u00e0 Paris - boursedirect.fr",
+                "Air Liquide vise une marge \u00e0 +100pbs en 2027, d\u00e9passe les attentes en 2025 - Boursorama",
+                "Faut-il acheter l\u2019action Air Liquide ? Mon avis ! - Finance H\u00e9ros",
+                "Airbus-Les livraisons de janvier et f\u00e9vrier sont \"assez basses\"-DG - Boursorama",
+                "L'Europe ouvre dans le rouge apr\u00e8s un d\u00e9luge de r\u00e9sultats, Airbus souffre - Boursorama",
+                "Airbus-Pratt & Whitney doit augmenter significativement ses livraisons en 2027-DG - Boursorama"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour AIR.PA."
+        }
+    },
+    {
+        "symbol": "GLE.PA",
+        "time": "2026-02-20 17:20:52",
+        "price": 0,
+        "volume": 0,
+        "change_pct": 0,
+        "type": "INITIAL_ANALYSIS",
+        "analysis": {
+            "potential_causes": [
+                "S\u00e9ance en forte hausse pour Soci\u00e9t\u00e9 G\u00e9n\u00e9rale - Boursier.com",
+                "Soci\u00e9t\u00e9 G\u00e9n\u00e9rale prend 2,91% - Boursier.com",
+                "Societe generale : Avec des objectifs relev\u00e9s et 1 milliard d'euros de rachats d'actions, Soci\u00e9t\u00e9 G\u00e9n\u00e9rale enchante la Bourse tandis que Cr\u00e9dit Agricole SA la laisse de marbre - BFM Bourse",
+                "Soci\u00e9t\u00e9 G\u00e9n\u00e9rale finit en l\u00e9g\u00e8re baisse - Boursier.com",
+                "Soci\u00e9t\u00e9 G\u00e9n\u00e9rale (GLE) Stock: 2026 Outlook After 295% Gains - TIKR.com",
+                "Societe generale : - BFM Bourse",
+                "Soci\u00e9t\u00e9 G\u00e9n\u00e9rale Soci\u00e9t\u00e9 anonyme (ENXTPA: GLE) annonce un rachat d'actions pour une valeur de 1 462 millions - Zonebourse",
+                "Societe generale : La menace d'une chute du gouvernement Bayrou fait plonger les banques fran\u00e7aises en Bourse, faut-il vraiment s'en inqui\u00e9ter? - BFM Bourse"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour GLE.PA."
+        }
+    },
+    {
+        "symbol": "OR.PA",
+        "time": "2026-02-20 17:20:52",
+        "price": 0,
+        "volume": 0,
+        "change_pct": 0,
+        "type": "INITIAL_ANALYSIS",
+        "analysis": {
+            "potential_causes": [
+                "TITRES DU CANADA-Les contrats \u00e0 terme de la Bourse de Toronto augmentent alors que l'or prolonge ses gains - Boursorama",
+                "L'or au comptant progresse de pr\u00e8s de 1% \u00e0 5,045.76$/oz - Zonebourse Suisse",
+                "Les b\u00e9n\u00e9fices d'AngloGold Ashanti augmentent gr\u00e2ce \u00e0 des prix de l'or record et \u00e0 une production accrue - Boursorama",
+                "CAC40 : la bourse de paris h\u00e9site face \u00e0 une semaine d\u00e9cisive pour les march\u00e9s - BDOR",
+                "La Bourse de Paris se redresse dans un march\u00e9 encore \u00e9tourdi par la d\u00e9route brutale de l'or - Les Echos",
+                "L'or au comptant reste stable apr\u00e8s les donn\u00e9es \u00e9conomiques am\u00e9ricaines, derni\u00e8re cotation en hausse de 0,6% \u00e0 5,026.13$/oz - Zonebourse Suisse",
+                "Les remises sur l'or s'accroissent en Inde alors que la volatilit\u00e9 des prix freine la demande ; la Chine en cong\u00e9 pour le Nouvel An lunaire - Zonebourse Suisse",
+                "Le TSX ouvre \u00e0 un niveau record alors que l'or poursuit sa hausse ; les investisseurs analysent des donn\u00e9es cl\u00e9s des \u00c9tats-Unis - Zonebourse Suisse"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour OR.PA."
+        }
+    },
+    {
+        "symbol": "AMZN",
+        "time": "2026-02-20 17:20:52",
+        "price": 0,
+        "volume": 0,
+        "change_pct": 0,
+        "type": "INITIAL_ANALYSIS",
+        "analysis": {
+            "potential_causes": [
+                "L'unit\u00e9 \"cloud\" d'Amazon touch\u00e9e par au moins deux pannes concernant des outils d'IA, selon le FT - Boursorama",
+                "L'ancien cadre d'Amazon Doug Gurr sera nomm\u00e9 pr\u00e9sident permanent de l'autorit\u00e9 britannique de la concurrence, selon Sky News - Zonebourse Suisse",
+                "Amazon perd plus de 450 milliards de dollars en Bourse dans une chute historique malgr\u00e9 ses promesses en IA - Investing.com France",
+                "Amazon.com l\u00e2che 0,41% - Boursier.com",
+                "Action Amazon : est-ce le moment d\u2019investir en 2026 ? - Caf\u00e9delabourse",
+                "La Cour supr\u00eame de l'\u00c9tat de Washington estime qu'Amazon peut \u00eatre poursuivi pour des suicides li\u00e9s au nitrite - Boursorama",
+                "Un service d'Amazon mis hors ligne par un robot de codage IA, selon le Financial Times - Zonebourse Suisse",
+                "Amazon peut \u00eatre poursuivi pour des suicides li\u00e9s au nitrite de sodium, selon un tribunal - Boursorama"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour AMZN."
+        }
+    },
+    {
+        "symbol": "MC.PA",
+        "time": "2026-02-20 17:20:52",
+        "price": 0,
+        "volume": 0,
+        "change_pct": 0,
+        "type": "INITIAL_ANALYSIS",
+        "analysis": {
+            "potential_causes": [
+                "Lvmh : Pourquoi le luxe r\u00e9siste en Bourse \u00e0 l'onde de choc sur le CAC 40 provoqu\u00e9e par Fran\u00e7ois Bayrou - BFM Bourse",
+                "Bourse: faut-il encore investir dans le luxe? - Les Affaires",
+                "Morgan Stanley d\u00e9grade la notation de l\u2019action LVMH (EPA:MC) - FranceTransactions.com",
+                "Bourse \u2013 Action LVMH brad\u00e9e : une opportunit\u00e9 historique \u00e0 saisir ? - Detective-Banque.fr",
+                "LVMH, Herm\u00e8s\u2026 \u00aben Bourse, le bulldozer Trump percute les g\u00e9ants du CAC 40\u00bb - Capital.fr",
+                "Morgan Stanley d\u00e9grade la notation de l\u2019action LVMH (EPA:MC) - mon-epargne.com",
+                "David, Richter, M.C. Escher, Momies\u2026 Que valent vraiment les grandes expositions du moment \u00e0 Paris ? - Beaux Arts",
+                "Expo M.C. Escher \u00e0 la Monnaie de Paris | R\u00e9servation de Billet | Expo Paris 2026 - expo.paris"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour MC.PA."
+        }
+    },
+    {
+        "symbol": "AI.PA",
+        "time": "2026-02-20 17:20:52",
+        "price": 0,
+        "volume": 0,
+        "change_pct": 0,
+        "type": "INITIAL_ANALYSIS",
+        "analysis": {
+            "potential_causes": [
+                "SAFRAN Cours Action SAF, Cotation Bourse Euronext Paris - Boursorama",
+                "Faut-il acheter l\u2019action Air Liquide ? Mon avis ! - Finance H\u00e9ros",
+                "Faut-il acheter des actions Air Liquide en 2026 ? [Investir ou vendre] - admiralmarkets.com",
+                "Ave IA, morituri call centers te salutant. Teleperformance le BlackBerry des call-centers et de la relation client - en-contact.com",
+                "Etudiants en soins infirmiers : voici comment financer vos \u00e9tudes en IFSI - Studyrama.com",
+                "Calculer le taux de rendement d\u2019un placement gr\u00e2ce \u00e0 la r\u00e8gle d\u2019Einstein - La finance pour tous",
+                "Retard bourse CROUS janvier 2026 : est-ce normal ? - Mes-Allocs.fr",
+                "Retard de bourse \u00e9tudiante Crous : Quand les paiements vont-ils arriver ? - France 3 R\u00e9gions"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour AI.PA."
+        }
+    }
+]

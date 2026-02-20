@@ -3,6 +3,9 @@ import urllib.parse
 import logging
 from datetime import datetime
 
+# Import de notre nouveau module
+from core.social_intelligence import fetch_official_social_news, load_social_config # Import de load_social_config
+
 logger = logging.getLogger("TradingEngine.News")
 
 def fetch_google_finance_news(symbol, name=None):
@@ -35,7 +38,7 @@ def fetch_google_finance_news(symbol, name=None):
     return news_items
 
 def get_combined_news(ticker_obj, symbol, name=None):
-    """Combine les news de yfinance et de Google News."""
+    """Combine les news de yfinance, Google News et les réseaux sociaux officiels."""
     combined = []
     
     # 1. News yfinance
@@ -58,5 +61,15 @@ def get_combined_news(ticker_obj, symbol, name=None):
     # 2. News Google (en français)
     google_news = fetch_google_finance_news(symbol, name)
     combined.extend(google_news)
+    
+    # 3. News des réseaux sociaux officiels (dynamique via social_config.json)
+    social_config = load_social_config()
+    company_data = social_config.get(symbol)
+    
+    if company_data:
+        official_social_news, _ = fetch_official_social_news(symbol)
+        combined.extend(official_social_news)
+    else:
+        logger.warning(f"Aucune configuration sociale trouvée pour le symbole {symbol}. Les actualités sociales officielles ne seront pas incluses.")
     
     return combined

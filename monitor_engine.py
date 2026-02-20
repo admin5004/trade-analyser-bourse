@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 
 # --- CONFIGURATION ---
 # Remplacez par votre URL Render (ex: https://votre-app.onrender.com/status)
-TARGET_URL = "http://127.0.0.1:5000/status"
+TARGET_URL = "http://127.0.0.1:8888/status"
 CHECK_INTERVAL = 300  # Vérification toutes les 5 minutes
 STALE_THRESHOLD = 20  # Alerte si les données ont plus de 20 minutes
 

@@ -22,6 +22,7 @@ from core.legal import get_company_legal_info
 from core.news import get_combined_news
 from core.auth import hash_password, check_password, generate_code, generate_token, register_device, is_device_recognized
 from core.mailer import send_auth_email
+from core.ai_engine import ai_brain
 
 # --- CONFIGURATION ---
 load_dotenv()
@@ -53,7 +54,8 @@ logger = logging.getLogger("TradingApp")
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
 # On s'assure d'avoir une clé secrète pour les sessions
-app.secret_key = os.environ.get("SECRET_KEY", "trading-analyzer-super-secret-key-12345")
+# Utilisation de la variable d'environnement ou d'une clé aléatoire sécurisée
+app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
 VERSION = "4.0.0 (Modular Edition)"
 
 # Initialisation de la DB au démarrage
@@ -61,19 +63,19 @@ init_db()
 
 # --- SCHEDULER ---
 scheduler = BackgroundScheduler()
-scheduler.add_job(func=fetch_market_data_job, trigger=IntervalTrigger(minutes=20), id='mkt_job')
+# On ajoute le job avec next_run_time=datetime.now() pour qu'il démarre immédiatement
+scheduler.add_job(func=fetch_market_data_job, trigger=IntervalTrigger(minutes=20), id='mkt_job', next_run_time=datetime.now())
 scheduler.start()
-
-# Lancer un premier scan immédiatement en arrière-plan sans bloquer le démarrage
-threading.Thread(target=fetch_market_data_job, daemon=True).start()
 
 # --- ROUTES ---
 
 @app.route('/')
 def ultra_home():
-    if session.get('user_id') and session.get('device_verified'):
-        return redirect(url_for('ultra_analyze'))
-    return render_template('welcome.html')
+    # TEMPORAIRE : Accès libre sans authentification
+    return redirect(url_for('ultra_analyze'))
+    # if session.get('user_id') and session.get('device_verified'):
+    #    return redirect(url_for('ultra_analyze'))
+    # return render_template('welcome.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def ultra_register():
@@ -325,7 +327,8 @@ def ultra_search():
 
 @app.route('/analyze')
 def ultra_analyze():
-    if not session.get('verified'): return redirect(url_for('ultra_home'))
+    # TEMPORAIRE : Désactivation de la vérification de session
+    # if not session.get('verified'): return redirect(url_for('ultra_home'))
     symbol = request.args.get('symbol', '').upper().strip()
     
     top_sectors, heatmap_data = get_global_context()
@@ -380,6 +383,10 @@ def ultra_analyze():
     
     # Infos Légales (Site Web)
     legal_info = get_company_legal_info(symbol)
+    if info: # S'assurer que 'info' existe avant d'y ajouter des clés
+        info['legal_info'] = legal_info
+        info['sentiment_score'] = sentiment_score
+        info['sentiment_label'] = sentiment_label
     current_sector = info.get('sector', 'N/A') if info else 'N/A'
     
     # Récupération des valeurs du même secteur
@@ -418,6 +425,23 @@ def ultra_analyze():
     except: pass
     currency_symbol = CURRENCY_MAP.get(currency_code, currency_code)
 
+    # --- Prédiction de l'IA ---
+    ai_prediction = None
+    confidence = 0
+    ai_reco_next_session = "N/A"
+    ai_reco_confidence = 0
+    ai_analysis_data = None
+
+    if info and df is not None and not df.empty:
+        # Passer le prix actuel, le volume du dernier point et le symbole à l'IA
+        ai_prediction, confidence = ai_brain.get_prediction(info.get('price', 0), df['volume'].iloc[-1], symbol)
+        ai_reco_next_session, ai_reco_confidence = ai_brain.get_next_session_recommendation(symbol)
+        
+        # Récupérer les détails de l'analyse pour le template
+        recent_events = [e for e in ai_brain.memory if e.get('symbol') == symbol and 'analysis' in e]
+        if recent_events:
+            ai_analysis_data = recent_events[-1]['analysis']
+    
     context = {
         'symbol': symbol, 
         'last_close_price': info.get('price') if info else 0.001,
@@ -445,7 +469,12 @@ def ultra_analyze():
         'website_url': legal_info.get('website') if legal_info else None,
         'analyst_recommendation': analyst_info,
         'sentiment_score': sentiment_score, 
-        'sentiment_label': sentiment_label
+        'sentiment_label': sentiment_label,
+        'ai_prediction': ai_prediction,
+        'ai_confidence': confidence,
+        'ai_reco_next_session': ai_reco_next_session,
+        'ai_reco_confidence': ai_reco_confidence,
+        'ai_analysis': ai_analysis_data
     }
     
     return render_template('index.html', **context)
@@ -461,8 +490,6 @@ def ultra_status():
         })
 
 if __name__ == '__main__':
-    # Lancement d'un cycle initial en arrière-plan
-    threading.Thread(target=fetch_market_data_job).start()
-    
-    port = int(os.environ.get("PORT", 8888))
-    app.run(debug=False, host='0.0.0.0', port=port, use_reloader=False)
+    # Le cycle initial est maintenant géré uniquement par APScheduler (next_run_time=now)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=False, host='0.0.0.0', port=port, use_reloader=False, threaded=True)

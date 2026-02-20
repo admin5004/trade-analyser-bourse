@@ -1,0 +1,42 @@
+{
+    "MC.PA": {
+        "company_name": "LVMH",
+        "exec_names": ["Bernard Arnault", "Antoine Arnault"],
+        "fund_names": ["BlackRock", "Norges Bank Investment Management"]
+    },
+    "AAPL": {
+        "company_name": "Apple Inc.",
+        "exec_names": ["Tim Cook", "Luca Maestri", "Deirdre O'Brien"],
+        "fund_names": ["Vanguard Group Inc", "BlackRock", "Berkshire Hathaway Inc"]
+    },
+    "TTE.PA": {
+        "company_name": "TotalEnergies",
+        "exec_names": ["Patrick Pouyanné"],
+        "fund_names": ["BlackRock", "The Vanguard Group"]
+    },
+    "AMZN": {
+        "company_name": "Amazon.com, Inc.",
+        "exec_names": ["Andy Jassy", "Jeff Bezos"],
+        "fund_names": ["Vanguard Group Inc", "BlackRock", "State Street Corp"]
+    },
+    "GLE.PA": {
+        "company_name": "Société Générale",
+        "exec_names": ["Slawomir Krupa", "Anne-Sophie Poutot-Mignien"],
+        "fund_names": ["BlackRock", "Vanguard", "Amundi"]
+    },
+    "AIR.PA": {
+        "company_name": "Airbus",
+        "exec_names": ["Guillaume Faury", "Christian Scherer"],
+        "fund_names": ["BlackRock", "Capital Research and Management"]
+    },
+    "AI.PA": {
+        "company_name": "Air Liquide",
+        "exec_names": ["François Jackow", "Benoît Potier"],
+        "fund_names": ["BlackRock", "Vanguard"]
+    },
+    "OR.PA": {
+        "company_name": "L'Oréal",
+        "exec_names": ["Nicolas Hieronimus", "Jean-Paul Agon"],
+        "fund_names": ["BlackRock", "Vanguard"]
+    }
+}

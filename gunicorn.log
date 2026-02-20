@@ -1,0 +1,37 @@
+[2026-02-15 14:55:44 +0100] [4276] [INFO] Starting gunicorn 25.1.0
+[2026-02-15 14:55:44 +0100] [4276] [INFO] Listening at: http://0.0.0.0:8888 (4276)
+[2026-02-15 14:55:44 +0100] [4276] [INFO] Using worker: sync
+[2026-02-15 14:55:44 +0100] [4276] [INFO] Control socket listening at /home/corentin/trade-analyser-bourse/gunicorn.ctl
+[2026-02-15 14:55:44 +0100] [4278] [INFO] Booting worker with pid: 4278
+[2026-02-15 14:55:45 +0100] [4279] [INFO] Booting worker with pid: 4279
+[2026-02-15 14:55:49 +0100] [4276] [INFO] Handling signal: hup
+[2026-02-15 14:55:49 +0100] [4276] [INFO] Hang up: Master
+[2026-02-15 14:55:49 +0100] [4285] [INFO] Booting worker with pid: 4285
+[2026-02-15 14:55:49 +0100] [4286] [INFO] Booting worker with pid: 4286
+[2026-02-15 14:55:49 +0100] [4276] [WARNING] Worker (pid:4278) was sent SIGHUP!
+[2026-02-15 14:55:49 +0100] [4276] [WARNING] Worker (pid:4279) was sent SIGHUP!
+[2026-02-15 15:48:34 +0100] [4276] [INFO] Handling signal: hup
+[2026-02-15 15:48:35 +0100] [4276] [INFO] Hang up: Master
+[2026-02-15 15:48:35 +0100] [4276] [WARNING] Worker (pid:4285) was sent SIGHUP!
+[2026-02-15 15:48:35 +0100] [4276] [WARNING] Worker (pid:4286) was sent SIGHUP!
+[2026-02-15 15:48:35 +0100] [4276] [INFO] Handling signal: term
+[2026-02-15 15:48:35 +0100] [8735] [INFO] Booting worker with pid: 8735
+[2026-02-15 15:48:35 +0100] [8736] [INFO] Booting worker with pid: 8736
+[2026-02-16 11:06:17 +0100] [7008] [INFO] Starting gunicorn 25.1.0
+[2026-02-16 11:06:18 +0100] [7008] [INFO] Listening at: http://0.0.0.0:8888 (7008)
+[2026-02-16 11:06:18 +0100] [7008] [INFO] Using worker: sync
+[2026-02-16 11:06:18 +0100] [7015] [INFO] Booting worker with pid: 7015
+[2026-02-16 11:06:18 +0100] [7008] [INFO] Control socket listening at /home/corentin/trade-analyser-bourse/gunicorn.ctl
+[2026-02-16 11:06:18 +0100] [7016] [INFO] Booting worker with pid: 7016
+[2026-02-16 12:19:27 +0100] [7015] [INFO] Worker exiting (pid: 7015)
+[2026-02-16 12:19:27 +0100] [7016] [INFO] Worker exiting (pid: 7016)
+[2026-02-16 12:19:29 +0100] [7008] [INFO] Handling signal: term
+[2026-02-20 09:24:04 +0100] [2999] [INFO] Starting gunicorn 25.1.0
+[2026-02-20 09:24:04 +0100] [2999] [INFO] Listening at: http://0.0.0.0:5000 (2999)
+[2026-02-20 09:24:04 +0100] [2999] [INFO] Using worker: sync
+[2026-02-20 09:24:05 +0100] [3001] [INFO] Booting worker with pid: 3001
+[2026-02-20 09:24:05 +0100] [2999] [INFO] Control socket listening at /home/corentin/trade-analyser-bourse/gunicorn.ctl
+[2026-02-20 09:34:40 +0100] [3001] [INFO] Worker exiting (pid: 3001)
+[2026-02-20 09:34:40 +0100] [2999] [INFO] Handling signal: term
+[2026-02-20 09:34:40 +0100] [2999] [INFO] Worker (pid:3001) was sent SIGTERM!
+[2026-02-20 09:34:40 +0100] [2999] [INFO] Shutting down: Master
