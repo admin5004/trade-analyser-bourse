@@ -37,6 +37,32 @@ def fetch_google_finance_news(symbol, name=None):
         
     return news_items
 
+def fetch_lesechos_news(symbol, name=None):
+    """
+    Récupère les actualités via le flux RSS de Les Echos Finance & Marchés.
+    """
+    rss_url = "https://services.lesechos.fr/rss/lesechos-finance-marches.xml"
+    
+    news_items = []
+    try:
+        feed = feedparser.parse(rss_url)
+        for entry in feed.entries[:8]: # Limit to 8 entries like Google News
+            title = getattr(entry, 'title', None)
+            link = getattr(entry, 'link', None)
+            if not title or not link or title.lower() == 'none':
+                continue
+                
+            news_items.append({
+                'title': title,
+                'link': link,
+                'publisher': 'Les Echos',
+                'published': entry.published if hasattr(entry, 'published') else 'N/A'
+            })
+    except Exception as e:
+        logger.error(f"Error fetching Les Echos news for {symbol}: {e}")
+        
+    return news_items
+
 def get_combined_news(ticker_obj, symbol, name=None):
     """Combine les news de yfinance, Google News et les réseaux sociaux officiels."""
     combined = []
@@ -61,8 +87,12 @@ def get_combined_news(ticker_obj, symbol, name=None):
     # 2. News Google (en français)
     google_news = fetch_google_finance_news(symbol, name)
     combined.extend(google_news)
+
+    # 3. News Les Echos
+    lesechos_news = fetch_lesechos_news(symbol, name)
+    combined.extend(lesechos_news)
     
-    # 3. News des réseaux sociaux officiels (dynamique via social_config.json)
+    # 4. News des réseaux sociaux officiels (dynamique via social_config.json)
     social_config = load_social_config()
     company_data = social_config.get(symbol)
     

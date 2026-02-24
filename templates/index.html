@@ -131,28 +131,23 @@
                     </div>
                 </div>
 
-                <!-- Section Prédiction de l'IA -->
-                {% if ai_prediction %}
-                <button class="accordion-btn" style="background: #0f172a;" onclick="toggleSection('ai-prediction-area')">🧠 Prédiction IA : {{ ai_prediction }} (Confiance : {{ ai_confidence }}%)</button>
-                <div id="ai-prediction-area" class="accordion-content">
-                    <h4 style="margin: 0 0 8px 0; font-size: 0.9rem; color: var(--primary);">🎯 Éléments Clés pour la Prédiction</h4>
-                    <ul style="margin: 0; padding-left: 20px; font-size: 0.85rem; line-height: 1.5; color: #334155;">
-                        {% for cause in ai_analysis.potential_causes if ai_analysis %}
-                        <li>{{ cause }}</li>
+                <!-- Nouvelle Section Prédictions IA Multi-Horizons -->
+                {% if ai_predictions %}
+                <button class="accordion-btn" style="background: #0f172a;" onclick="toggleSection('ai-multi-predictions-area')">🧠 Prédictions IA Multi-Horizons</button>
+                <div id="ai-multi-predictions-area" class="accordion-content">
+                    <h4 style="margin: 0 0 8px 0; font-size: 0.9rem; color: var(--primary);">🎯 Rendements Futurs Prévus :</h4>
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 1rem;">
+                        {% for horizon, prediction_value in ai_predictions.items() %}
+                        <div style="background: #f1f5f9; border: 1px solid #e2e8f0; padding: 8px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 600;">
+                            {{ horizon.upper() }} : 
+                            <span style="color: {% if prediction_value >= 0 %}var(--success){% else %}var(--danger){% endif %};">
+                                {{ "+" if prediction_value > 0 }}{{ prediction_value|round(2) }}%
+                            </span>
+                        </div>
                         {% endfor %}
-                    </ul>
+                    </div>
                     <p style="margin: 1rem 0 0; font-size: 0.8rem; color: #64748b; font-style: italic;">
-                        Cette prédiction est basée sur l'analyse combinée des mouvements de prix/volumes et des actualités (y compris réseaux sociaux officiels) passées.
-                    </p>
-                </div>
-                {% endif %}
-
-                <!-- Section Recommandation Prochaine Session -->
-                {% if ai_reco_next_session and ai_reco_next_session != 'N/A' %}
-                <button class="accordion-btn" style="background: #1e293b; margin-top: 0.5rem;" onclick="toggleSection('ai-reco-next-session-area')">🚀 Recommandation Prochaine Session : {{ ai_reco_next_session }} (Confiance : {{ ai_reco_confidence }}%)</button>
-                <div id="ai-reco-next-session-area" class="accordion-content">
-                    <p style="margin: 0; font-size: 0.85rem; line-height: 1.5; color: #334155;">
-                        Cette recommandation est générée par l'IA en fonction de la dernière analyse intraday et du sentiment global des actualités. Elle est indicative et suggère une direction à surveiller.
+                        Ces prédictions sont générées par un modèle de Machine Learning (XGBoost) entraîné sur les 2 dernières années de données historiques et sont exprimées en pourcentage de rendement futur.
                     </p>
                     <p style="margin: 1rem 0 0; font-size: 0.8rem; color: #ef4444; font-style: italic;">
                         <strong>⚠️ Avertissement :</strong> Ceci est un outil expérimental. Ne constitue en aucun cas un conseil en investissement.
@@ -320,9 +315,9 @@
                             <p><strong>• Objectif :</strong> Cible de sortie court terme basée sur le momentum et les résistances calculées.</p>
                             <p><strong>• Recommandation :</strong> Synthèse des indicateurs techniques et du consensus des analystes externes.</p>
                         </div>
-                        <h4 style="color: var(--primary); margin-top: 15px; margin-bottom: 10px;">🧠 NOUVEAU : Prédiction IA & Social Intelligence</h4>
+                        <h4 style="color: var(--primary); margin-top: 15px; margin-bottom: 10px;">🧠 NOUVEAU : Prédictions IA Multi-Horizons</h4>
                         <div style="font-size: 0.85rem; line-height: 1.5;">
-                            <p><strong>• Prédiction IA :</strong> Notre Intelligence Artificielle analyse les mouvements de prix/volumes et les actualités combinées (Google News, réseaux sociaux officiels d'entreprises, dirigeants, fonds) pour suggérer des tendances. Un niveau de confiance est associé.</p>
+                            <p><strong>• Prédictions IA Multi-Horizons :</strong> Notre Intelligence Artificielle (modèles XGBoost) analyse les 2 dernières années de données historiques, les indicateurs techniques (RSI, MACD, moyennes mobiles) pour prédire les rendements futurs à 1 semaine, 1 mois, 3 mois et 6 mois.</p>
                             <p><strong>• Actualités Sociales Officielles :</strong> Ces actualités, provenant de sources vérifiées (Twitter, LinkedIn) des entreprises et de leurs acteurs clés, sont intégrées à l'analyse pour un signal plus riche et contextuel.</p>
                         </div>
                     </div>

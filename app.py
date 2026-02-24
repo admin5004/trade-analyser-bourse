@@ -22,7 +22,9 @@ from core.legal import get_company_legal_info
 from core.news import get_combined_news
 from core.auth import hash_password, check_password, generate_code, generate_token, register_device, is_device_recognized
 from core.mailer import send_auth_email
-from core.ai_engine import ai_brain
+
+# Importation du nouveau processeur IA
+from core.ml_processor import MLPredictor 
 
 # --- CONFIGURATION ---
 load_dotenv()
@@ -61,10 +63,27 @@ VERSION = "4.0.0 (Modular Edition)"
 # Initialisation de la DB au démarrage
 init_db()
 
+# Instance du nouveau modèle IA
+ml_predictor = MLPredictor()
+
 # --- SCHEDULER ---
 scheduler = BackgroundScheduler()
 # On ajoute le job avec next_run_time=datetime.now() pour qu'il démarre immédiatement
 scheduler.add_job(func=fetch_market_data_job, trigger=IntervalTrigger(minutes=20), id='mkt_job', next_run_time=datetime.now())
+# Planification de l'entraînement des modèles IA s'ils n'existent pas encore ou pour les mettre à jour périodiquement
+# Ici, on l'exécute une fois au démarrage si les modèles ne sont pas trouvés
+def train_models_if_needed():
+    symbols_to_train = ["AI.PA", "MC.PA", "MC.PA", "OR.PA", "SAN.PA", "ACA.PA", "BNP.PA", "GLE.PA", "CS.PA", "ABI.PA", "VIE.PA"] # Exemple de quelques symboles
+    for symbol in symbols_to_train:
+        for horizon in ml_predictor.horizons.keys():
+            model_path = os.path.join(ml_predictor.model_dir, f"{symbol}_{horizon}.joblib")
+            if not os.path.exists(model_path):
+                logger.info(f"Modèle pour {symbol} horizon {horizon} non trouvé, entraînement...")
+                ml_predictor.train_for_horizons(symbol)
+                break # Entraîner pour ce symbole une fois suffit si on trouve un modèle manquant
+
+scheduler.add_job(func=train_models_if_needed, trigger=IntervalTrigger(days=1), id='train_job', next_run_time=datetime.now() + timedelta(minutes=5)) # Entraînement quotidien après le démarrage
+
 scheduler.start()
 
 # --- ROUTES ---
@@ -348,7 +367,7 @@ def ultra_analyze():
     if df is None or (info and info.get('price', 0) == 0):
         try:
             ticker_obj = yf.Ticker(symbol)
-            df = ticker_obj.history(period="1y")
+            df = ticker_obj.history(period="1y") # On garde 1 an pour l'analyse technique visuelle
             news_list = ticker_obj.news[:5] if ticker_obj.news else []
             try:
                 raw_reco = ticker_obj.info.get('recommendationKey', 'N/A').replace('_', ' ').title()
@@ -426,22 +445,18 @@ def ultra_analyze():
     currency_symbol = CURRENCY_MAP.get(currency_code, currency_code)
 
     # --- Prédiction de l'IA ---
-    ai_prediction = None
-    confidence = 0
-    ai_reco_next_session = "N/A"
-    ai_reco_confidence = 0
-    ai_analysis_data = None
-
+    # Remplacer l'ancienne logique d'IA par la nouvelle
+    ai_predictions = None
     if info and df is not None and not df.empty:
-        # Passer le prix actuel, le volume du dernier point et le symbole à l'IA
-        ai_prediction, confidence = ai_brain.get_prediction(info.get('price', 0), df['volume'].iloc[-1], symbol)
-        ai_reco_next_session, ai_reco_confidence = ai_brain.get_next_session_recommendation(symbol)
-        
-        # Récupérer les détails de l'analyse pour le template
-        recent_events = [e for e in ai_brain.memory if e.get('symbol') == symbol and 'analysis' in e]
-        if recent_events:
-            ai_analysis_data = recent_events[-1]['analysis']
-    
+        try:
+            # Utilise le nouveau modèle pour obtenir des prédictions multi-horizons
+            ai_predictions = ml_predictor.predict_future(symbol) 
+        except Exception as e:
+            logger.error(f"Error getting AI predictions for {symbol}: {e}")
+            ai_predictions = {h: "Erreur IA" for h in ml_predictor.horizons.keys()}
+    else:
+        ai_predictions = {h: "Données insuffisantes" for h in ml_predictor.horizons.keys()}
+
     context = {
         'symbol': symbol, 
         'last_close_price': info.get('price') if info else 0.001,
@@ -470,11 +485,8 @@ def ultra_analyze():
         'analyst_recommendation': analyst_info,
         'sentiment_score': sentiment_score, 
         'sentiment_label': sentiment_label,
-        'ai_prediction': ai_prediction,
-        'ai_confidence': confidence,
-        'ai_reco_next_session': ai_reco_next_session,
-        'ai_reco_confidence': ai_reco_confidence,
-        'ai_analysis': ai_analysis_data
+        # Passer les prédictions de l'IA au template
+        'ai_predictions': ai_predictions
     }
     
     return render_template('index.html', **context)
