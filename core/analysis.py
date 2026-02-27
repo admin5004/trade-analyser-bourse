@@ -11,6 +11,9 @@ def analyze_stock(df):
         if df is None or len(df) < 30:
             return "Neutre", "Données insuffisantes", 50, 0, 0, None, 0, 0, 0
             
+        # --- NORMALISATION DES COLONNES (Minuscules) ---
+        df.columns = [col.lower() for col in df.columns]
+            
         # --- CALCULS TECHNIQUES AVANCÉS (Inspirés par la finance quantitative) ---
         df.ta.sma(length=20, append=True)
         df.ta.sma(length=50, append=True)
@@ -21,9 +24,11 @@ def analyze_stock(df):
         df.ta.bbands(length=20, std=2, append=True) # Volatilité
         
         last = df.iloc[-1]
-        close = last['close']
+        close = last.get('close', 0)
         rsi = last.get('RSI_14', 50)
         adx = last.get('ADX_14', 0)
+        mm20 = last.get('SMA_20', 0)
+        mm50 = last.get('SMA_50', 0)
         mm200 = last.get('SMA_200')
         bb_upper = last.get('BBU_20_2.0', 0)
         bb_lower = last.get('BBL_20_2.0', 0)
@@ -57,11 +62,14 @@ def analyze_stock(df):
                     reco, reason = "Vendre", "Le titre reste sous pression. Sous la moyenne mobile 200 jours, les probabilités restent orientées à la baisse."
         
         # 2. Détection de Squeeze de Volatilité (Recherches académiques sur les cycles)
-        bb_width = (bb_upper - bb_lower) / last.get('SMA_20', 1)
+        bb_width = (bb_upper - bb_lower) / mm20 if mm20 != 0 else 1
         if bb_width < 0.05: # Moins de 5% d'écart
             reason += " ATTENTION : Squeeze de volatilité détecté. Un mouvement violent (hausse ou baisse) est imminent."
         
-        return reco, reason, float(rsi), float(last.get('SMA_20', 0)), float(last.get('SMA_50', 0)), None, float(mm200 or 0), float(close*0.98), float(close*1.05)
+        return reco, reason, float(rsi), float(mm20), float(mm50), None, float(mm200 or 0), float(close*0.98), float(close*1.05)
+    except Exception as e:
+        logger.error(f"Analysis Error: {e}")
+        return "Erreur", "Problème technique", 50, 0, 0, None, 0, 0, 0
     except Exception as e:
         logger.error(f"Analysis Error: {e}")
         return "Erreur", "Problème technique", 50, 0, 0, None, 0, 0, 0
