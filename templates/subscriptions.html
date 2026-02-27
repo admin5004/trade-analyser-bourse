@@ -1,0 +1,90 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Alertes - Trading Analyzer Pro</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body { background-color: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .card { border-radius: 15px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .header-section { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 40px 0; border-radius: 0 0 30px 30px; margin-bottom: 30px; }
+        .ticker-row { transition: all 0.2s; border-radius: 8px; margin-bottom: 5px; cursor: pointer; }
+        .ticker-row:hover { background-color: #e9ecef; }
+        .ticker-checkbox { transform: scale(1.2); cursor: pointer; }
+        .badge-sector { font-size: 0.75rem; background-color: #6c757d; color: white; }
+    </style>
+</head>
+<body>
+
+<div class="header-section text-center">
+    <div class="container">
+        <h1>🔔 Gestion de vos Alertes</h1>
+        <p class="lead">Sélectionnez les valeurs pour lesquelles vous souhaitez recevoir des notifications par email.</p>
+        <div class="mt-3">
+            <a href="/" class="btn btn-outline-light btn-sm">← Retour au Tableau de Bord</a>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card p-4">
+                <form method="POST">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="mb-0">Valeurs Disponibles</h4>
+                        <button type="submit" class="btn btn-primary px-4 shadow-sm">Enregistrer mes choix</button>
+                    </div>
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                      {% if messages %}
+                        {% for category, message in messages %}
+                          <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                          </div>
+                        {% endfor %}
+                      {% endif %}
+                    {% endwith %}
+
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 50px;">Suivre</th>
+                                    <th>Symbole</th>
+                                    <th>Nom de l'entreprise</th>
+                                    <th>Secteur</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ticker in tickers %}
+                                <tr class="ticker-row" onclick="document.getElementById('check_{{ ticker.symbol }}').click();">
+                                    <td class="text-center">
+                                        <input type="checkbox" name="symbols" value="{{ ticker.symbol }}" id="check_{{ ticker.symbol }}" 
+                                               class="ticker-checkbox" onclick="event.stopPropagation();"
+                                               {% if ticker.symbol in subs %}checked{% endif %}>
+                                    </td>
+                                    <td><strong>{{ ticker.symbol }}</strong></td>
+                                    <td>{{ ticker.name }}</td>
+                                    <td><span class="badge badge-sector">{{ ticker.sector }}</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-4 text-center">
+                        <button type="submit" class="btn btn-primary btn-lg px-5 shadow">Valider mes abonnements</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

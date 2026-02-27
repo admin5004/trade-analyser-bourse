@@ -60,6 +60,10 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
 app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
 VERSION = "4.0.0 (Modular Edition)"
 
+# Verrouillage pour l'entraînement automatique
+training_locks = set()
+t_lock = threading.Lock()
+
 # Initialisation de la DB au démarrage
 init_db()
 
@@ -394,11 +398,11 @@ def ultra_analyze():
                 raw_reco = ticker_obj.info.get('recommendationKey', 'N/A').replace('_', ' ').title()
                 analyst_info = ANALYST_MAP.get(raw_reco, raw_reco)
         except: pass
-        df.columns = [col.lower() for col in df.columns]
-        analyze_stock(df)
+        if df is not None and not df.empty:
+            df.columns = [col.lower() for col in df.columns]
+            analyze_stock(df)
 
     sentiment_score, sentiment_label = analyze_sentiment(news_list)
-    top_sectors, _ = get_global_context()
     
     # Infos Légales (Site Web)
     legal_info = get_company_legal_info(symbol)
@@ -451,6 +455,12 @@ def ultra_analyze():
         try:
             # Utilise le nouveau modèle pour obtenir des prédictions multi-horizons
             ai_predictions = ml_predictor.predict_future(symbol) 
+            
+            # AUTOMATISATION : Si aucune prédiction n'est trouvée, on lance l'entraînement en arrière-plan
+            if not ai_predictions:
+                logger.info(f"Auto-train déclenché pour {symbol}...")
+                threading.Thread(target=ml_predictor.train_for_horizons, args=(symbol,)).start()
+                ai_predictions = {h: "Calcul en cours..." for h in ml_predictor.horizons.keys()}
         except Exception as e:
             logger.error(f"Error getting AI predictions for {symbol}: {e}")
             ai_predictions = {h: "Erreur IA" for h in ml_predictor.horizons.keys()}
@@ -486,10 +496,51 @@ def ultra_analyze():
         'sentiment_score': sentiment_score, 
         'sentiment_label': sentiment_label,
         # Passer les prédictions de l'IA au template
-        'ai_predictions': ai_predictions
+        'ai_predictions': ai_predictions,
+        'market_indices': market_indices
     }
     
     return render_template('index.html', **context)
+
+@app.route('/subscriptions', methods=['GET', 'POST'])
+def ultra_subscriptions():
+    # TEMPORAIRE : On utilise un email par défaut ou la session si dispo
+    email = session.get('email') or session.get('pending_email')
+    if not email:
+        flash("Veuillez vous connecter pour gérer vos alertes", "error")
+        return redirect(url_for('ultra_home'))
+        
+    if request.method == 'POST':
+        selected_symbols = request.form.getlist('symbols')
+        try:
+            with get_db_connection() as conn:
+                cursor = conn.cursor()
+                # On nettoie les anciens abonnements
+                cursor.execute("DELETE FROM alert_subscriptions WHERE email = ?", (email,))
+                # On ajoute les nouveaux
+                for sym in selected_symbols:
+                    cursor.execute("INSERT INTO alert_subscriptions (email, symbol) VALUES (?, ?)", (email, sym))
+                conn.commit()
+            flash("Vos préférences d'alertes ont été mises à jour !", "success")
+        except Exception as e:
+            logger.error(f"Error updating subscriptions for {email}: {e}")
+            flash("Erreur lors de la mise à jour", "error")
+
+    # Récupération de tous les tickers et des abonnements actuels
+    all_tickers = []
+    current_subs = []
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT symbol, name, sector FROM tickers ORDER BY symbol")
+            all_tickers = [{'symbol': r[0], 'name': r[1], 'sector': r[2]} for r in cursor.fetchall()]
+            
+            cursor.execute("SELECT symbol FROM alert_subscriptions WHERE email = ?", (email,))
+            current_subs = [r[0] for r in cursor.fetchall()]
+    except Exception as e:
+        logger.error(f"Error fetching subscription data: {e}")
+
+    return render_template('subscriptions.html', tickers=all_tickers, subs=current_subs, email=email)
 
 @app.route('/status')
 def ultra_status():

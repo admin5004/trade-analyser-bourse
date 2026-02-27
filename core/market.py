@@ -17,6 +17,8 @@ try:
 except ImportError:
     correlate_and_analyze = None
 
+from .alerts import scan_for_critical_alerts
+
 logger = logging.getLogger("TradingEngine.Market")
 
 market_lock = threading.Lock()
@@ -70,6 +72,11 @@ def process_single_symbol(symbol, sector_name):
             'vol_spike': 1.0
         }
 
+        # Mise à jour immédiate du cache global si appelée hors job global
+        with market_lock:
+            MARKET_STATE['tickers'][symbol] = ticker_data
+            MARKET_STATE['dataframes'][symbol] = df
+
         # --- DÉTECTION ÉVÉNEMENT MÉMOIRE ---
         if abs(change_pct) >= 0.5:
             save_event_to_memory(symbol, float(close_now), int(df['volume'].iloc[-1]), float(change_pct), "PRICE_MOVE")
@@ -116,6 +123,13 @@ def fetch_market_data_job():
         except Exception as e:
             logger.error(f"IA Correlation Error: {e}")
 
+    # --- SCAN D'ALERTES CRITIQUES ---
+    try:
+        logger.info("🔔 ALERTS: Scanning for critical signals...")
+        scan_for_critical_alerts(MARKET_STATE)
+    except Exception as e:
+        logger.error(f"Alert Scanning Error: {e}")
+
     logger.info(f"✅ ENGINE: Cycle complete. {len(MARKET_STATE['tickers'])} assets.")
 
 def get_global_context():
@@ -124,7 +138,19 @@ def get_global_context():
     
     heatmap_data = []
     sector_perf = {}
+    indices = {}
     
+    # Récupération des indices majeurs
+    for idx_sym in ['^FCHI', '^SBF120']:
+        info = live_tickers.get(idx_sym)
+        if info:
+            indices[idx_sym.replace('^', '')] = {
+                'symbol': idx_sym,
+                'price': info.get('price'),
+                'change': info.get('change_pct', 0),
+                'reco': info.get('recommendation', 'Neutre')
+            }
+
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
@@ -164,4 +190,4 @@ def get_global_context():
     # Trier les secteurs par performance décroissante
     top_sectors = sorted(top_sectors, key=lambda x: x['change'], reverse=True)
     
-    return top_sectors, sorted(heatmap_data, key=lambda x: x['symbol'])
+    return top_sectors, sorted(heatmap_data, key=lambda x: x['symbol']), indices

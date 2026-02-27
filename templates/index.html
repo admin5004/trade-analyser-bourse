@@ -58,6 +58,33 @@
             </form>
             <div id="autocomplete-results" style="position:absolute; width:100%; background:white; z-index:100; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.1); display:none;"></div>
             
+            {% if market_indices %}
+            <div style="display: flex; gap: 15px; margin-top: 15px; justify-content: center;">
+                {% if market_indices.FCHI %}
+                <a href="/analyze?symbol=%5EFCHI" style="text-decoration: none; flex: 1; max-width: 200px;">
+                    <div style="background: white; border: 1px solid var(--border); padding: 10px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: center; transition: transform 0.2s;">
+                        <div style="font-size: 0.7rem; color: #64748b; font-weight: 700;">CAC 40</div>
+                        <div style="font-weight: 800; font-size: 1.1rem; margin: 4px 0;">{{ market_indices.FCHI.price|round(0) if market_indices.FCHI.price else '...' }}</div>
+                        <div style="font-size: 0.8rem; color: {% if market_indices.FCHI.change >= 0 %}var(--success){% else %}var(--danger){% endif %}; font-weight: 700;">
+                            {{ "+" if market_indices.FCHI.change > 0 }}{{ market_indices.FCHI.change|round(2) }}%
+                        </div>
+                    </div>
+                </a>
+                {% endif %}
+                {% if market_indices.SBF120 %}
+                <a href="/analyze?symbol=%5ESBF120" style="text-decoration: none; flex: 1; max-width: 200px;">
+                    <div style="background: white; border: 1px solid var(--border); padding: 10px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: center; transition: transform 0.2s;">
+                        <div style="font-size: 0.7rem; color: #64748b; font-weight: 700;">SBF 120</div>
+                        <div style="font-weight: 800; font-size: 1.1rem; margin: 4px 0;">{{ market_indices.SBF120.price|round(0) if market_indices.SBF120.price else '...' }}</div>
+                        <div style="font-size: 0.8rem; color: {% if market_indices.SBF120.change >= 0 %}var(--success){% else %}var(--danger){% endif %}; font-weight: 700;">
+                            {{ "+" if market_indices.SBF120.change > 0 }}{{ market_indices.SBF120.change|round(2) }}%
+                        </div>
+                    </div>
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+
             <div class="sector-ticker-container">
                 <div class="sector-ticker-inner">
                     {% if top_sectors %}
@@ -147,7 +174,7 @@
                         {% endfor %}
                     </div>
                     <p style="margin: 1rem 0 0; font-size: 0.8rem; color: #64748b; font-style: italic;">
-                        Ces prédictions sont générées par un modèle de Machine Learning (XGBoost) entraîné sur les 2 dernières années de données historiques et sont exprimées en pourcentage de rendement futur.
+                        Ces prédictions sont générées par un modèle de Machine Learning (XGBoost) entraîné sur les 5 dernières années de données historiques et sont exprimées en pourcentage de rendement futur.
                     </p>
                     <p style="margin: 1rem 0 0; font-size: 0.8rem; color: #ef4444; font-style: italic;">
                         <strong>⚠️ Avertissement :</strong> Ceci est un outil expérimental. Ne constitue en aucun cas un conseil en investissement.
@@ -317,7 +344,7 @@
                         </div>
                         <h4 style="color: var(--primary); margin-top: 15px; margin-bottom: 10px;">🧠 NOUVEAU : Prédictions IA Multi-Horizons</h4>
                         <div style="font-size: 0.85rem; line-height: 1.5;">
-                            <p><strong>• Prédictions IA Multi-Horizons :</strong> Notre Intelligence Artificielle (modèles XGBoost) analyse les 2 dernières années de données historiques, les indicateurs techniques (RSI, MACD, moyennes mobiles) pour prédire les rendements futurs à 1 semaine, 1 mois, 3 mois et 6 mois.</p>
+                            <p><strong>• Prédictions IA Multi-Horizons :</strong> Notre Intelligence Artificielle (modèles XGBoost) analyse les 5 dernières années de données historiques et les indicateurs techniques (RSI, MACD, moyennes mobiles) pour prédire les rendements futurs de 1 jour à 1 an (1j, 3j, 1sem, 1m, 3m, 6m, 1an).</p>
                             <p><strong>• Actualités Sociales Officielles :</strong> Ces actualités, provenant de sources vérifiées (Twitter, LinkedIn) des entreprises et de leurs acteurs clés, sont intégrées à l'analyse pour un signal plus riche et contextuel.</p>
                         </div>
                     </div>
