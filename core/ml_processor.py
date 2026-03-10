@@ -118,7 +118,7 @@ class MLPredictor:
         return training_results
 
     def predict_future(self, symbol):
-        """Prédit les rendements pour tous les horizons à partir du prix actuel"""
+        """Prédit les rendements pour tous les horizons à partir du prix actuel (Lazy Loading avec Cache)"""
         try:
             raw_df = self.fetch_data(symbol)
             if raw_df is None or raw_df.empty:
@@ -132,17 +132,33 @@ class MLPredictor:
             
             predictions = {}
             for name in self.horizons.keys():
-                model_path = os.path.join(self.model_dir, f"{symbol}_{name}.joblib")
-                if os.path.exists(model_path):
-                    try:
-                        model = joblib.load(model_path)
-                        pred = model.predict(last_features)[0]
-                        predictions[name] = round(float(pred) * 100, 2)
-                    except Exception:
-                        continue
+                model_key = f"{symbol}_{name}"
+                model_path = os.path.join(self.model_dir, f"{model_key}.joblib")
+                
+                # Chargement à la demande (Lazy) avec mise en cache
+                if model_key not in self.models:
+                    if os.path.exists(model_path):
+                        try:
+                            self.models[model_key] = joblib.load(model_path)
+                            logger.info(f"Modèle IA chargé en mémoire : {model_key}")
+                        except Exception as e:
+                            logger.warning(f"Échec du chargement du modèle {model_key}: {e}")
+                            continue
+                    else:
+                        continue # Pas de modèle pour cet horizon/symbole
+
+                # Utilisation du modèle en cache
+                try:
+                    model = self.models[model_key]
+                    pred = model.predict(last_features)[0]
+                    predictions[name] = round(float(pred) * 100, 2)
+                except Exception as e:
+                    logger.error(f"Erreur lors de la prédiction avec {model_key}: {e}")
+                    continue
             
             return predictions
-        except Exception:
+        except Exception as e:
+            logger.error(f"Erreur globale predict_future pour {symbol}: {e}")
             return {}
 
 if __name__ == "__main__":

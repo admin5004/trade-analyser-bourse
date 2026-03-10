@@ -1,590 +1,787 @@
 [
     {
-        "symbol": "DG.PA",
-        "time": "2026-02-24 21:33:28",
-        "price": 141.75,
-        "volume": 688288,
-        "change_pct": 0.6032690846957046,
+        "symbol": "AI.PA",
+        "time": "2026-03-09 16:25:39",
+        "price": 165.13999938964844,
+        "volume": 308241,
+        "change_pct": -1.291096008791543,
         "type": "PRICE_MOVE",
         "analysis": {
             "potential_causes": [
-                "GTT nomme Fran\u00e7ois Michel DG \u00e0 compter du 5 janvier 2026 - Boursorama",
-                "Le nouveau DG de Kering face \u00e0 la pression des vendeurs \u00e0 d\u00e9couvert - Les Echos",
-                "Sopra steria group : Le DG de Sopra Steria part chez Alten, l'un grimace quand l'autre sourit en Bourse - BFM Bourse",
-                "Le DG de Ryanair r\u00e9pond \u00e0 la menace d'un rachat de la compagnie par Elon Musk - Boursorama",
-                "Soitec nomme Laurent R\u00e9mont au poste de DG \u00e0 partir du 1er avril - Les Echos",
-                "Sopra Steria nomme Rajesh Krishnamurthy DG \u00e0 partir du 2 f\u00e9vrier 2026 - Boursorama",
-                "Soitec grimpe en Bourse apr\u00e8s l\u2019annonce du d\u00e9part \u00e0 venir de son DG Pierre Barnab\u00e9 - Les Echos",
-                "Soitec nomme Laurent R\u00e9mont au poste de DG \u00e0 partir du 1er avril - Boursorama"
+                "AIR FRANCE - KLM Cours Action AF, Cotation Bourse Euronext Paris - Boursorama",
+                "Faut-il acheter des actions Air Liquide en 2026 ? [Investir ou vendre] - admiralmarkets.com",
+                "SAFRAN Cours Action SAF, Cotation Bourse Euronext Paris - Boursorama",
+                "DASSAULT AVIATION Cours Action AM, Cotation Bourse Euronext Paris - Boursorama",
+                "Le pass Sport - Minist\u00e8re de l'\u00c9ducation nationale",
+                "Retard bourse CROUS janvier 2026 : est-ce normal ? - MesAllocs.fr",
+                "Ave IA, morituri call centers te salutant. Teleperformance le BlackBerry des call-centers et de la relation client - en-contact.com",
+                "Cinq solutions pour financer son \u00e9cole de commerce - L'Etudiant"
             ],
-            "verdict": "Analyse pr\u00e9ventive multi-sources pour DG.PA."
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour AI.PA."
+        }
+    },
+    {
+        "symbol": "MT.AS",
+        "time": "2026-03-09 16:25:39",
+        "price": 46.08000183105469,
+        "volume": 2575356,
+        "change_pct": -3.799581705317751,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "ARCELORMITTAL Cours Action MT, Cotation Bourse Euronext Amsterdam - Boursorama"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour MT.AS."
+        }
+    },
+    {
+        "symbol": "CS.PA",
+        "time": "2026-03-09 16:25:40",
+        "price": 37.459999084472656,
+        "volume": 2285780,
+        "change_pct": -1.1348649039388938,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "Saint-Gobain : Oddo BHF maintient sa recommandation \u00e0 surperformance - Boursorama",
+                "ORANGE Cours Action ORA, Cotation Bourse Euronext Paris - Boursorama",
+                "Axa : Des r\u00e9sultats en ligne pour Axa ne suffisent pas aux yeux de la Bourse, l'action d\u00e9visse - BFM Bourse",
+                "\u00c9tudier \u00e0 Sciences Po, combien \u00e7a co\u00fbte ? - Sciences Po",
+                "Droits des femmes: manifestations partout en France, Gis\u00e8le Pelicot et sa fille \u00e0 Paris - Boursorama",
+                "Axa : Avec des r\u00e9sultats meilleurs qu'attendu mais \"difficilement enthousiasmants\", Axa tousse en Bourse - BFM Bourse",
+                "Ligue 1: l'OM prend sa revanche \u00e0 Toulouse - Boursorama",
+                "Orange ajoute AST SpaceMobile \u00e0 sa liste croissante de partenaires satellite-mobile - Boursorama"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour CS.PA."
+        }
+    },
+    {
+        "symbol": "CA.PA",
+        "time": "2026-03-09 16:25:40",
+        "price": 15.130000114440918,
+        "volume": 614238,
+        "change_pct": -0.5913281932251905,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "CARREFOUR Cours Action CA, Cotation Bourse Euronext Paris - Boursorama",
+                "Cr\u00e9dit Agricole \u00abest une machine \u00e0 cash\u00bb, quel potentiel en Bourse ? L\u2019oeil du Loup de Zurich - Capital.fr",
+                "Guerre en Iran : la Bourse de Paris chute de 2,36% \u00e0 l\u2019ouverture, le p\u00e9trole et le gaz flambent - Le Figaro",
+                "Sanofi chute en Bourse apr\u00e8s l'\u00e9viction de son directeur g\u00e9n\u00e9ral Paul Hudson - Les Echos",
+                "Totalenergies : Pourquoi, malgr\u00e9 sa future pr\u00e9sence \u00e0 la Bourse de New York en plus de celle de Paris, Totalenergies n'aura pas de double cotation - BFM Bourse",
+                "Ipsen vise un CA \u00e0 +13% en 2026 apr\u00e8s +10,9% en 2025 - Boursorama",
+                "Minimal - Pinault Collection",
+                "D\u00e9kuple accroit de pr\u00e8s de 13% son CA \u00e0 neuf mois - ABC Bourse"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour CA.PA."
+        }
+    },
+    {
+        "symbol": "BNP.PA",
+        "time": "2026-03-09 16:25:40",
+        "price": 85.0,
+        "volume": 1493087,
+        "change_pct": -1.563403008658634,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "BNP Paribas cl\u00f4ture en forte baisse - Boursier.com",
+                "CAC 40, Orange, BNP Paribas, Total, Safran, Herm\u00e8s\u2026 les actions en Bourse au programme de Momentum - Capital.fr",
+                "Sartorius Stedim, Cr\u00e9dit Agricole, BNP Paribas, Airbus, Soitec, Euronext, Saint-Gobain : toutes les recommandations des analystes - Les Echos",
+                "BNP Paribas reprend le cap de la hausse, KBW rel\u00e8ve \u00e0 \"surperformance\" - ABC Bourse",
+                "Bnp paribas act.a : Pourquoi l'action BNP Paribas chute brusquement de 8% ce lundi - BFM Bourse",
+                "BNP Paribas l\u00e2che 0,78% - Boursier.com",
+                "BNP Paribas a un compte \u00e0 r\u00e9gler avec la Bourse - L'Agefi",
+                "Repli marqu\u00e9 de l'action BNP PARIBAS ACT.A : -4,23% - Id\u00e9al Investisseur"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour BNP.PA."
+        }
+    },
+    {
+        "symbol": "CAP.PA",
+        "time": "2026-03-09 16:25:40",
+        "price": 107.9000015258789,
+        "volume": 284646,
+        "change_pct": -1.6856478124110192,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "CAPGEMINI Cours Action CAP, Cotation Bourse Euronext Paris - Boursorama",
+                "La Bourse de Paris garde le cap malgr\u00e9 les craintes autour de l'IA - France 24",
+                "CMA CGM a maintenu le cap en 2025, mais navigue \u00e0 vue sur une mer d'intranquillit\u00e9 en 2026 - Boursorama",
+                "Vote de confiance : Fran\u00e7ois Bayrou vers la sortie, mais la Bourse de Paris garde le cap - Les Echos",
+                "CAC 40 : la Bourse plomb\u00e9e par \u00abun vaste \u00e9v\u00e9nement de liquidation, les actions vendues en bloc - Capital.fr",
+                "+50 % en six mois : pourquoi les \u00ab small caps \u00bb s'envolent soudainement en Bourse - La Tribune",
+                "Le Cac 40 garde le cap, un oeil riv\u00e9 sur l'inflation am\u00e9ricaine, l'autre sur la R\u00e9serve f\u00e9d\u00e9rale - Les Echos",
+                "Cr\u00e9dit Agricole \u00abest une machine \u00e0 cash\u00bb, quel potentiel en Bourse ? L\u2019oeil du Loup de Zurich - Capital.fr"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour CAP.PA."
+        }
+    },
+    {
+        "symbol": "EN.PA",
+        "time": "2026-03-09 16:25:40",
+        "price": 48.13999938964844,
+        "volume": 222121,
+        "change_pct": -1.5541965491110663,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "WORLDLINE Cours Action WLN, Cotation Bourse Euronext Paris - Boursorama",
+                "Atelier en famille - Pinault Collection",
+                "Le Cac 40 avance sans trembler, riv\u00e9 sur la r\u00e9union de la R\u00e9serve f\u00e9d\u00e9rale am\u00e9ricaine - Les Echos",
+                "Actions : faut-il souscrire \u00e0 l\u2019introduction en Bourse de Rising Stone (immobilier de luxe) ? - Capital.fr",
+                "La Bourse de Paris \u00e9volue en l\u00e9g\u00e8re baisse, dig\u00e9rant r\u00e9sultats d'entreprises et indicateurs \u00e9conomiques - l'Opinion",
+                "400 milliards de dollars \u00e9vapor\u00e9s : le krach silencieux du g\u00e9ant Oracle - La Tribune",
+                "Spotify, la seule jeune entreprise europ\u00e9enne \u00e0 valoir plus de 100 milliards d'euros en Bourse (et faire mentir Mario Draghi) - BFM Bourse",
+                "Strava, c\u00e9l\u00e8bre r\u00e9seau social des sportifs, se pr\u00e9pare \u00e0 entrer en Bourse - Le Figaro"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour EN.PA."
+        }
+    },
+    {
+        "symbol": "ACA.PA",
+        "time": "2026-03-09 16:25:41",
+        "price": 16.5049991607666,
+        "volume": 2798391,
+        "change_pct": -1.6974493104236426,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "Credit Agricole \u00e0 la baisse - Boursier.com",
+                "CREDIT AGRICOLE SA Cours Action ACA, Cotation Bourse Euronext Paris - Boursorama",
+                "Cr\u00e9dit agricole \u00abmet le CAC 40 KO, en Bourse !\u00bb L\u2019\u0153il du Loup de Zurich - Capital.fr",
+                "Credit Agricole abandonne 4,40% - Boursier.com",
+                "Les assureurs sant\u00e9 sous pression alors que Trump veut verser directement au public les fonds de l'Obamacare - Les Echos",
+                "CREDIT AGRICOLE (ACA) - Cours Action | FR0000045072 - Cotation EURONEXT PARIS - boursedirect.fr",
+                "Le spectre du \u00abshutdown\u00bb de retour ! - Les Affaires",
+                "Credit agricole : Avec des rachats d'actions et des r\u00e9sultats tir\u00e9s par l'assurance, Cr\u00e9dit Agricole SA grimpe en Bourse - BFM Bourse"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour ACA.PA."
+        }
+    },
+    {
+        "symbol": "BN.PA",
+        "time": "2026-03-09 16:25:42",
+        "price": 69.37999725341797,
+        "volume": 332256,
+        "change_pct": -1.168090784147465,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "DANONE Cours Action BN, Cotation Bourse Euronext Paris - Boursorama",
+                "Soci\u00e9t\u00e9 DANONE BN Euronext Paris : Secteur d'activit\u00e9, Actionnaire, PDG et Capitalisation - Boursorama",
+                "Danone accro\u00eet son BNPA courant de moins de 5% en 2025... - Fortuneo",
+                "Worldline : r\u00e9vision \u00e0 la baisse du BNPA (2025 - Zonebourse",
+                "Dassault Syst\u00e8mes chute en Bourse apr\u00e8s l'annonce de r\u00e9sultats 2025 d\u00e9cevants - Les Echos",
+                "Danone : Pourquoi un rappel de laits infantiles \u00e0 Singapour provoque un violent plongeon de 7% de l'action Danone - BFM Bourse",
+                "Dassault Syst\u00e8mes renforce sa rentabilit\u00e9 au T3 2025 gr\u00e2ce \u00e0 la dynamique du cloud et de 3DEXPERIENCE - Id\u00e9al Investisseur",
+                "Appel \u00e0 chercheurs associ\u00e9s 2025-2026 - BnF - Site institutionnel"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour BN.PA."
+        }
+    },
+    {
+        "symbol": "DSY.PA",
+        "time": "2026-03-09 16:25:42",
+        "price": 18.084999084472656,
+        "volume": 886420,
+        "change_pct": -3.4694502519512276,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "Dassault Syst\u00e8mes prend 0,46% - Boursier.com",
+                "Dassault systemes : Plomb\u00e9 par des ventes de licences en berne, Dassault Syst\u00e8mes sabre ses cibles de croissance et s'effondre de 15% en Bourse - BFM Bourse",
+                "Dassault Syst\u00e8mes cl\u00f4ture en forte hausse - Boursier.com",
+                "Dassault Syst\u00e8mes abaisse son objectif de croissance du CA annuel apr\u00e8s un T3 d\u00e9cevant - Les Echos",
+                "L\u2019action Dassault Syst\u00e8mes recule en Bourse malgr\u00e9 un mod\u00e8le solide : valorisation et visibilit\u00e9 sous surveillance - Id\u00e9al Investisseur",
+                "Fallait pas l'inviter : Dassault Syst\u00e8mes - Zonebourse",
+                "Dassault Syst\u00e8mes : un recadrage logique - Le Revenu",
+                "DASSAULT SYSTEMES Cours Action DSY, Cotation Bourse Euronext Paris - Boursorama"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour DSY.PA."
+        }
+    },
+    {
+        "symbol": "EL.PA",
+        "time": "2026-03-09 16:25:42",
+        "price": 208.3000030517578,
+        "volume": 289430,
+        "change_pct": -2.114661623809045,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "ORANGE Cours Action ORA, Cotation Bourse Euronext Paris - Boursorama",
+                "SCHNEIDER ELECTRIC Cours Action SU, Cotation Bourse Euronext Paris - Boursorama",
+                "V\u00e9lo \u00e9lectrique, v\u00e9lo cargo, stages d'apprentissage\u2026 Les aides financi\u00e8res pour inciter \u00e0 des mobilit\u00e9s propres - Ville de Paris",
+                "Nexans : Pr\u00e9voyant des retards sur un grand chantier \u00e9lectrique \u00e0 1,4 milliard d'euros entre la Gr\u00e8ce et Chypre, Nexans recule en Bourse - BFM Bourse",
+                "Stellantis s'effondre en Bourse : pourquoi l'excuse de la voiture \u00e9lectrique ne tient pas - Numerama",
+                "Reconnue complice d\u2019exactions au Soudan, BNP Paribas chute de plus de 8% \u00e0 la Bourse de Paris - Le Figaro",
+                "BNP Paribas confront\u00e9 \u00e0 un risque financier majeur apr\u00e8s une condamnation pour complicit\u00e9 d'exactions au Soudan - RFI",
+                "Vers une r\u00e9int\u00e9gration de l\u2019entit\u00e9 \u00e9lectrique Ampere dans Renault ? - Auto Infos"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour EL.PA."
+        }
+    },
+    {
+        "symbol": "ERF.PA",
+        "time": "2026-03-09 16:25:42",
+        "price": 63.31999969482422,
+        "volume": 96844,
+        "change_pct": -1.951071694805325,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "Soci\u00e9t\u00e9 EUROFINS SCIENTIFIC ERF Euronext Paris : Secteur d'activit\u00e9, Actionnaire, PDG et Capitalisation - Boursorama",
+                "Eurofins Scientific perd 0,20% - Boursier.com",
+                "Eurofins scient. : Plomb\u00e9 par la faiblesse de son activit\u00e9 dans la biopharmacie, Eurofins d\u00e9croche de 6,5% en Bourse - BFM Bourse",
+                "Eurofins : \u00e0 bas bruit - Boursier.com",
+                "Eurofins Scientific SE (ERF) - Cours Action | FR0014000MR3 - Cotation EURONEXT PARIS - boursedirect.fr",
+                "Eurofins scient. : Pour redonner un coup de fouet \u00e0 son cours de Bourse, Eurofins Scientific lance un plan de rachat d'actions - BFM Bourse",
+                "Eurofins : encore plus haut ? - Boursier.com",
+                "EUROFINS SCIENTIFIC Cours Action ERF, Cotation Bourse Euronext Paris - Boursorama"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour ERF.PA."
+        }
+    },
+    {
+        "symbol": "OR.PA",
+        "time": "2026-03-09 16:25:43",
+        "price": 362.79998779296875,
+        "volume": 185011,
+        "change_pct": -2.1838787373440294,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "Le Ghana introduira un nouveau r\u00e9gime de redevances sur l'or mardi, malgr\u00e9 l'opposition, selon l'autorit\u00e9 de r - Boursorama",
+                "Pourquoi l\u2019or chute alors que la panique r\u00e8gne ? Voici comment r\u00e9agir en bourse - Investing.com France",
+                "L'or recule face \u00e0 la fermet\u00e9 du dollar et aux anticipations de taux \u00e9lev\u00e9s - Zonebourse Suisse",
+                "March\u00e9 : L'or d\u00e9\u00e7oit, les obligations baissent, les actions de la d\u00e9fense sont malmen\u00e9es\u2026 Les traditionnelles valeurs refuges ne tiennent pas leur rang avec la guerre au Moyen-Orient - BFM Bourse",
+                "L'or se replie alors que le dollar se renforce et les taux am\u00e9ricains se tendent - ABC Bourse",
+                "Les bombes tombent, l'or noir grimpe et les march\u00e9s chutent... - Fortuneo",
+                "Les Bourses chutent, l'or et l'argent reculent mais revoici le bitcoin: la reine des cryptos grimpe \u00e0 nouveau depuis la guerre en Iran (il permet de vite d\u00e9placer de l'argent) - BFM",
+                "Comment investir et acheter de l'OR ? Guide 2026 - Finance H\u00e9ros"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour OR.PA."
+        }
+    },
+    {
+        "symbol": "LR.PA",
+        "time": "2026-03-09 16:25:43",
+        "price": 134.5,
+        "volume": 231983,
+        "change_pct": -2.217377669275766,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "LEGRAND Cours Action LR, Cotation Bourse Euronext Paris - Boursorama",
+                "Le CAC 40 chute lourdement face \u00e0 la violente flamb\u00e9e du prix du p\u00e9trole - La Tribune",
+                "La Bourse de Paris finit encore dans le rouge, emport\u00e9e par le risque g\u00e9opolitique - Boursorama",
+                "Legrand : La Bourse avait des attentes \"trop agressives\" sur les r\u00e9sultats de Legrand, l'action plonge de 11% - BFM Bourse",
+                "Indice CAC 40 : strat\u00e9gies et conseils pour investir en 2026 - Caf\u00e9delabourse",
+                "Bourse de Paris: nouveau record en s\u00e9ance pour le CAC 40, moins d'un mois apr\u00e8s son pr\u00e9c\u00e9dent - La Gazette France",
+                "Soci\u00e9t\u00e9 LEGRAND LR Euronext Paris : Secteur d'activit\u00e9, Actionnaire, PDG et Capitalisation - Boursorama",
+                "Pas de boussole am\u00e9ricaine pour le Cac 40 ce lundi, avant une nouvelle semaine \u00e0 risques - Les Echos"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour LR.PA."
+        }
+    },
+    {
+        "symbol": "KER.PA",
+        "time": "2026-03-09 16:25:43",
+        "price": 251.8000030517578,
+        "volume": 70476,
+        "change_pct": -2.1755986703630796,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "KERING Cours Action KER, Cotation Bourse Euronext Paris - Boursorama",
+                "Soci\u00e9t\u00e9 KERING KER Euronext Paris : Secteur d'activit\u00e9, Actionnaire, PDG et Capitalisation - Boursorama",
+                "CBI et Ker Ventures \u00e9largissent le programme de blocs d'actions en signant un accord avec la plateforme\u2026 - Actusnews",
+                "Ker Holding s.\u00e0 r.l. a acquis des titres Clariane - Boursier.com",
+                "Kering : En c\u00e9dant sa division Beaut\u00e9 \u00e0 L'Or\u00e9al pour se d\u00e9sendetter, Kering voit son action bondir de 86% depuis juin - BFM Bourse",
+                "Faute de salle, pas de march\u00e9 de No\u00ebl dans ce quartier de Lannion o\u00f9 il y aura des animations et une bourse aux jouets - Ouest-France",
+                "Beau succ\u00e8s pour la F\u00eate de No\u00ebl \u00e0 Ker-Uhel \u00e0 Lannion - Le T\u00e9l\u00e9gramme",
+                "Kering (KER) - Cours Action | FR0000121485 - Cotation EURONEXT PARIS - boursedirect.fr"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour KER.PA."
+        }
+    },
+    {
+        "symbol": "ML.PA",
+        "time": "2026-03-09 16:25:44",
+        "price": 30.200000762939453,
+        "volume": 651489,
+        "change_pct": -2.67483050383323,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "Michelin l\u00e2che 0,99% - Boursier.com",
+                "Michelin l\u00e2che 1,82% - Boursier.com",
+                "Michelin : Avec un avertissement sur r\u00e9sultats d'une ampleur inattendue, Michelin plonge de 10% en Bourse - BFM Bourse",
+                "Adieu les mini-flacons ! La r\u00e8gle des 100 ml pourrait dispara\u00eetre dans les avions - Boursorama",
+                "Michelin l\u00e2che 3,89% - Boursier.com",
+                "Michelin : Mauvais \u00e9l\u00e8ve du CAC 40 cette ann\u00e9e, Michelin ne conna\u00eetra pas de reprise avant la seconde partie de 2026, selon Morgan Stanley - BFM Bourse",
+                "Median Technologies pr\u00e9sentera eyonis\u00ae LCS, son logiciel dispositif m\u00e9dical bas\u00e9 sur l\u2019IA et le Machine Learni - Boursorama",
+                "Compagnie G\u00e9n\u00e9rale des Etablissements Michelin (ML) - Cours Action | FR001400AJ45 - Cotation EURONEXT PARIS - boursedirect.fr"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour ML.PA."
+        }
+    },
+    {
+        "symbol": "MC.PA",
+        "time": "2026-03-09 16:25:44",
+        "price": 495.25,
+        "volume": 300638,
+        "change_pct": -1.3839131895851322,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "LVMH: Objectif de Cours et Consensus des Analystes | MC | FR0000121014 - Zonebourse",
+                "Lvmh : Pourquoi le luxe r\u00e9siste en Bourse \u00e0 l'onde de choc sur le CAC 40 provoqu\u00e9e par Fran\u00e7ois Bayrou - BFM Bourse",
+                "Ouverture des inscriptions \u00e0 la Bourse I.D.\u00c9.A.L.MC 2026 de BioTalent Canada visant \u00e0 \u00e9liminer les obstacles - Business Wire",
+                "Morgan Stanley d\u00e9grade la notation de l\u2019action LVMH (EPA:MC) - FranceTransactions.com",
+                "Bourse: faut-il encore investir dans le luxe? - Les Affaires",
+                "David, Richter, M.C. Escher, Momies\u2026 Que valent vraiment les grandes expositions du moment \u00e0 Paris ? - Beaux Arts",
+                "Lvmh : Un vent d'optimisme sur l'action LVMH gagne les analystes, \u00e0 quelques jours de la publication des ventes du groupe - BFM Bourse",
+                "LVMH, Herm\u00e8s\u2026 \u00aben Bourse, le bulldozer Trump percute les g\u00e9ants du CAC 40\u00bb - Capital.fr"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour MC.PA."
+        }
+    },
+    {
+        "symbol": "ORA.PA",
+        "time": "2026-03-09 16:25:44",
+        "price": 17.1299991607666,
+        "volume": 1736511,
+        "change_pct": -1.974255869367305,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "ORANGE Cours Action ORA, Cotation Bourse Euronext Paris - Boursorama",
+                "Soci\u00e9t\u00e9 ORANGE ORA Euronext Paris : Secteur d'activit\u00e9, Actionnaire, PDG et Capitalisation - Boursorama",
+                "Acheter ou Vendre l'action Orange en 2026 ? - admiralmarkets.com",
+                "Indice CAC 40 : strat\u00e9gies et conseils pour investir en 2026 - Caf\u00e9delabourse",
+                "Orange : En toute discr\u00e9tion, Orange gagne plus de 30% cette ann\u00e9e et surpasse largement le CAC 40 - BFM Bourse",
+                "One Exp\u00e9rience ouvre la souscription des ORA \u00e0 tous les investisseurs - Boursier.com",
+                "Orange : pas de mauvaise surprise - Le Revenu",
+                "Ouverture de la p\u00e9riode de souscription \u00e0 l'\u00e9mission d'ORA de ONE EXPERIENCE d'un montant maximum de 3 M\u2026 - Actusnews"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour ORA.PA."
+        }
+    },
+    {
+        "symbol": "RI.PA",
+        "time": "2026-03-09 16:25:44",
+        "price": 72.69999694824219,
+        "volume": 175539,
+        "change_pct": -0.8996778307227062,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "PERNOD RICARD Cours Action RI, Cotation Bourse Euronext Paris - Boursorama",
+                "Kim Jong Un qualifie les Nord-Cor\u00e9ennes de \"pilier de la r\u00e9volution\" - Boursorama",
+                "Pernod ricard : Pourquoi, malgr\u00e9 un plongeon de 14% de ses ventes, Pernod Ricard grimpe en Bourse - BFM Bourse",
+                "La Bourse de Paris vole de record en record, soutenue par le jugement de la Cour supr\u00eame - TradingView",
+                "Pernod Ricard : star du jour \u00e0 la bourse de Paris ! - Le Revenu",
+                "Marjane Satrapi et Mattias Ripa cr\u00e9ent une Fondation pour le cin\u00e9ma - artnewspaper.fr",
+                "Publicis : une occasion \u00e0 ne pas rater ? - Agora Bourse",
+                "La Bourse aux armes n\u2019a pas fait le plein - Le Berry R\u00e9publicain"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour RI.PA."
+        }
+    },
+    {
+        "symbol": "PUB.PA",
+        "time": "2026-03-09 16:25:44",
+        "price": 75.4800033569336,
+        "volume": 215214,
+        "change_pct": -0.5271401040626125,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "Dans ce nouveau bar \u00e0 Toulon, les prix des bi\u00e8res et cocktails varient en temps r\u00e9el comme \u00e0 la bourse - Nice-Matin",
+                "Ce que signifie la flamb\u00e9e en Bourse de la marque de jeans au c\u0153ur d'une pub pol\u00e9mique avec Sydney Sweeney (et vant\u00e9e par Trump) - BFM Bourse",
+                "\"Oui Pub\" ou \"Stop Pub\" ? Les prospectus publicitaires ne seront finalement pas interdits par d\u00e9faut - Boursorama",
+                "Bar, resto et krach boursier : \u00e0 Strasbourg, une \u00e9tonnante adresse ouvre pour \u00ab les Opportunistes \u00bb - Pokaa",
+                "Sydney Sweeney fait sauter la Bourse avec une pub sexy - mcetv.ouest-france.fr",
+                "American Eagle s\u2019envole en Bourse apr\u00e8s le soutien de Trump \u00e0 sa campagne avec Sydney Sweeney - lejdd.fr",
+                "Toulouse. Dans une ambiance street-art et hip-hop, ce nouvel \u00e9tablissement fait bar, resto et club - Actu.fr",
+                "Critiqu\u00e9e pour sa pub \u00ab anti-woke \u00bb, la marque American Eagle refuse de s'excuser et grimpe en bourse - Valeurs actuelles"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour PUB.PA."
+        }
+    },
+    {
+        "symbol": "RNO.PA",
+        "time": "2026-03-09 16:25:45",
+        "price": 28.15999984741211,
+        "volume": 607720,
+        "change_pct": -1.2276407529283755,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "RENAULT Cours Action RNO, Cotation Bourse Euronext Paris - Boursorama",
+                "Renault termine en baisse - Boursier.com",
+                "RENAULT : Le tableau technique et graphique s'enjolive - BFM Bourse",
+                "Renault : apr\u00e8s le krach en Bourse, le g\u00e9ant de l\u2019auto du CAC 40 a-t-il du potentiel ? - Capital.fr",
+                "Acheter des actions Renault (RNO) | Guide complet 2026 - Cryptonaute",
+                "Renault : Trop bon march\u00e9 pour \u00eatre ignor\u00e9e, l'action Renault peut grimper de plus de 20% selon Bank of America - BFM Bourse",
+                "Renault (RNO) - Cours Action | FR0000131906 - Cotation EURONEXT PARIS - boursedirect.fr",
+                "Renault : Pourquoi la volte-face de l'Europe sur l'interdiction des v\u00e9hicules thermiques en 2035 fait - BFM Bourse"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour RNO.PA."
+        }
+    },
+    {
+        "symbol": "SGO.PA",
+        "time": "2026-03-09 16:25:45",
+        "price": 73.33999633789062,
+        "volume": 849371,
+        "change_pct": -0.9721863954066222,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "SAINT-GOBAIN Cours Action SGO, Cotation Bourse Euronext Paris - Boursorama",
+                "Saint-Gobain c\u00e8de 2,45% - Boursier.com",
+                "Saint gobain : En raison notamment d'une m\u00e9t\u00e9o capricieuse, Saint-Gobain se montre prudent sur sa rentabilit\u00e9 pour 2026, la Bourse sanctionne - BFM Bourse",
+                "Indice CAC 40 : strat\u00e9gies et conseils pour investir en 2026 - Caf\u00e9delabourse",
+                "Saint-Gobain \u00e0 la baisse - Boursier.com",
+                "Saint gobain : Avec des volumes en forte baisse en Am\u00e9rique du Nord, Saint-Gobain est sanctionn\u00e9 par la Bourse - BFM Bourse",
+                "Saint-Gobain : un signal d\u2019achat se profile - Agora Bourse",
+                "Saint-Gobain retrouve le chemin de la hausse - Le Revenu"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour SGO.PA."
+        }
+    },
+    {
+        "symbol": "SU.PA",
+        "time": "2026-03-09 16:25:45",
+        "price": 243.75,
+        "volume": 408451,
+        "change_pct": -2.2458415746702762,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "SCHNEIDER ELECTRIC Cours Action SU, Cotation Bourse Euronext Paris - Boursorama",
+                "La Bourse de Paris termine sur un rebond apr\u00e8s deux s\u00e9ances de lourdes pertes - France 24",
+                "A la Bourse de commerce de Paris, une exposition entre ombres et lumi\u00e8res - Le Monde.fr",
+                "Indice CAC 40 : strat\u00e9gies et conseils pour investir en 2026 - Caf\u00e9delabourse",
+                "Le Cac 40 \u00e0 l'assaut des 7.900 points gr\u00e2ce au d\u00e9miurge Nvidia, Powell au micro dans la soir\u00e9e - Les Echos",
+                "La Bourse de Paris plomb\u00e9e par la d\u00e9gringolade du titre Renault - l'Opinion",
+                "Comment participer \u00e0 la Bourse GEO du jeune reporter 2026 ? - Le magazine GEO",
+                "Bourse : le h\u00e9ros de \u00ab The Big Short \u00bb ferme son fonds apr\u00e8s des paris rat\u00e9s - La Tribune"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour SU.PA."
+        }
+    },
+    {
+        "symbol": "SAN.PA",
+        "time": "2026-03-09 16:25:45",
+        "price": 75.62999725341797,
+        "volume": 901306,
+        "change_pct": -0.994897424143004,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "L'Europe ne se tire pas sans dommages d'une semaine \u00e9prouvante - Zonebourse Suisse",
+                "Sanofi : Lest\u00e9 par un b\u00e9n\u00e9fice net d\u00e9cevant, Sanofi chute en Bourse - BFM Bourse",
+                "L'espoir d'une baisse de taux de la Fed en d\u00e9cembre se d\u00e9gonfle, le Cac 40 retombe sous les 8.200 points - Les Echos",
+                "L'action de Tesla bondit, Elon Musk confirmant les essais de robotaxi sans conducteur - Boursorama",
+                "C\u00e9leste Boursier-Mougenot | Bourse de Commerce - Pinault Collection",
+                "Sanofi : Pourquoi les r\u00e9sultats positifs de Sanofi dans la dermatite atopique ne contentent pas la Bourse - BFM Bourse",
+                "Bulle de l'IA ? Cette startup sans revenus cr\u00e9\u00e9e en janvier vaut pr\u00e8s de 20 milliards de dollars \u00e0 Wall Street - Boursier.com",
+                "La Bourse de Paris attendue sans tendance nette - TradingView"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour SAN.PA."
+        }
+    },
+    {
+        "symbol": "STMPA.PA",
+        "time": "2026-03-09 16:25:46",
+        "price": 26.950000762939453,
+        "volume": 1302995,
+        "change_pct": -0.7183632033001031,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "STMicroelectronics lance la production \u00e0 grande \u00e9chelle pour sa plateforme PIC100 - Boursorama",
+                "Soci\u00e9t\u00e9 STMICROELECTRONICS STMPA Euronext Paris : Secteur d'activit\u00e9, Actionnaire, PDG et Capitalisation - Boursorama",
+                "Stmicroelectronics : Plomb\u00e9 par une pr\u00e9vision de marge d\u00e9cevante, STMicroelectronics s'effondre de plus de 12% en Bourse - BFM Bourse",
+                "La rumeur d'un divorce entre Paris et Rome \u00e9lectrise STMicroelectronics en Bourse - Les Echos",
+                "La Bourse de Paris attendue en hausse \u00e0 l'ouverture - TradingView",
+                "Stmicroelectronics : L'optimisme monte avant les r\u00e9sultats de STMicroelectronics, l'action grimpe - BFM Bourse",
+                "LE POINT sur les changements de recommandations \u00e0 Paris - Boursorama",
+                "Italie: le quotidien national La Stampa en passe d'\u00eatre c\u00e9d\u00e9 au groupe SAE - Boursorama"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour STMPA.PA."
+        }
+    },
+    {
+        "symbol": "STLAP.PA",
+        "time": "2026-03-09 16:25:46",
+        "price": 6.011000156402588,
+        "volume": 4563917,
+        "change_pct": -2.6085511458848227,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "S\u00e9ance en baisse pour Stellantis - Boursier.com",
+                "Comment acheter des actions Stellantis (STLAP) en 2025 ? - Cryptoast",
+                "STELLANTIS Cours Action STLAP, Cotation Bourse Euronext Paris - Boursorama",
+                "Stellantis annonce la nomination d\u2019Antonio Filosa, v\u00e9t\u00e9ran de l\u2019entreprise de 25 ans, au poste de CEO - Stellantis.com",
+                "Stellantis N.V. (STLAP) - Cours Action | NL00150001Q9 - Cotation EURONEXT PARIS - boursedirect.fr",
+                "Stellantis publie des chiffres cl\u00e9s pr\u00e9liminaires et non audit\u00e9s pour le premier semestre 2025 - Stellantis.com",
+                "STLAP Prix de l'action et Graphique - EURONEXT:STLAP - TradingView",
+                "Soci\u00e9t\u00e9 STELLANTIS STLAP Euronext Paris : Secteur d'activit\u00e9, Actionnaire, PDG et Capitalisation - Boursorama"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour STLAP.PA."
+        }
+    },
+    {
+        "symbol": "GLE.PA",
+        "time": "2026-03-09 16:25:46",
+        "price": 65.26000213623047,
+        "volume": 2033437,
+        "change_pct": -1.894159005444374,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "Soci\u00e9t\u00e9 G\u00e9n\u00e9rale c\u00e8de 2,15% - Boursier.com",
+                "Societe generale : Avec des objectifs relev\u00e9s et 1 milliard d'euros de rachats d'actions, Soci\u00e9t\u00e9 G\u00e9n\u00e9rale enchante la Bourse tandis que Cr\u00e9dit Agricole SA la laisse de marbre - BFM Bourse",
+                "Soci\u00e9t\u00e9 G\u00e9n\u00e9rale c\u00e8de 3,41% - Boursier.com",
+                "Soci\u00e9t\u00e9 G\u00e9n\u00e9rale, une rentabilit\u00e9 en progr\u00e8s mais encore insuffisante - Les Echos",
+                "Soci\u00e9t\u00e9 g\u00e9n\u00e9rale : jusqu\u2019o\u00f9 peut s'envoler en Bourse la mal-aim\u00e9e des banques du CAC 40 ? - Capital.fr",
+                "Soci\u00e9t\u00e9 G\u00e9n\u00e9rale Soci\u00e9t\u00e9 anonyme (ENXTPA: GLE) annonce un rachat d'actions pour une valeur de 1 462 millions - Zonebourse Suisse",
+                "Societe generale : Pourquoi les r\u00e9sultats de Soci\u00e9t\u00e9 G\u00e9n\u00e9rale et Cr\u00e9dit Agricole SA sont punis en Bourse - BFM Bourse",
+                "Flash\u00e9 \u00e0 209 km/h en Mercedes GLE : vous ne devinerez jamais l\u2019\u00e2ge du conducteur - autonews.fr"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour GLE.PA."
+        }
+    },
+    {
+        "symbol": "HO.PA",
+        "time": "2026-03-09 16:25:46",
+        "price": 245.3000030517578,
+        "volume": 146838,
+        "change_pct": 1.6576875049363413,
+        "type": "PRICE_MOVE",
+        "analysis": {
+            "potential_causes": [
+                "Des centaines d'actions ont chut\u00e9 jusqu'\u00e0 leur prix plancher, entra\u00eenant une perte de plus de 100 points pour l'indice VN. - Vietnam.vn",
+                "Thales : L'absence d'accord sur un cessez-le-feu en Ukraine provoque une nouvelle hausse des groupes europ\u00e9ens de d\u00e9fense en Bourse - BFM Bourse",
+                "Bourses scolaires 2026-2027 - Minist\u00e8re de l'Europe et des Affaires \u00e9trang\u00e8res",
+                "Bourses en Cor\u00e9e du Sud : le Vietnam comme l\u2019un des premiers b\u00e9n\u00e9ficiaires - Lepetitjournal.com",
+                "La prudence domine en Bourse dans l\u2019attente de signaux en provenance des \u00c9tats-Unis - lecourrier.vn",
+                "Thales : Pourquoi la d\u00e9fense europ\u00e9enne tousse en Bourse apr\u00e8s l'accord entre Bruxelles et Washington sur les droits de douane - BFM Bourse",
+                "Les actions bancaires cot\u00e9es sur l'UPCoM pr\u00e9voient leur transfert \u00e0 la Bourse d'H\u00f4 Chi Minh-Ville \u00e0 partir de 2026 - Vietnam+ (VietnamPlus)",
+                "Bourses scolaires 2025-2026 : seconde campagne [vi] - Minist\u00e8re de l'Europe et des Affaires \u00e9trang\u00e8res"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour HO.PA."
         }
     },
     {
         "symbol": "TEP.PA",
-        "time": "2026-02-24 21:33:28",
-        "price": 50.880001068115234,
-        "volume": 363206,
-        "change_pct": 1.3142171074659896,
+        "time": "2026-03-09 16:25:46",
+        "price": 53.34000015258789,
+        "volume": 254804,
+        "change_pct": -6.091547765752601,
         "type": "PRICE_MOVE",
         "analysis": {
             "potential_causes": [
-                "Journ\u00e9e en hausse pour Teleperformance - Boursier.com",
-                "Teleperformance abandonne 1,36% - Boursier.com",
+                "Teleperformance perd 2,30% - Boursier.com",
+                "Journ\u00e9e en forte hausse pour Teleperformance - Boursier.com",
+                "Ave IA, morituri call centers te salutant. Teleperformance le BlackBerry des call-centers et de la relation client - en-contact.com",
                 "L\u2019action Teleperformance peut-elle rebondir fin 2025 ? - Boursorama",
                 "Teleperformance : La croissance et les marges de l'ex-Teleperformance TP d\u00e9\u00e7oivent, l'action prend une nouvelle fois le bouillon \u00e0 la Bourse de Paris - BFM Bourse",
                 "Faut-il acheter l\u2019action Teleperformance fin 2025 ? - Caf\u00e9delabourse",
-                "Teleperformance sous pression \u00e0 un mois des r\u00e9sultats - Zonebourse",
-                "Les perspectives \u00e0 moyen terme de TP re\u00e7oivent un accueil glacial en Bourse - Les Echos",
-                "Teleperformance : deux brokers livrent leur analyse post-r\u00e9sultats - Boursorama"
+                "Teleperformance d\u00e9grad\u00e9 par CIC-Market Solutions, \u00ab seule la sp\u00e9culation pourrait provoquer un rebond de l'action - Les Echos",
+                "Teleperformance sous pression \u00e0 un mois des r\u00e9sultats - Zonebourse Suisse"
             ],
             "verdict": "Analyse pr\u00e9ventive multi-sources pour TEP.PA."
         }
     },
     {
         "symbol": "TTE.PA",
-        "time": "2026-02-24 21:33:28",
-        "price": 66.72000122070312,
-        "volume": 4159982,
-        "change_pct": 0.8769305056048482,
+        "time": "2026-03-09 16:25:46",
+        "price": 68.55999755859375,
+        "volume": 4759891,
+        "change_pct": 0.8235258214613971,
         "type": "PRICE_MOVE",
         "analysis": {
             "potential_causes": [
-                "Cours de l'action TotalEnergies sur Euronext - TotalEnergies.com",
-                "Action TotalEnergies : est-ce le moment d'investir en Bourse ? - Caf\u00e9delabourse",
+                "Cours action TotalEnergies - Graphique TTE - TradingView",
                 "Totalenergies : Pourquoi, malgr\u00e9 sa future pr\u00e9sence \u00e0 la Bourse de New York en plus de celle de Paris, Totalenergies n'aura pas de double cotation - BFM Bourse",
-                "Bourse : la cotation simultan\u00e9e de TotalEnergies \u00e0 Wall Street et Paris va-t-elle faire des \u00e9mules - Les Echos",
-                "La Bourse de Paris cl\u00f4ture en toute petite hausse, port\u00e9e par Kering - Le Figaro",
+                "Faut-il acheter l\u2019action Total ? Avis & Analyse - Finance H\u00e9ros",
                 "TotalEnergies officialise sa cotation \u00e0 la Bourse de New York et annonce en parall\u00e8le acc\u00e9l\u00e9rer dans le gaz en Europe - Challenges",
-                "TotalEnergies accentue son virage vers les \u00c9tats-Unis. Que va y chercher le g\u00e9ant fran\u00e7ais? - Le magazine GEO",
-                "TotalEnergies : D\u00e9claration des Transactions sur Actions Propres - Business Wire"
+                "TotalEnergies, en entrant \u00e0 Wall Street, se pose en groupe de plus en plus am\u00e9ricain - Le Monde.fr",
+                "Il y aura plus d'introductions en Bourse \u00e0 Paris au premier semestre 2026 que sur toute l'ann\u00e9e 2025 au cours de laquelle elles sont tomb\u00e9es au plus bas depuis plus de vingt ans - Les Echos",
+                "CAC 40 : TotalEnergies d\u00e9sormais cot\u00e9 \u00e0 New York veut s\u00e9curiser son dividende - Valeurs actuelles",
+                "La Bourse de Paris cl\u00f4ture en toute petite hausse, port\u00e9e par Kering - Le Figaro"
             ],
             "verdict": "Analyse pr\u00e9ventive multi-sources pour TTE.PA."
         }
     },
     {
         "symbol": "VIE.PA",
-        "time": "2026-02-24 21:33:28",
-        "price": 35.08000183105469,
-        "volume": 2015475,
-        "change_pct": 1.5046308943886313,
+        "time": "2026-03-09 16:25:47",
+        "price": 32.34000015258789,
+        "volume": 1261762,
+        "change_pct": -1.1915655212434817,
         "type": "PRICE_MOVE",
         "analysis": {
             "potential_causes": [
-                "Sophie Adenot, une vie \u00e0 r\u00eaver d'espace - Boursorama",
+                "CAC 40 : la Bourse plonge, \u00abla crise du co\u00fbt de la vie est de retour, les baisses de taux improbables - Capital.fr",
                 "Bourse Direct Vie : rendement, supports, avis - MoneyVox",
-                "Assurance vie Bourse Direct : jusqu\u2019\u00e0 620 euros offerts \u00e0 saisir avant le 28 f\u00e9vrier 2026 - FranceTransactions.com",
+                "Sophie Adenot, une vie \u00e0 r\u00eaver d'espace - Boursorama",
+                "Bourse Direct Horizon : rendement, supports, avis - MoneyVox",
                 "Avis assurance vie Bourse Direct : \u00e0 lire avant de souscrire - cafedupatrimoine.com",
+                "Les cours de bourse ne veulent pas baisser ! D\u00e9sancrage entre la bourse et la vie r\u00e9elle de l\u2019\u00e9conomie. - Le blog Patrimoine",
                 "Ynsect : l'argent public n'est pas un puits sans fond - labourseetlavie.com",
-                "Assurance vie : faut-il revendre ses actions si les cours de bourse chutent ? - Capital.fr",
-                "Assurance-vie et ETF : le combo gagnant ? - La Tribune",
-                "Louis Gerstner, ancien directeur g\u00e9n\u00e9ral d'IBM qui a redonn\u00e9 vie \u00e0 \"Big Blue\", meurt \u00e0 83 ans - Boursorama"
+                "Vie \u00e9tudiante : ai-je droit \u00e0 une bourse ? - Sud Ouest"
             ],
             "verdict": "Analyse pr\u00e9ventive multi-sources pour VIE.PA."
         }
     },
     {
-        "symbol": "VIE.PA",
-        "time": "2026-02-24 21:33:28",
-        "price": 35.08000183105469,
-        "volume": 2015475,
-        "change_pct": 1.5046308943886313,
+        "symbol": "URW.PA",
+        "time": "2026-03-09 16:25:47",
+        "price": 94.26000213623047,
+        "volume": 249114,
+        "change_pct": -3.639335074320302,
         "type": "PRICE_MOVE",
         "analysis": {
             "potential_causes": [
-                "Sophie Adenot, une vie \u00e0 r\u00eaver d'espace - Boursorama",
-                "Bourse Direct Vie : rendement, supports, avis - MoneyVox",
-                "Assurance vie Bourse Direct : jusqu\u2019\u00e0 620 euros offerts \u00e0 saisir avant le 28 f\u00e9vrier 2026 - FranceTransactions.com",
-                "Avis assurance vie Bourse Direct : \u00e0 lire avant de souscrire - cafedupatrimoine.com",
-                "Ynsect : l'argent public n'est pas un puits sans fond - labourseetlavie.com",
-                "Assurance vie : faut-il revendre ses actions si les cours de bourse chutent ? - Capital.fr",
-                "Assurance-vie et ETF : le combo gagnant ? - La Tribune",
-                "Louis Gerstner, ancien directeur g\u00e9n\u00e9ral d'IBM qui a redonn\u00e9 vie \u00e0 \"Big Blue\", meurt \u00e0 83 ans - Boursorama"
+                "UNIBAIL-RODAMCO-WESTFIELD Cours Action URW, Cotation Bourse Euronext Paris - Boursorama",
+                "Unibail-Rodamco-Westfield gagne 1,20% - Boursier.com",
+                "Soci\u00e9t\u00e9 UNIBAIL-RODAMCO-WESTFIELD URW Euronext Paris : Secteur d'activit\u00e9, Actionnaire, PDG et Capitalisation - Boursorama",
+                "Unibail-Rodamco-Westfield augmente son dividende malgr\u00e9 le repli de son profit net - L'Agefi",
+                "Unibail-Rodamco-Westfield nomme Kathleen Verelsten directrice g\u00e9n\u00e9rale des investissements - Les Echos",
+                "URW d\u00e9passe son objectif de rentabilit\u00e9 en 2025 mais se veut prudent pour 2026 - ABC Bourse",
+                "Action Unibail-Rodamco-Westfield : un potentiel sous-\u00e9valu\u00e9 dans un environnement de march\u00e9s instables - Id\u00e9al Investisseur",
+                "Unibail-Rodamco-Westfield termine en forte baisse - Boursier.com"
             ],
-            "verdict": "Analyse pr\u00e9ventive multi-sources pour VIE.PA."
-        }
-    },
-    {
-        "symbol": "TTE.PA",
-        "time": "2026-02-24 21:33:28",
-        "price": 66.72000122070312,
-        "volume": 4159982,
-        "change_pct": 0.8769305056048482,
-        "type": "PRICE_MOVE",
-        "analysis": {
-            "potential_causes": [
-                "Cours de l'action TotalEnergies sur Euronext - TotalEnergies.com",
-                "Action TotalEnergies : est-ce le moment d'investir en Bourse ? - Caf\u00e9delabourse",
-                "Totalenergies : Pourquoi, malgr\u00e9 sa future pr\u00e9sence \u00e0 la Bourse de New York en plus de celle de Paris, Totalenergies n'aura pas de double cotation - BFM Bourse",
-                "Bourse : la cotation simultan\u00e9e de TotalEnergies \u00e0 Wall Street et Paris va-t-elle faire des \u00e9mules - Les Echos",
-                "La Bourse de Paris cl\u00f4ture en toute petite hausse, port\u00e9e par Kering - Le Figaro",
-                "TotalEnergies officialise sa cotation \u00e0 la Bourse de New York et annonce en parall\u00e8le acc\u00e9l\u00e9rer dans le gaz en Europe - Challenges",
-                "TotalEnergies accentue son virage vers les \u00c9tats-Unis. Que va y chercher le g\u00e9ant fran\u00e7ais? - Le magazine GEO",
-                "TotalEnergies : D\u00e9claration des Transactions sur Actions Propres - Business Wire"
-            ],
-            "verdict": "Analyse pr\u00e9ventive multi-sources pour TTE.PA."
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour URW.PA."
         }
     },
     {
         "symbol": "DG.PA",
-        "time": "2026-02-24 21:33:29",
-        "price": 141.75,
-        "volume": 688288,
-        "change_pct": 0.6032690846957046,
+        "time": "2026-03-09 16:25:47",
+        "price": 127.55000305175781,
+        "volume": 406418,
+        "change_pct": -1.1240286420482073,
         "type": "PRICE_MOVE",
         "analysis": {
             "potential_causes": [
-                "GTT nomme Fran\u00e7ois Michel DG \u00e0 compter du 5 janvier 2026 - Boursorama",
-                "Le nouveau DG de Kering face \u00e0 la pression des vendeurs \u00e0 d\u00e9couvert - Les Echos",
-                "Sopra steria group : Le DG de Sopra Steria part chez Alten, l'un grimace quand l'autre sourit en Bourse - BFM Bourse",
-                "Le DG de Ryanair r\u00e9pond \u00e0 la menace d'un rachat de la compagnie par Elon Musk - Boursorama",
-                "Soitec nomme Laurent R\u00e9mont au poste de DG \u00e0 partir du 1er avril - Les Echos",
-                "Sopra Steria nomme Rajesh Krishnamurthy DG \u00e0 partir du 2 f\u00e9vrier 2026 - Boursorama",
+                "Soci\u00e9t\u00e9 VINCI DG Euronext Paris : Secteur d'activit\u00e9, Actionnaire, PDG et Capitalisation - Boursorama",
                 "Soitec grimpe en Bourse apr\u00e8s l\u2019annonce du d\u00e9part \u00e0 venir de son DG Pierre Barnab\u00e9 - Les Echos",
-                "Soitec nomme Laurent R\u00e9mont au poste de DG \u00e0 partir du 1er avril - Boursorama"
-            ],
-            "verdict": "Analyse pr\u00e9ventive multi-sources pour DG.PA."
-        }
-    },
-    {
-        "symbol": "HO.PA",
-        "time": "2026-02-24 21:33:29",
-        "price": 251.1999969482422,
-        "volume": 267911,
-        "change_pct": -0.9072990342239893,
-        "type": "PRICE_MOVE",
-        "analysis": {
-            "potential_causes": [
-                "La milliardaire Nguyen Thi Phuong Thao a assist\u00e9 \u00e0 la c\u00e9r\u00e9monie de sonnerie des cloches inaugurant la bourse pour la nouvelle ann\u00e9e. - Vietnam.vn",
-                "Bourses en Cor\u00e9e du Sud : le Vietnam comme l\u2019un des premiers b\u00e9n\u00e9ficiaires - Lepetitjournal.com",
-                "Thales : Pourquoi la d\u00e9fense europ\u00e9enne tousse en Bourse apr\u00e8s l'accord entre Bruxelles et Washington sur les droits de douane - BFM Bourse",
-                "Bourses scolaires 2026-2027 - Minist\u00e8re de l'Europe et des Affaires \u00e9trang\u00e8res",
-                "March\u00e9 boursier en 2026 : une croissance durable et percutante est attendue. - Vietnam.vn",
-                "THALES Cours Action HO, Cotation Bourse Euronext Paris - Boursorama",
-                "Les actions bancaires cot\u00e9es sur l\u2019UPCoM pr\u00e9voient leur transfert \u00e0 la HoSE - lecourrier.vn",
-                "Thales : L'absence d'accord sur un cessez-le-feu en Ukraine provoque une nouvelle hausse des groupes europ\u00e9ens de d\u00e9fense en Bourse - BFM Bourse"
-            ],
-            "verdict": "Analyse pr\u00e9ventive multi-sources pour HO.PA."
-        }
-    },
-    {
-        "symbol": "DG.PA",
-        "time": "2026-02-24 21:33:29",
-        "price": 141.75,
-        "volume": 688288,
-        "change_pct": 0.6032690846957046,
-        "type": "PRICE_MOVE",
-        "analysis": {
-            "potential_causes": [
-                "GTT nomme Fran\u00e7ois Michel DG \u00e0 compter du 5 janvier 2026 - Boursorama",
-                "Le nouveau DG de Kering face \u00e0 la pression des vendeurs \u00e0 d\u00e9couvert - Les Echos",
+                "Olivier Roussat (DG de Bouygues) : \"C'est dommage de ne pas comprendre que ce sont les entreprises qui cr\u00e9ent - Boursorama",
                 "Sopra steria group : Le DG de Sopra Steria part chez Alten, l'un grimace quand l'autre sourit en Bourse - BFM Bourse",
-                "Le DG de Ryanair r\u00e9pond \u00e0 la menace d'un rachat de la compagnie par Elon Musk - Boursorama",
-                "Soitec nomme Laurent R\u00e9mont au poste de DG \u00e0 partir du 1er avril - Les Echos",
-                "Sopra Steria nomme Rajesh Krishnamurthy DG \u00e0 partir du 2 f\u00e9vrier 2026 - Boursorama",
-                "Soitec grimpe en Bourse apr\u00e8s l\u2019annonce du d\u00e9part \u00e0 venir de son DG Pierre Barnab\u00e9 - Les Echos",
-                "Soitec nomme Laurent R\u00e9mont au poste de DG \u00e0 partir du 1er avril - Boursorama"
-            ],
-            "verdict": "Analyse pr\u00e9ventive multi-sources pour DG.PA."
-        }
-    },
-    {
-        "symbol": "AAPL",
-        "time": "2026-02-24 21:33:29",
-        "price": 271.9501037597656,
-        "volume": 30375640,
-        "change_pct": 2.1677478558700765,
-        "type": "PRICE_MOVE",
-        "analysis": {
-            "potential_causes": [
-                "Les actionnaires d'Apple rejettent la proposition demandant un rapport sur les d\u00e9m\u00eal\u00e9s avec la Chine - Boursorama",
-                "Les actionnaires d'Apple rejettent la proposition d'actionnaire demandant un rapport sur sa d\u00e9pendance \u00e0 l'\u00e9ga - Boursorama",
-                "Bourse \u00bb Aper\u00e7u des r\u00e9sultats d'Apple (AAPL) du T4 - Forex Quebec",
-                "Apple : Les d\u00e9buts tonitruants de l'iPhone 17 marquent-ils le d\u00e9but de la r\u00e9volte boursi\u00e8re d'Apple - BFM Bourse",
-                "Apple pr\u00e9voit de fabriquer le Mac Mini \u00e0 Houston, selon le WSJ - Boursorama",
-                "L\u2019action d\u2019Apple (AAPL) atteint son plus haut niveau apr\u00e8s le succ\u00e8s des iPhone 17 - iPhoneAddict.fr",
-                "La Bourse de Paris attendue \u00e0 l'\u00e9quilibre - TradingView",
-                "Quand l\u2019iPhone va, tout va : Apple retrouve des sommets en bourse - MacGeneration"
-            ],
-            "verdict": "Analyse pr\u00e9ventive multi-sources pour AAPL."
-        }
-    },
-    {
-        "symbol": "AAPL",
-        "time": "2026-02-24 21:33:29",
-        "price": 271.9501037597656,
-        "volume": 30375817,
-        "change_pct": 2.1677478558700765,
-        "type": "PRICE_MOVE",
-        "analysis": {
-            "potential_causes": [
-                "Les actionnaires d'Apple rejettent la proposition demandant un rapport sur les d\u00e9m\u00eal\u00e9s avec la Chine - Boursorama",
-                "Les actionnaires d'Apple rejettent la proposition d'actionnaire demandant un rapport sur sa d\u00e9pendance \u00e0 l'\u00e9ga - Boursorama",
-                "Bourse \u00bb Aper\u00e7u des r\u00e9sultats d'Apple (AAPL) du T4 - Forex Quebec",
-                "Apple : Les d\u00e9buts tonitruants de l'iPhone 17 marquent-ils le d\u00e9but de la r\u00e9volte boursi\u00e8re d'Apple - BFM Bourse",
-                "Apple pr\u00e9voit de fabriquer le Mac Mini \u00e0 Houston, selon le WSJ - Boursorama",
-                "L\u2019action d\u2019Apple (AAPL) atteint son plus haut niveau apr\u00e8s le succ\u00e8s des iPhone 17 - iPhoneAddict.fr",
-                "La Bourse de Paris attendue \u00e0 l'\u00e9quilibre - TradingView",
-                "Quand l\u2019iPhone va, tout va : Apple retrouve des sommets en bourse - MacGeneration"
-            ],
-            "verdict": "Analyse pr\u00e9ventive multi-sources pour AAPL."
-        }
-    },
-    {
-        "symbol": "TSLA",
-        "time": "2026-02-24 21:33:29",
-        "price": 409.3299865722656,
-        "volume": 46674822,
-        "change_pct": 2.376009883961758,
-        "type": "PRICE_MOVE",
-        "analysis": {
-            "potential_causes": [
-                "Tesla doit faire face \u00e0 une action en justice all\u00e9guant une discrimination anti-am\u00e9ricaine lors de l'embauche, - Boursorama",
-                "Journ\u00e9e \u00e0 l'\u00e9quilibre pour Tesla Motors Inc - Boursier.com",
-                "Les immatriculations de Tesla reculent en janvier dans l'UE, sur fond de baisse du march\u00e9 global - Zonebourse Suisse",
-                "Tesla inc. : Tesla va mettre 20 milliards de dollars sur la table cette ann\u00e9e pour acc\u00e9l\u00e9rer dans les robotaxis et l'IA, l'action grimpe \u00e0 Wall Street - BFM Bourse",
-                "La part de march\u00e9 de Tesla dans l'UE, au Royaume-Uni et dans l'AELE chute \u00e0 0,8 % en janvier, contre 1,9 % pour BYD ; la part de march\u00e9 de Tesla sur le march\u00e9 des v\u00e9hicules \u00e9lectriques \u00e0 batterie atteint 4,3 - Zonebourse Suisse",
-                "Tesla d\u00e9voile un mod\u00e8le Cybertruck moins cher aux \u00c9tats-Unis et r\u00e9duit le prix du Cyberbeast - Boursorama",
-                "Tesla inc. : Malgr\u00e9 une hausse surprise de ses livraisons, l'action Tesla cale ce jeudi \u00e0 Wall Street (mais prend 33% en un mois) - BFM Bourse",
-                "Tesla r\u00e9duit le prix du mod\u00e8le Cybertruck Cyberbeast aux \u00c9tats-Unis - Boursorama"
-            ],
-            "verdict": "Analyse pr\u00e9ventive multi-sources pour TSLA."
-        }
-    },
-    {
-        "symbol": "MSFT",
-        "time": "2026-02-24 21:33:29",
-        "price": 388.2699890136719,
-        "volume": 23765452,
-        "change_pct": 0.9883704270563844,
-        "type": "PRICE_MOVE",
-        "analysis": {
-            "potential_causes": [
-                "Octagos d\u00e9sormais disponible sur le Microsoft Marketplace - Zonebourse Suisse",
-                "Microsoft finit en forte baisse - Boursier.com",
-                "Microsoft : Avec un plongeon de 10% de son action, Microsoft a perdu 357 milliards de dollars en Bourse (et ce n'est m\u00eame pas un record) - BFM Bourse",
-                "Tesla, Microsoft : les deux \u00ab Magnifiques \u00bb ont pli\u00e9 \u00e0 Wall Street apr\u00e8s leurs trimestriels, mais un seul m\u00e9rite d'\u00eatre rep\u00each\u00e9 en Bourse, l\u2019autre action est \u00e0 vendre - Les Echos",
-                "Action Microsoft : est-ce le moment d\u2019investir en Bourse ? - Caf\u00e9delabourse",
-                "Microsoft chute ; Stifel r\u00e9trograde l'action \u00e0 \"conserver\", r\u00e9duit l'objectif de cours au plus bas du march\u00e9 - Boursorama",
-                "Microsoft l\u00e2che 0,31% - Boursier.com",
-                "Comment acheter des actions Microsoft (MSFT) ? M\u00e9thode rapide 2026 - Cryptoast"
-            ],
-            "verdict": "Analyse pr\u00e9ventive multi-sources pour MSFT."
-        }
-    },
-    {
-        "symbol": "AAPL",
-        "time": "2026-02-24 21:33:29",
-        "price": 271.9501037597656,
-        "volume": 30375640,
-        "change_pct": 2.1677478558700765,
-        "type": "PRICE_MOVE",
-        "analysis": {
-            "potential_causes": [
-                "Les actionnaires d'Apple rejettent la proposition demandant un rapport sur les d\u00e9m\u00eal\u00e9s avec la Chine - Boursorama",
-                "Les actionnaires d'Apple rejettent la proposition d'actionnaire demandant un rapport sur sa d\u00e9pendance \u00e0 l'\u00e9ga - Boursorama",
-                "Bourse \u00bb Aper\u00e7u des r\u00e9sultats d'Apple (AAPL) du T4 - Forex Quebec",
-                "Apple : Les d\u00e9buts tonitruants de l'iPhone 17 marquent-ils le d\u00e9but de la r\u00e9volte boursi\u00e8re d'Apple - BFM Bourse",
-                "Apple pr\u00e9voit de fabriquer le Mac Mini \u00e0 Houston, selon le WSJ - Boursorama",
-                "L\u2019action d\u2019Apple (AAPL) atteint son plus haut niveau apr\u00e8s le succ\u00e8s des iPhone 17 - iPhoneAddict.fr",
-                "La Bourse de Paris attendue \u00e0 l'\u00e9quilibre - TradingView",
-                "Quand l\u2019iPhone va, tout va : Apple retrouve des sommets en bourse - MacGeneration"
-            ],
-            "verdict": "Analyse pr\u00e9ventive multi-sources pour AAPL."
-        }
-    },
-    {
-        "symbol": "MSFT",
-        "time": "2026-02-24 21:33:29",
-        "price": 388.2699890136719,
-        "volume": 23765452,
-        "change_pct": 0.9883704270563844,
-        "type": "PRICE_MOVE",
-        "analysis": {
-            "potential_causes": [
-                "Octagos d\u00e9sormais disponible sur le Microsoft Marketplace - Zonebourse Suisse",
-                "Microsoft finit en forte baisse - Boursier.com",
-                "Microsoft : Avec un plongeon de 10% de son action, Microsoft a perdu 357 milliards de dollars en Bourse (et ce n'est m\u00eame pas un record) - BFM Bourse",
-                "Tesla, Microsoft : les deux \u00ab Magnifiques \u00bb ont pli\u00e9 \u00e0 Wall Street apr\u00e8s leurs trimestriels, mais un seul m\u00e9rite d'\u00eatre rep\u00each\u00e9 en Bourse, l\u2019autre action est \u00e0 vendre - Les Echos",
-                "Action Microsoft : est-ce le moment d\u2019investir en Bourse ? - Caf\u00e9delabourse",
-                "Microsoft chute ; Stifel r\u00e9trograde l'action \u00e0 \"conserver\", r\u00e9duit l'objectif de cours au plus bas du march\u00e9 - Boursorama",
-                "Microsoft l\u00e2che 0,31% - Boursier.com",
-                "Comment acheter des actions Microsoft (MSFT) ? M\u00e9thode rapide 2026 - Cryptoast"
-            ],
-            "verdict": "Analyse pr\u00e9ventive multi-sources pour MSFT."
-        }
-    },
-    {
-        "symbol": "TSLA",
-        "time": "2026-02-24 21:33:29",
-        "price": 409.3500061035156,
-        "volume": 46677346,
-        "change_pct": 2.381016894921998,
-        "type": "PRICE_MOVE",
-        "analysis": {
-            "potential_causes": [
-                "Tesla doit faire face \u00e0 une action en justice all\u00e9guant une discrimination anti-am\u00e9ricaine lors de l'embauche, - Boursorama",
-                "Journ\u00e9e \u00e0 l'\u00e9quilibre pour Tesla Motors Inc - Boursier.com",
-                "Les immatriculations de Tesla reculent en janvier dans l'UE, sur fond de baisse du march\u00e9 global - Zonebourse Suisse",
-                "Tesla inc. : Tesla va mettre 20 milliards de dollars sur la table cette ann\u00e9e pour acc\u00e9l\u00e9rer dans les robotaxis et l'IA, l'action grimpe \u00e0 Wall Street - BFM Bourse",
-                "La part de march\u00e9 de Tesla dans l'UE, au Royaume-Uni et dans l'AELE chute \u00e0 0,8 % en janvier, contre 1,9 % pour BYD ; la part de march\u00e9 de Tesla sur le march\u00e9 des v\u00e9hicules \u00e9lectriques \u00e0 batterie atteint 4,3 - Zonebourse Suisse",
-                "Tesla d\u00e9voile un mod\u00e8le Cybertruck moins cher aux \u00c9tats-Unis et r\u00e9duit le prix du Cyberbeast - Boursorama",
-                "Tesla inc. : Malgr\u00e9 une hausse surprise de ses livraisons, l'action Tesla cale ce jeudi \u00e0 Wall Street (mais prend 33% en un mois) - BFM Bourse",
-                "Tesla r\u00e9duit le prix du mod\u00e8le Cybertruck Cyberbeast aux \u00c9tats-Unis - Boursorama"
-            ],
-            "verdict": "Analyse pr\u00e9ventive multi-sources pour TSLA."
-        }
-    },
-    {
-        "symbol": "DG.PA",
-        "time": "2026-02-24 21:33:29",
-        "price": 141.75,
-        "volume": 688288,
-        "change_pct": 0.6032690846957046,
-        "type": "PRICE_MOVE",
-        "analysis": {
-            "potential_causes": [
-                "GTT nomme Fran\u00e7ois Michel DG \u00e0 compter du 5 janvier 2026 - Boursorama",
                 "Le nouveau DG de Kering face \u00e0 la pression des vendeurs \u00e0 d\u00e9couvert - Les Echos",
-                "Sopra steria group : Le DG de Sopra Steria part chez Alten, l'un grimace quand l'autre sourit en Bourse - BFM Bourse",
-                "Le DG de Ryanair r\u00e9pond \u00e0 la menace d'un rachat de la compagnie par Elon Musk - Boursorama",
-                "Soitec nomme Laurent R\u00e9mont au poste de DG \u00e0 partir du 1er avril - Les Echos",
-                "Sopra Steria nomme Rajesh Krishnamurthy DG \u00e0 partir du 2 f\u00e9vrier 2026 - Boursorama",
-                "Soitec grimpe en Bourse apr\u00e8s l\u2019annonce du d\u00e9part \u00e0 venir de son DG Pierre Barnab\u00e9 - Les Echos",
-                "Soitec nomme Laurent R\u00e9mont au poste de DG \u00e0 partir du 1er avril - Boursorama"
+                "Christophe P\u00e9rillat (DG de Valeo) : \"Notre performance actuelle n'est pas en ligne avec le cours de Bourse !\" - Boursorama",
+                "Nestl\u00e9-Les investisseurs face \u00e0 de nouvelles turbulences apr\u00e8s le limogeage du DG - Les Echos",
+                "Coty nomme Markus Strobel DG par int\u00e9rim \u00e0 compter de janvier - Boursorama"
             ],
             "verdict": "Analyse pr\u00e9ventive multi-sources pour DG.PA."
         }
     },
     {
         "symbol": "TSLA",
-        "time": "2026-02-24 21:33:29",
-        "price": 409.3500061035156,
-        "volume": 46677346,
-        "change_pct": 2.381016894921998,
+        "time": "2026-03-09 16:25:48",
+        "price": 387.8951110839844,
+        "volume": 27592213,
+        "change_pct": -2.2269300677251294,
         "type": "PRICE_MOVE",
         "analysis": {
             "potential_causes": [
-                "Tesla doit faire face \u00e0 une action en justice all\u00e9guant une discrimination anti-am\u00e9ricaine lors de l'embauche, - Boursorama",
-                "Journ\u00e9e \u00e0 l'\u00e9quilibre pour Tesla Motors Inc - Boursier.com",
-                "Les immatriculations de Tesla reculent en janvier dans l'UE, sur fond de baisse du march\u00e9 global - Zonebourse Suisse",
-                "Tesla inc. : Tesla va mettre 20 milliards de dollars sur la table cette ann\u00e9e pour acc\u00e9l\u00e9rer dans les robotaxis et l'IA, l'action grimpe \u00e0 Wall Street - BFM Bourse",
-                "La part de march\u00e9 de Tesla dans l'UE, au Royaume-Uni et dans l'AELE chute \u00e0 0,8 % en janvier, contre 1,9 % pour BYD ; la part de march\u00e9 de Tesla sur le march\u00e9 des v\u00e9hicules \u00e9lectriques \u00e0 batterie atteint 4,3 - Zonebourse Suisse",
-                "Tesla d\u00e9voile un mod\u00e8le Cybertruck moins cher aux \u00c9tats-Unis et r\u00e9duit le prix du Cyberbeast - Boursorama",
-                "Tesla inc. : Malgr\u00e9 une hausse surprise de ses livraisons, l'action Tesla cale ce jeudi \u00e0 Wall Street (mais prend 33% en un mois) - BFM Bourse",
-                "Tesla r\u00e9duit le prix du mod\u00e8le Cybertruck Cyberbeast aux \u00c9tats-Unis - Boursorama"
+                "TESLA Cours Action TSLA, Cotation Bourse NASDAQ - Boursorama",
+                "Tesla Motors Inc c\u00e8de 0,10% - Boursier.com",
+                "Social Buzz : Les actions Wallstreetbets majoritairement en baisse avant l'ouverture lundi ; Hims & Hers Health progresse, Tesla recule - Zonebourse",
+                "L'action Tesla progresse apr\u00e8s la note positive de BofA - Boursorama",
+                "Tesla transf\u00e8re ses stocks canadiens de Model 3 vers les \u00c9tats-Unis en pr\u00e9vision du retour des VE chinois - Electrek - Zonebourse Suisse",
+                "Les ventes de voitures Tesla au Royaume-Uni chutent de 37 % en raison de l'intensification de la concurrence c - Boursorama",
+                "Les ventes de Tesla au Royaume-Uni chutent en f\u00e9vrier mais d\u00e9passent celles de BYD, selon les donn\u00e9es de New A - Boursorama",
+                "Le syndicat allemand vise une perc\u00e9e dans l'usine Tesla de Berlin - Boursorama"
             ],
             "verdict": "Analyse pr\u00e9ventive multi-sources pour TSLA."
         }
     },
     {
-        "symbol": "MSFT",
-        "time": "2026-02-24 21:33:29",
-        "price": 388.29998779296875,
-        "volume": 23777513,
-        "change_pct": 0.9961730590436989,
+        "symbol": "AYV.PA",
+        "time": "2026-03-09 16:25:48",
+        "price": 9.645000457763672,
+        "volume": 349720,
+        "change_pct": -3.646351276446836,
         "type": "PRICE_MOVE",
         "analysis": {
             "potential_causes": [
-                "Octagos d\u00e9sormais disponible sur le Microsoft Marketplace - Zonebourse Suisse",
-                "Microsoft finit en forte baisse - Boursier.com",
-                "Microsoft : Avec un plongeon de 10% de son action, Microsoft a perdu 357 milliards de dollars en Bourse (et ce n'est m\u00eame pas un record) - BFM Bourse",
-                "Tesla, Microsoft : les deux \u00ab Magnifiques \u00bb ont pli\u00e9 \u00e0 Wall Street apr\u00e8s leurs trimestriels, mais un seul m\u00e9rite d'\u00eatre rep\u00each\u00e9 en Bourse, l\u2019autre action est \u00e0 vendre - Les Echos",
-                "Action Microsoft : est-ce le moment d\u2019investir en Bourse ? - Caf\u00e9delabourse",
-                "Microsoft chute ; Stifel r\u00e9trograde l'action \u00e0 \"conserver\", r\u00e9duit l'objectif de cours au plus bas du march\u00e9 - Boursorama",
-                "Microsoft l\u00e2che 0,31% - Boursier.com",
-                "Comment acheter des actions Microsoft (MSFT) ? M\u00e9thode rapide 2026 - Cryptoast"
+                "Ayvens rach\u00e8te \u20ac275 mlns d\u2019actions propres dans le cadre de la cession Lincoln - Boursorama",
+                "AYV Prix de l'action et Graphique - EURONEXT:AYV - TradingView"
             ],
-            "verdict": "Analyse pr\u00e9ventive multi-sources pour MSFT."
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour AYV.PA."
         }
     },
     {
-        "symbol": "AAPL",
-        "time": "2026-02-24 21:33:29",
-        "price": 271.9501037597656,
-        "volume": 30375921,
-        "change_pct": 2.1677478558700765,
-        "type": "PRICE_MOVE",
-        "analysis": {
-            "potential_causes": [
-                "Les actionnaires d'Apple rejettent la proposition demandant un rapport sur les d\u00e9m\u00eal\u00e9s avec la Chine - Boursorama",
-                "Les actionnaires d'Apple rejettent la proposition d'actionnaire demandant un rapport sur sa d\u00e9pendance \u00e0 l'\u00e9ga - Boursorama",
-                "Bourse \u00bb Aper\u00e7u des r\u00e9sultats d'Apple (AAPL) du T4 - Forex Quebec",
-                "Apple : Les d\u00e9buts tonitruants de l'iPhone 17 marquent-ils le d\u00e9but de la r\u00e9volte boursi\u00e8re d'Apple - BFM Bourse",
-                "Apple pr\u00e9voit de fabriquer le Mac Mini \u00e0 Houston, selon le WSJ - Boursorama",
-                "L\u2019action d\u2019Apple (AAPL) atteint son plus haut niveau apr\u00e8s le succ\u00e8s des iPhone 17 - iPhoneAddict.fr",
-                "La Bourse de Paris attendue \u00e0 l'\u00e9quilibre - TradingView",
-                "Quand l\u2019iPhone va, tout va : Apple retrouve des sommets en bourse - MacGeneration"
-            ],
-            "verdict": "Analyse pr\u00e9ventive multi-sources pour AAPL."
-        }
-    },
-    {
-        "symbol": "TSLA",
-        "time": "2026-02-24 21:33:29",
-        "price": 409.3299865722656,
-        "volume": 46674822,
-        "change_pct": 2.376009883961758,
-        "type": "PRICE_MOVE",
-        "analysis": {
-            "potential_causes": [
-                "Tesla doit faire face \u00e0 une action en justice all\u00e9guant une discrimination anti-am\u00e9ricaine lors de l'embauche, - Boursorama",
-                "Journ\u00e9e \u00e0 l'\u00e9quilibre pour Tesla Motors Inc - Boursier.com",
-                "Les immatriculations de Tesla reculent en janvier dans l'UE, sur fond de baisse du march\u00e9 global - Zonebourse Suisse",
-                "Tesla inc. : Tesla va mettre 20 milliards de dollars sur la table cette ann\u00e9e pour acc\u00e9l\u00e9rer dans les robotaxis et l'IA, l'action grimpe \u00e0 Wall Street - BFM Bourse",
-                "La part de march\u00e9 de Tesla dans l'UE, au Royaume-Uni et dans l'AELE chute \u00e0 0,8 % en janvier, contre 1,9 % pour BYD ; la part de march\u00e9 de Tesla sur le march\u00e9 des v\u00e9hicules \u00e9lectriques \u00e0 batterie atteint 4,3 - Zonebourse Suisse",
-                "Tesla d\u00e9voile un mod\u00e8le Cybertruck moins cher aux \u00c9tats-Unis et r\u00e9duit le prix du Cyberbeast - Boursorama",
-                "Tesla inc. : Malgr\u00e9 une hausse surprise de ses livraisons, l'action Tesla cale ce jeudi \u00e0 Wall Street (mais prend 33% en un mois) - BFM Bourse",
-                "Tesla r\u00e9duit le prix du mod\u00e8le Cybertruck Cyberbeast aux \u00c9tats-Unis - Boursorama"
-            ],
-            "verdict": "Analyse pr\u00e9ventive multi-sources pour TSLA."
-        }
-    },
-    {
-        "symbol": "MSFT",
-        "time": "2026-02-24 21:33:30",
-        "price": 388.29998779296875,
-        "volume": 23777513,
-        "change_pct": 0.9961730590436989,
-        "type": "PRICE_MOVE",
-        "analysis": {
-            "potential_causes": [
-                "Octagos d\u00e9sormais disponible sur le Microsoft Marketplace - Zonebourse Suisse",
-                "Microsoft finit en forte baisse - Boursier.com",
-                "Microsoft : Avec un plongeon de 10% de son action, Microsoft a perdu 357 milliards de dollars en Bourse (et ce n'est m\u00eame pas un record) - BFM Bourse",
-                "Tesla, Microsoft : les deux \u00ab Magnifiques \u00bb ont pli\u00e9 \u00e0 Wall Street apr\u00e8s leurs trimestriels, mais un seul m\u00e9rite d'\u00eatre rep\u00each\u00e9 en Bourse, l\u2019autre action est \u00e0 vendre - Les Echos",
-                "Action Microsoft : est-ce le moment d\u2019investir en Bourse ? - Caf\u00e9delabourse",
-                "Microsoft chute ; Stifel r\u00e9trograde l'action \u00e0 \"conserver\", r\u00e9duit l'objectif de cours au plus bas du march\u00e9 - Boursorama",
-                "Microsoft l\u00e2che 0,31% - Boursier.com",
-                "Comment acheter des actions Microsoft (MSFT) ? M\u00e9thode rapide 2026 - Cryptoast"
-            ],
-            "verdict": "Analyse pr\u00e9ventive multi-sources pour MSFT."
-        }
-    },
-    {
-        "symbol": "AMZN",
-        "time": "2026-02-24 21:33:30",
+        "symbol": "AIR.PA",
+        "time": "2026-03-09 16:25:49",
         "price": 0,
         "volume": 0,
         "change_pct": 0,
         "type": "INITIAL_ANALYSIS",
         "analysis": {
             "potential_causes": [
-                "L'autorit\u00e9 de surveillance italienne interdit \u00e0 l'unit\u00e9 logistique d'Amazon d'utiliser les donn\u00e9es personnelle - Boursorama",
-                "Amazon.com c\u00e8de 2,30% - Boursier.com",
-                "Action Amazon : est-ce le moment d\u2019investir en 2026 ? - Caf\u00e9delabourse",
-                "Amazon pr\u00e9voit de construire un centre de donn\u00e9es en Louisiane pour un montant de 12 milliards de dollars - Boursorama",
-                "L'autorit\u00e9 italienne de la protection des donn\u00e9es interdit \u00e0 une filiale d'Amazon d'utiliser les donn\u00e9es personnelles de son personnel - Zonebourse",
-                "Mouvements apr\u00e8s-bourse : Amazon, Roblox, Bloom Energy, Reddit, Molina Health et plus - Investing.com France",
-                "Doug Gurr, ancien dirigeant d'Amazon, nomm\u00e9 pr\u00e9sident permanent de l'autorit\u00e9 britannique de r\u00e9gulation de la - Boursorama",
-                "Amazon.com gagne 2,56% - Boursier.com"
+                "AIR FRANCE - KLM Cours Action AF, Cotation Bourse Euronext Paris - Boursorama",
+                "LE POINT sur les changements de recommandations \u00e0 Paris - Boursorama",
+                "SCHNEIDER ELECTRIC Cours Action SU, Cotation Bourse Euronext Paris - Boursorama",
+                "Air Astana commande 25 Airbus A320neo - Boursorama",
+                "Les compagnies a\u00e9riennes annulent des vols en raison de l'escalade du conflit au Moyen-Orient - Boursorama",
+                "Les tirs de missiles entravent les vols de rapatriement au Moyen-Orient alors que l'espace a\u00e9rien s'entrouvre - Boursorama",
+                "Les transporteurs du Golfe reprennent des vols limit\u00e9s, mais les tirs de missiles alimentent l'incertitude - Boursorama",
+                "Avec le conflit au Moyen-Orient, les compagnies a\u00e9riennes annulent leurs vols en cascade - Boursorama"
+            ],
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour AIR.PA."
+        }
+    },
+    {
+        "symbol": "AMZN",
+        "time": "2026-03-09 16:25:49",
+        "price": 0,
+        "volume": 0,
+        "change_pct": 0,
+        "type": "INITIAL_ANALYSIS",
+        "analysis": {
+            "potential_causes": [
+                "AMAZON.COM Cours Action AMZN, Cotation Bourse NASDAQ - Boursorama",
+                "Amazon.com, Inc.: Objectif de Cours et Consensus des Analystes | AMZN | US0231351067 - Zonebourse",
+                "Amazon.com prend 0,98% - Boursier.com",
+                "AMAZON.COM Cours Action AMZ - Investing.com France",
+                "Zoox, filiale d'Amazon, lance un centre de commandement en Arizona et \u00e9tend ses tests \u00e0 Dallas et Phoenix - Zonebourse Suisse",
+                "Amazon.com progresse de 3,88% - Boursier.com",
+                "Amazon lance le service Amazon Now au Br\u00e9sil pour livrer les courses en 15 minutes - Boursorama",
+                "Amazon pr\u00e9voit de construire un centre de donn\u00e9es en Louisiane pour un montant de 12 milliards de dollars - Boursorama"
             ],
             "verdict": "Analyse pr\u00e9ventive multi-sources pour AMZN."
         }
     },
     {
-        "symbol": "MC.PA",
-        "time": "2026-02-24 21:33:30",
+        "symbol": "AAPL",
+        "time": "2026-03-09 16:25:49",
         "price": 0,
         "volume": 0,
         "change_pct": 0,
         "type": "INITIAL_ANALYSIS",
         "analysis": {
             "potential_causes": [
-                "Lvmh : Pourquoi le luxe r\u00e9siste en Bourse \u00e0 l'onde de choc sur le CAC 40 provoqu\u00e9e par Fran\u00e7ois Bayrou - BFM Bourse",
-                "Morgan Stanley d\u00e9grade la notation de l\u2019action LVMH (EPA:MC) - FranceTransactions.com",
-                "Bourse \u2013 Action LVMH brad\u00e9e : une opportunit\u00e9 historique \u00e0 saisir ? - Detective-Banque.fr",
-                "LVMH, Herm\u00e8s\u2026 \u00aben Bourse, le bulldozer Trump percute les g\u00e9ants du CAC 40\u00bb - Capital.fr",
-                "Lvmh : Pourquoi Goldman Sachs pense que l'action LVMH peut rebondir et regagner jusqu'\u00e0 60% - BFM Bourse",
-                "Morgan Stanley d\u00e9grade la notation de l\u2019action LVMH (EPA:MC) - mon-epargne.com",
-                "David, Richter, M.C. Escher, Momies\u2026 Que valent vraiment les grandes expositions du moment \u00e0 Paris ? - Beaux Arts",
-                "Expo M.C. Escher \u00e0 la Monnaie de Paris | R\u00e9servation de Billet | Expo Paris 2026 - expo.paris"
+                "APPLE Cours Action AAPL, Cotation Bourse NASDAQ - Boursorama",
+                "Bourse \u00bb Aper\u00e7u des r\u00e9sultats d'Apple (AAPL) du T4 - FOREX Qu\u00e9bec",
+                "Apple : Les d\u00e9buts tonitruants de l'iPhone 17 marquent-ils le d\u00e9but de la r\u00e9volte boursi\u00e8re d'Apple - BFM Bourse",
+                "L\u2019action d\u2019Apple (AAPL) atteint son plus haut niveau apr\u00e8s le succ\u00e8s des iPhone 17 - iPhoneAddict.fr",
+                "O\u00f9 et comment acheter des actions Apple (AAPL) en 2026 ? Guide complet pour investir simplement - Cryptoast",
+                "Apple Inc. (NasdaqGS : AAPL) acquiert certains actifs de invrs.io LLC - Zonebourse",
+                "Acheter des actions Apple : Notre guide pour les d\u00e9butants (2026) - Cryptonaute",
+                "\u00c0 l\u2019approche des r\u00e9sultats, que faire de l\u2019action Apple ? - Morningstar Canada"
             ],
-            "verdict": "Analyse pr\u00e9ventive multi-sources pour MC.PA."
-        }
-    },
-    {
-        "symbol": "GLE.PA",
-        "time": "2026-02-24 21:33:30",
-        "price": 0,
-        "volume": 0,
-        "change_pct": 0,
-        "type": "INITIAL_ANALYSIS",
-        "analysis": {
-            "potential_causes": [
-                "Soci\u00e9t\u00e9 G\u00e9n\u00e9rale prend 0,89% - Boursier.com",
-                "Societe generale : Avec des objectifs relev\u00e9s et 1 milliard d'euros de rachats d'actions, Soci\u00e9t\u00e9 G\u00e9n\u00e9rale enchante la Bourse tandis que Cr\u00e9dit Agricole SA la laisse de marbre - BFM Bourse",
-                "Soci\u00e9t\u00e9 G\u00e9n\u00e9rale prend 1,96% - Boursier.com",
-                "Soci\u00e9t\u00e9 G\u00e9n\u00e9rale Soci\u00e9t\u00e9 anonyme (ENXTPA: GLE) annonce un rachat d'actions pour une valeur de 1 462 millions - Zonebourse Suisse",
-                "Soci\u00e9t\u00e9 G\u00e9n\u00e9rale (GLE) Stock: 2026 Outlook After 295% Gains - TIKR.com",
-                "Societe generale : Apr\u00e8s avoir grimp\u00e9 de 128% cette ann\u00e9e, Soci\u00e9t\u00e9 G\u00e9n\u00e9rale en a encore largement sous la p\u00e9dale en Bourse selon Goldman Sachs - BFM Bourse",
-                "Soci\u00e9t\u00e9 g\u00e9n\u00e9rale : en Bourse, \u00abc\u2019est la fus\u00e9e du CAC 40, mais gare au requin !\u00bb - Capital.fr",
-                "Societe generale : Apr\u00e8s une hausse stup\u00e9fiante de 145% cette ann\u00e9e, Soci\u00e9t\u00e9 G\u00e9n\u00e9rale peut prendre encore plus de 30% en Bourse, selon Bank of America - BFM Bourse"
-            ],
-            "verdict": "Analyse pr\u00e9ventive multi-sources pour GLE.PA."
-        }
-    },
-    {
-        "symbol": "AI.PA",
-        "time": "2026-02-24 21:33:30",
-        "price": 0,
-        "volume": 0,
-        "change_pct": 0,
-        "type": "INITIAL_ANALYSIS",
-        "analysis": {
-            "potential_causes": [
-                "SAFRAN Cours Action SAF, Cotation Bourse Euronext Paris - Boursorama",
-                "Faut-il acheter l\u2019action Air Liquide ? Mon avis ! - Finance H\u00e9ros",
-                "DASSAULT AVIATION Cours Action AM, Cotation Bourse Euronext Paris - Boursorama",
-                "Faut-il acheter des actions Air Liquide en 2026 ? [Investir ou vendre] - admiralmarkets.com",
-                "Ave IA, morituri call centers te salutant. Teleperformance le BlackBerry des call-centers et de la relation client - en-contact.com",
-                "Calculer le taux de rendement d\u2019un placement gr\u00e2ce \u00e0 la r\u00e8gle d\u2019Einstein - La finance pour tous",
-                "Le pass Sport - Minist\u00e8re de l'Education nationale",
-                "Ai-je fait l\u2019erreur de vendre mes actions sous la panique du chaos TRUMP ? - Le blog Patrimoine"
-            ],
-            "verdict": "Analyse pr\u00e9ventive multi-sources pour AI.PA."
-        }
-    },
-    {
-        "symbol": "OR.PA",
-        "time": "2026-02-24 21:33:30",
-        "price": 0,
-        "volume": 0,
-        "change_pct": 0,
-        "type": "INITIAL_ANALYSIS",
-        "analysis": {
-            "potential_causes": [
-                "Les contrats \u00e0 terme sur le TSX sont en baisse, l'or recule ; les r\u00e9sultats des banques sont \u00e0 l'ordre du jour - Boursorama",
-                "L'or marque le pas apr\u00e8s avoir atteint un plus haut mensuel - Zonebourse Suisse",
-                "Comment investir et acheter de l'OR ? Guide 2026 - Finance H\u00e9ros",
-                "March\u00e9 : Apr\u00e8s les r\u00e9centes turbulences qui l'ont malmen\u00e9, l'or peut-il repartir de plus belle en Bourse - BFM Bourse",
-                "Investir dans l\u2019or : une valeur s\u00fbre ? - Previssima",
-                "La Bourse de Paris se redresse dans un march\u00e9 encore \u00e9tourdi par la d\u00e9route brutale de l'or - Les Echos",
-                "Les contrats \u00e0 terme de Wall Street chutent et l'or se redresse suite au tumulte des tarifs douaniers de Trump - Boursorama",
-                "Cours de l\u2019or : jusqu\u2019o\u00f9 l\u2019or peut-il monter en 2026 ? - Caf\u00e9 du Trading"
-            ],
-            "verdict": "Analyse pr\u00e9ventive multi-sources pour OR.PA."
-        }
-    },
-    {
-        "symbol": "AIR.PA",
-        "time": "2026-02-24 21:33:30",
-        "price": 0,
-        "volume": 0,
-        "change_pct": 0,
-        "type": "INITIAL_ANALYSIS",
-        "analysis": {
-            "potential_causes": [
-                "AIRBUS Cours Action AIR, Cotation Bourse Euronext Paris - Boursorama",
-                "DAE Capital s'appr\u00eate \u00e0 racheter la soci\u00e9t\u00e9 de leasing d'avions Macquarie Airfinance, selon certaines sources - Boursorama",
-                "Air France-KLM, Renault, Pernod Ricard...les valeurs \u00e0 suivre aujourd'hui \u00e0 Paris - boursedirect.fr",
-                "Faut-il acheter l\u2019action Air Liquide ? Mon avis ! - Finance H\u00e9ros",
-                "Air Liquide vise une marge \u00e0 +100pbs en 2027, d\u00e9passe les attentes en 2025 - Boursorama",
-                "Quelle action pour investir dans l\u2019hydrog\u00e8ne en 2025 ? - Caf\u00e9delabourse",
-                "Faut-il acheter des actions Air Liquide en 2026 ? [Investir ou vendre] - admiralmarkets.com",
-                "Top 3 des meilleures actions fran\u00e7aises \u00e0 trader en Bourse - Caf\u00e9delabourse"
-            ],
-            "verdict": "Analyse pr\u00e9ventive multi-sources pour AIR.PA."
+            "verdict": "Analyse pr\u00e9ventive multi-sources pour AAPL."
         }
     }
 ]

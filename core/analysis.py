@@ -3,16 +3,26 @@ import pandas_ta as ta
 import plotly.graph_objects as go
 from textblob import TextBlob
 import logging
+from core.geopolitics import analyze_global_risk
 
 logger = logging.getLogger("TradingEngine.Analysis")
 
 def analyze_stock(df):
     try:
+        # --- RÉCUPÉRATION DU CONTEXTE GÉOPOLITIQUE ---
+        geo_score, geo_verdict, _ = analyze_global_risk()
+        
         if df is None or len(df) < 30:
             return "Neutre", "Données insuffisantes", 50, 0, 0, None, 0, 0, 0
             
-        # --- NORMALISATION DES COLONNES (Minuscules) ---
-        df.columns = [col.lower() for col in df.columns]
+        # --- NORMALISATION DES COLONNES (Gère tous les formats de yfinance) ---
+        new_columns = []
+        for col in df.columns:
+            if isinstance(col, tuple):
+                new_columns.append(str(col[0]).lower())
+            else:
+                new_columns.append(str(col).lower())
+        df.columns = new_columns
             
         # --- CALCULS TECHNIQUES AVANCÉS (Inspirés par la finance quantitative) ---
         df.ta.sma(length=20, append=True)
@@ -33,38 +43,49 @@ def analyze_stock(df):
         bb_upper = last.get('BBU_20_2.0', 0)
         bb_lower = last.get('BBL_20_2.0', 0)
         
-        reco, reason = "Conserver", "Le titre consolide horizontalement sans direction claire."
+        reco, reason = "Conserver", "Le titre est en phase d'attente. Aucun signal fort d'achat ou de vente n'est détecté pour le moment."
         
         # --- LOGIQUE DE DÉCISION MULTI-FACTEURS ---
         
         # 1. Évaluation de la Force de Tendance (ADX)
-        trend_status = "faible"
-        if adx > 25: trend_status = "établie"
-        if adx > 50: trend_status = "très forte (risque d'épuisement)"
+        trend_status = "stable"
+        if adx > 25: trend_status = "bien orientée"
+        if adx > 50: trend_status = "très forte (attention, le mouvement pourrait s'essouffler)"
 
         if mm200 and not pd.isna(mm200):
             if close > mm200: # Tendance de fond HAUSSIÈRE
                 if rsi < 40:
-                    reco, reason = "Achat", f"Opportunité de rebond sur tendance haussière. Le RSI ({rsi:.0f}) indique une correction saine dans une dynamique de fond positive."
+                    reco, reason = "Achat", f"Le titre est dans une bonne dynamique à long terme (au-dessus de sa moyenne 200 jours). Le RSI ({rsi:.0f}) montre une petite baisse passagère, ce qui offre un bon point d'entrée pour acheter."
                 elif rsi > 70:
-                    reco, reason = "Prudence", f"Tendance haussière en surchauffe. Le RSI ({rsi:.1f}) et le prix au-dessus de la MM200 suggèrent une prise de bénéfices prudente."
+                    reco, reason = "Prudence", f"La tendance est solide, mais le titre a beaucoup monté récemment (RSI à {rsi:.1f}). Il est préférable d'attendre un petit repli avant d'acheter, ou de prendre quelques bénéfices."
                 else:
                     if close > bb_upper:
-                        reco, reason = "Achat Fort", f"Cassure haussière de volatilité. Le titre sort par le haut de ses bandes de Bollinger avec une tendance {trend_status}."
+                        reco, reason = "Achat Fort", f"Signal de force majeur : le titre accélère et sort de son couloir habituel de prix. La tendance est {trend_status}."
                     else:
-                        reco, reason = "Conserver", f"Dynamique positive maintenue. La tendance est {trend_status} et le prix reste bien orienté au-dessus de sa moyenne 200 jours."
+                        reco, reason = "Conserver", f"La tendance de fond reste positive. Le prix se maintient bien au-dessus de sa moyenne de long terme (200 jours). C'est un comportement sain."
             else: # Tendance de fond BAISSIÈRE
                 if rsi > 65:
-                    reco, reason = "Vendre", f"Rebond technique en zone de résistance. Sous la MM200, le RSI ({rsi:.0f}) montre que le rebond s'essouffle déjà."
+                    reco, reason = "Vendre", f"Méfiance : le titre tente de remonter mais il reste sous sa tendance de fond (moyenne 200 jours). Le RSI ({rsi:.0f}) indique que ce rebond perd déjà de sa force."
                 elif rsi < 25:
-                    reco, reason = "Spéculatif", "Survente extrême en tendance baissière. Risque élevé de 'couteau qui tombe', mais potentiel de rebond technique violent."
+                    reco, reason = "Spéculatif", "Le titre a lourdement chuté et semble 'survendu'. Un rebond technique est possible, mais c'est un pari risqué car la tendance générale reste baissière."
                 else:
-                    reco, reason = "Vendre", "Le titre reste sous pression. Sous la moyenne mobile 200 jours, les probabilités restent orientées à la baisse."
-        
-        # 2. Détection de Squeeze de Volatilité (Recherches académiques sur les cycles)
+                    reco, reason = "Vendre", "Le titre montre des signes de faiblesse et reste sous sa moyenne mobile 200 jours. La prudence est de mise, la direction reste orientée à la baisse."
+
+        # --- AJUSTEMENT PAR LE RISQUE GÉOPOLITIQUE ---
+        if geo_score < 35: # Risque Géopolitique ÉLEVÉ ou ALERTE ROUGE
+            if reco in ["Achat", "Achat Fort"]:
+                reco = "Prudence"
+                reason = f"⚠️ [ALERTE GÉOPOLITIQUE] : {geo_verdict}. Bien que les signaux techniques soient d'achat, le contexte mondial est trop instable pour ouvrir de nouvelles positions."
+            elif reco == "Conserver":
+                reco = "Prudence"
+                reason = f"⚠️ [ALERTE GÉOPOLITIQUE] : {geo_verdict}. La situation globale incite à la prudence malgré une configuration technique neutre."
+            elif reco == "Vendre":
+                reason = f"🚨 [ALERTE GÉOPOLITIQUE] : {geo_verdict}. La tendance baissière de l'action est aggravée par un risque systémique majeur."
+
+        # 2. Détection de Squeeze de Volatilité
         bb_width = (bb_upper - bb_lower) / mm20 if mm20 != 0 else 1
-        if bb_width < 0.05: # Moins de 5% d'écart
-            reason += " ATTENTION : Squeeze de volatilité détecté. Un mouvement violent (hausse ou baisse) est imminent."
+        if bb_width < 0.05:
+            reason += " | NOTE : Les prix sont très resserrés, un mouvement important (hausse ou baisse) se prépare probablement."
         
         return reco, reason, float(rsi), float(mm20), float(mm50), None, float(mm200 or 0), float(close*0.98), float(close*1.05)
     except Exception as e:

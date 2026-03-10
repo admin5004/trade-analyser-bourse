@@ -55,9 +55,14 @@ logger = logging.getLogger("TradingApp")
 
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
-# On s'assure d'avoir une clé secrète pour les sessions
-# Utilisation de la variable d'environnement ou d'une clé aléatoire sécurisée
-app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
+# Sécurité des sessions
+app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(32)
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SECURE=True, # Puisque vous utilisez le HTTPS Freebox
+    SESSION_COOKIE_SAMESITE='Lax',
+    PERMANENT_SESSION_LIFETIME=timedelta(days=7)
+)
 VERSION = "4.0.0 (Modular Edition)"
 
 # Verrouillage pour l'entraînement automatique
@@ -353,12 +358,22 @@ def ultra_analyze():
     # TEMPORAIRE : Désactivation de la vérification de session
     # if not session.get('verified'): return redirect(url_for('ultra_home'))
     symbol = request.args.get('symbol', '').upper().strip()
-    
-    top_sectors, heatmap_data = get_global_context()
-    
-    if not symbol:
-        return render_template('index.html', symbol="", last_close_price=None, top_sectors=top_sectors, heatmap_data=heatmap_data, version=VERSION)
 
+    # Initialisation systématique des variables de contexte avec des valeurs par défaut
+    sentiment_label = "Neutre"
+    sentiment_score = 0
+    daily_editorial = "Analyse du marché en cours..."
+    global_sentiment_label = "Neutre"
+    ai_tip = "Surveillez les points de pivot sur vos valeurs préférées."
+    top_sectors, heatmap_data, market_indices, geopolitics = [], [], {}, {}
+
+    try:
+        top_sectors, heatmap_data, market_indices, geopolitics, daily_editorial, global_sentiment_label, ai_tip = get_global_context()
+    except Exception as e:
+        logger.error(f"Error fetching global context: {e}")
+
+    if not symbol:
+        return render_template('index.html', symbol="", last_close_price=None, top_sectors=top_sectors, heatmap_data=heatmap_data, market_indices=market_indices, geopolitics=geopolitics, version=VERSION, daily_editorial=daily_editorial, global_sentiment_label=global_sentiment_label, ai_tip=ai_tip, last_update=MARKET_STATE['last_update'])
     # Récupération DATA depuis le cache
     with market_lock:
         info = MARKET_STATE['tickers'].get(symbol)
@@ -366,14 +381,26 @@ def ultra_analyze():
 
     news_list = []
     analyst_info = "N/A"
+    sentiment_label = "Neutre"
     
     # Force sync fetch if not in cache or if cache is empty skeleton
     if df is None or (info and info.get('price', 0) == 0):
         try:
             ticker_obj = yf.Ticker(symbol)
             df = ticker_obj.history(period="1y") # On garde 1 an pour l'analyse technique visuelle
-            news_list = ticker_obj.news[:5] if ticker_obj.news else []
+            
+            # Récupération sécurisée des actualités
+            news_list = []
             try:
+                if ticker_obj.news:
+                    news_list = ticker_obj.news[:5]
+            except: 
+                logger.warning(f"Impossible de récupérer les news pour {symbol}")
+            
+            # Récupération des objectifs de cours des analystes
+            target_price = "N/A"
+            try:
+                target_price = ticker_obj.info.get('targetMeanPrice', 'N/A')
                 raw_reco = ticker_obj.info.get('recommendationKey', 'N/A').replace('_', ' ').title()
                 analyst_info = ANALYST_MAP.get(raw_reco, raw_reco)
             except: pass
@@ -381,26 +408,50 @@ def ultra_analyze():
             if df is not None and not df.empty:
                 df.columns = [col.lower() for col in df.columns]
                 reco, reason, rsi, mm20, mm50, mm100, mm200, entry, exit = analyze_stock(df)
+                
+                # Récupération d'infos enrichies pour l'auto-enregistrement
+                long_name = symbol
+                sector = "Divers"
+                try:
+                    long_name = ticker_obj.info.get('longName', symbol)
+                    sector = ticker_obj.info.get('sector', ticker_obj.info.get('quoteType', 'Inconnu'))
+                except: pass
+
                 info = {
                     'price': float(df['close'].iloc[-1]),
                     'change_pct': ((df['close'].iloc[-1] - df['close'].iloc[-2]) / df['close'].iloc[-2] * 100) if len(df) > 1 else 0,
                     'recommendation': reco, 'reason': reason, 'rsi': rsi, 'mm20': mm20, 'mm50': mm50, 'mm200': mm200,
-                    'targets': {'entry': entry, 'exit': exit}, 'sector': 'Autre', 'analyst_reco': analyst_info
+                    'targets': {'entry': entry, 'exit': exit}, 'sector': sector, 'analyst_reco': analyst_info
                 }
+
+                # AUTO-ENREGISTREMENT en base de données pour suivi futur
+                try:
+                    with get_db_connection() as conn:
+                        cursor = conn.cursor()
+                        cursor.execute("INSERT OR IGNORE INTO tickers (symbol, name, sector) VALUES (?, ?, ?)", (symbol, long_name, sector))
+                        conn.commit()
+                        logger.info(f"✅ Auto-enregistrement de {symbol} ({long_name}) réussi.")
+                except Exception as db_err:
+                    logger.error(f"Erreur auto-enregistrement {symbol}: {db_err}")
         except Exception as e:
             logger.error(f"Sync fetch error for {symbol}: {e}")
     else:
-        # Si on a les données du cache, on tente de récupérer la reco analyste
+        # Si on a les données du cache, on tente de récupérer la reco analyste et les news
+        news_list = []
         try:
+            ticker_obj = yf.Ticker(symbol)
+            if ticker_obj.news:
+                news_list = ticker_obj.news[:5]
+            
             analyst_info = info.get('analyst_reco', 'N/A')
             if analyst_info == 'N/A':
-                ticker_obj = yf.Ticker(symbol)
                 raw_reco = ticker_obj.info.get('recommendationKey', 'N/A').replace('_', ' ').title()
                 analyst_info = ANALYST_MAP.get(raw_reco, raw_reco)
+            
+            target_price = info.get('target_price', 'N/A')
+            if target_price == 'N/A':
+                target_price = ticker_obj.info.get('targetMeanPrice', 'N/A')
         except: pass
-        if df is not None and not df.empty:
-            df.columns = [col.lower() for col in df.columns]
-            analyze_stock(df)
 
     sentiment_score, sentiment_label = analyze_sentiment(news_list)
     
@@ -449,58 +500,83 @@ def ultra_analyze():
     currency_symbol = CURRENCY_MAP.get(currency_code, currency_code)
 
     # --- Prédiction de l'IA ---
-    # Remplacer l'ancienne logique d'IA par la nouvelle
     ai_predictions = None
     if info and df is not None and not df.empty:
         try:
             # Utilise le nouveau modèle pour obtenir des prédictions multi-horizons
             ai_predictions = ml_predictor.predict_future(symbol) 
             
-            # AUTOMATISATION : Si aucune prédiction n'est trouvée, on lance l'entraînement en arrière-plan
+            # Suppression de l'auto-train ici pour éviter de saturer la RAM du serveur web
             if not ai_predictions:
-                logger.info(f"Auto-train déclenché pour {symbol}...")
-                threading.Thread(target=ml_predictor.train_for_horizons, args=(symbol,)).start()
-                ai_predictions = {h: "Calcul en cours..." for h in ml_predictor.horizons.keys()}
+                ai_predictions = {h: "En attente" for h in ml_predictor.horizons.keys()}
         except Exception as e:
             logger.error(f"Error getting AI predictions for {symbol}: {e}")
-            ai_predictions = {h: "Erreur IA" for h in ml_predictor.horizons.keys()}
+            ai_predictions = {h: "N/A" for h in ml_predictor.horizons.keys()}
     else:
         ai_predictions = {h: "Données insuffisantes" for h in ml_predictor.horizons.keys()}
 
-    context = {
-        'symbol': symbol, 
-        'last_close_price': info.get('price') if info else 0.001,
-        'daily_change_percent': info.get('change_pct', 0) if info else 0,
-        'recommendation': info.get('recommendation', 'Analyse...') if info else 'Indisponible',
-        'reason': info.get('reason', 'Récupération des données en cours') if info else 'Échec de connexion API',
-        'rsi_value': info.get('rsi', 50) if info else 50,
-        'mm20': info.get('mm20', 0) if info else 0,
-        'mm50': info.get('mm50', 0) if info else 0,
-        'mm200': info.get('mm200', 0) if info else 0,
-        'short_term_entry_price': f"{info['targets']['entry']:.2f}" if info and 'targets' in info else "N/A",
-        'short_term_exit_price': f"{info['targets']['exit']:.2f}" if info and 'targets' in info else "N/A",
-        'sector': info.get('sector', 'N/A') if info else 'N/A',
-        'pe_ratio': info.get('pe') if info and info.get('pe') else None,
-        'div_yield': info.get('yield') if info and info.get('yield') else None,
-        'currency_symbol': currency_symbol, 
-        'stock_chart_div': create_stock_chart(df, symbol) if df is not None else "",
-        'top_sectors': top_sectors, 
-        'sector_peers': sector_peers,
-        'heatmap_data': heatmap_data, 
-        'engine_status': 'ONLINE', 
-        'version': VERSION,
-        'last_update': MARKET_STATE['last_update'], 
-        'news': news_list, 
-        'website_url': legal_info.get('website') if legal_info else None,
-        'analyst_recommendation': analyst_info,
-        'sentiment_score': sentiment_score, 
-        'sentiment_label': sentiment_label,
-        # Passer les prédictions de l'IA au template
-        'ai_predictions': ai_predictions,
-        'market_indices': market_indices
-    }
-    
-    return render_template('index.html', **context)
+    # Calcul sécurisé de la cible IA
+    ia_target_val = "N/A"
+    try:
+        if info and info.get('price') and ai_predictions and isinstance(ai_predictions.get('1m'), (int, float)):
+            ia_target_val = info.get('price') * (1 + ai_predictions['1m'] / 100)
+    except: pass
+
+    # Préparation sécurisée du contexte pour éviter les erreurs 500
+    try:
+        context = {
+            'symbol': symbol, 
+            'last_close_price': info.get('price') if info else 0.001,
+            'daily_change_percent': info.get('change_pct', 0) if info else 0,
+            'recommendation': info.get('recommendation', 'Analyse...') if info else 'Indisponible',
+            'reason': info.get('reason', 'Récupération des données en cours') if info else 'Échec de connexion API',
+            'rsi_value': info.get('rsi', 50) if info else 50,
+            'mm20': info.get('mm20', 0) if info else 0,
+            'mm50': info.get('mm50', 0) if info else 0,
+            'mm200': info.get('mm200', 0) if info else 0,
+            'short_term_entry_price': f"{info.get('targets', {}).get('entry', 0):.2f}" if info and isinstance(info.get('targets'), dict) else "N/A",
+            'short_term_exit_price': f"{info.get('targets', {}).get('exit', 0):.2f}" if info and isinstance(info.get('targets'), dict) else "N/A",
+            'sector': info.get('sector', 'N/A') if info else 'N/A',
+            'pe_ratio': info.get('pe') if info and info.get('pe') else None,
+            'div_yield': info.get('yield') if info and info.get('yield') else None,
+            'currency_symbol': currency_symbol, 
+            'stock_chart_div': create_stock_chart(df, symbol) if df is not None else "",
+            'top_sectors': top_sectors, 
+            'sector_peers': sector_peers,
+            'heatmap_data': heatmap_data, 
+            'engine_status': 'ONLINE', 
+            'version': VERSION,
+            'last_update': MARKET_STATE['last_update'], 
+            'news': news_list, 
+            'website_url': legal_info.get('website') if legal_info else None,
+            'analyst_recommendation': analyst_info,
+            'analyst_target': target_price,
+            'ia_target_1m': ia_target_val,
+            'sentiment_score': sentiment_score, 
+            'sentiment_label': sentiment_label,
+            'global_sentiment_label': global_sentiment_label,
+            'geopolitics': geopolitics,
+            'ai_predictions': ai_predictions,
+            'market_indices': market_indices,
+            'daily_editorial': daily_editorial,
+            'ai_tip': ai_tip
+        }
+        return render_template('index.html', **context)
+    except Exception as e:
+        logger.error(f"Critical error rendering template for {symbol}: {e}", exc_info=True)
+        return render_template('index.html', 
+            symbol=symbol, 
+            error="Une erreur est survenue lors de l'analyse.", 
+            version=VERSION, 
+            top_sectors=top_sectors, 
+            heatmap_data=heatmap_data, 
+            market_indices=market_indices, 
+            geopolitics=geopolitics,
+            daily_editorial=daily_editorial,
+            global_sentiment_label=global_sentiment_label,
+            ai_tip=ai_tip,
+            last_update=MARKET_STATE['last_update']
+        )
 
 @app.route('/subscriptions', methods=['GET', 'POST'])
 def ultra_subscriptions():
@@ -541,6 +617,46 @@ def ultra_subscriptions():
         logger.error(f"Error fetching subscription data: {e}")
 
     return render_template('subscriptions.html', tickers=all_tickers, subs=current_subs, email=email)
+
+@app.route('/sectors')
+def ultra_sectors():
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT sector, COUNT(*) as count FROM tickers GROUP BY sector ORDER BY count DESC")
+            sectors_data = [{"name": r[0], "count": r[1]} for r in cursor.fetchall() if r[0]]
+            
+        top_sectors, heatmap_data, market_indices, geopolitics, daily_editorial, global_sentiment_label, ai_tip = get_global_context()
+        
+        return render_template('sectors.html', sectors=sectors_data, version=VERSION, last_update=MARKET_STATE['last_update'], market_indices=market_indices)
+    except Exception as e:
+        logger.error(f"Error in sectors route: {e}")
+        return redirect(url_for('ultra_analyze'))
+
+@app.route('/sector/<name>')
+def ultra_sector_view(name):
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT symbol, name, sector FROM tickers WHERE sector = ? ORDER BY symbol", (name,))
+            tickers = []
+            for sym, full_name, sec in cursor.fetchall():
+                with market_lock:
+                    info = MARKET_STATE['tickers'].get(sym, {})
+                tickers.append({
+                    "symbol": sym,
+                    "name": full_name,
+                    "price": info.get('price', 0),
+                    "change": info.get('change_pct', 0),
+                    "reco": info.get('recommendation', 'N/A')
+                })
+        
+        top_sectors, heatmap_data, market_indices, geopolitics, daily_editorial, global_sentiment_label, ai_tip = get_global_context()
+        
+        return render_template('sector_view.html', sector_name=name, tickers=tickers, version=VERSION, last_update=MARKET_STATE['last_update'], market_indices=market_indices)
+    except Exception as e:
+        logger.error(f"Error in sector view route: {e}")
+        return redirect(url_for('ultra_sectors'))
 
 @app.route('/status')
 def ultra_status():

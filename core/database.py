@@ -5,6 +5,9 @@ DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'users.db')
 
 def get_db_connection():
     conn = sqlite3.connect(DB_PATH)
+    # Activation du mode WAL pour la concurrence (lectures et écritures simultanées)
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA synchronous=NORMAL")
     conn.row_factory = sqlite3.Row
     return conn
 

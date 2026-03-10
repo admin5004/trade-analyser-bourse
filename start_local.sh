@@ -18,9 +18,9 @@ if [ ! -z "$PID" ]; then
     sleep 2
 fi
 
-# Lancement avec Gunicorn (Réduit à 2 workers pour économiser la RAM, timeout augmenté pour l'IA)
-echo "Lancement de Trading Analyser avec Gunicorn..."
-nohup gunicorn --workers 2 --timeout 120 --bind 0.0.0.0:5000 app:app --access-logfile server_access.log --error-logfile server_local.log > /dev/null 2>&1 &
+# Lancement optimisé (Mode Threads + 1 seul Worker pour économiser RAM/Swap)
+echo "Lancement de Trading Analyser (1 Worker / 2 Threads / Timeout 600s)..."
+nohup gunicorn --worker-class gthread --workers 1 --threads 2 --timeout 600 --bind 0.0.0.0:5000 app:app --access-logfile server_access.log --error-logfile server_local.log > /dev/null 2>&1 &
 
 echo "✅ Application démarrée sur le port 5000."
 echo "Logs disponibles dans server_local.log"

@@ -18,6 +18,7 @@ except ImportError:
     correlate_and_analyze = None
 
 from .alerts import scan_for_critical_alerts
+from .geopolitics import analyze_global_risk
 
 logger = logging.getLogger("TradingEngine.Market")
 
@@ -27,19 +28,29 @@ MARKET_STATE = {
     'tickers': {},  
     'dataframes': {},
     'sectors': {},
+    'geopolitics': {
+        'risk_score': 50,
+        'verdict': "Initialisation...",
+        'top_events': []
+    },
     'last_error': None
 }
 
 def process_single_symbol(symbol, sector_name):
-    """Analyse un seul symbole et retourne ses données."""
+    """Analyse un seul symbole avec sécurité de timeout."""
     try:
         ticker = yf.Ticker(symbol)
-        # Utilisation de timeout pour éviter les blocages
-        df = ticker.history(period="1y", timeout=15)
-        if df is None or df.empty:
-            return symbol, {'price': 0, 'change_pct': 0, 'sector': sector_name, 'vol_spike': 1.0}, None
+        # Timeout strict de 10s pour Yahoo Finance (Évite de bloquer les workers)
+        df = ticker.history(period="1y", timeout=10)
         
-        df.columns = [col.lower() for col in df.columns]
+        if df is None or df.empty:
+            logger.warning(f"No data for {symbol}")
+            return symbol, None, None
+        
+        # On aplatit les colonnes si c'est un MultiIndex (nouveauté yfinance)
+        if isinstance(df.columns, pd.MultiIndex):
+            df.columns = [col[0] for col in df.columns]
+        df.columns = [str(col).lower() for col in df.columns]
         close_now = df['close'].iloc[-1]
         close_prev = df['close'].iloc[-2] if len(df) > 1 else close_now
         change_pct = ((close_now - close_prev) / close_prev * 100) if close_prev != 0 else 0
@@ -114,6 +125,18 @@ def fetch_market_data_job():
         MARKET_STATE['tickers'].update(temp_tickers)
         MARKET_STATE['dataframes'].update(temp_dfs)
         MARKET_STATE['last_update'] = datetime.now().isoformat()
+        
+        # --- ANALYSE GÉOPOLITIQUE GLOBALE ---
+        try:
+            logger.info("🌍 GEOPOLITICS: Analyzing global risk...")
+            risk_score, verdict, top_events = analyze_global_risk()
+            MARKET_STATE['geopolitics'] = {
+                'risk_score': risk_score,
+                'verdict': verdict,
+                'top_events': top_events
+            }
+        except Exception as e:
+            logger.error(f"Geopolitics Analysis Error: {e}")
     
     # --- LANCEMENT ANALYSE IA ---
     if correlate_and_analyze:
@@ -135,6 +158,7 @@ def fetch_market_data_job():
 def get_global_context():
     with market_lock:
         live_tickers = dict(MARKET_STATE['tickers'])
+        geopolitics = dict(MARKET_STATE['geopolitics'])
     
     heatmap_data = []
     sector_perf = {}
@@ -190,4 +214,28 @@ def get_global_context():
     # Trier les secteurs par performance décroissante
     top_sectors = sorted(top_sectors, key=lambda x: x['change'], reverse=True)
     
-    return top_sectors, sorted(heatmap_data, key=lambda x: x['symbol']), indices
+    # --- Synthèse Éditoriale ---
+    daily_editorial = "Le marché montre une dynamique intéressante. "
+    sentiment_label = "Neutre"
+    ai_tip = "Surveillez les points de pivot sur vos valeurs préférées."
+    
+    if top_sectors:
+        best_sector = top_sectors[0]['name']
+        worst_sector = top_sectors[-1]['name']
+        if top_sectors[0]['change'] > 0.5:
+            daily_editorial = f"Aujourd'hui, le secteur {best_sector} tire le marché vers le haut avec une belle performance. C'est un signal positif pour les valeurs cycliques. "
+            sentiment_label = "Positif"
+            ai_tip = "C'est peut-être le moment de renforcer vos positions sur les leaders sectoriels."
+        elif top_sectors[-1]['change'] < -0.5:
+            daily_editorial = f"Prudence aujourd'hui : le secteur {worst_sector} pèse sur la tendance. Les investisseurs semblent plus frileux, cherchant des refuges sécurisés. "
+            sentiment_label = "Prudent"
+            ai_tip = "Attendez une stabilisation des volumes avant de nouvelles entrées sur les secteurs en baisse."
+        
+        # Ajout d'une info sur l'indice phare (CAC 40)
+        cac_info = indices.get('FCHI')
+        if cac_info and cac_info['change'] > 1:
+            daily_editorial += "Le CAC 40 franchit des seuils importants, confirmant un appétit pour le risque."
+        elif cac_info and cac_info['change'] < -1:
+            daily_editorial += "La cassure des supports sur l'indice phare suggère une vigilance accrue."
+
+    return top_sectors, sorted(heatmap_data, key=lambda x: x['symbol']), indices, geopolitics, daily_editorial, sentiment_label, ai_tip

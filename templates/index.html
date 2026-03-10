@@ -3,391 +3,542 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trading Analyzer Pro V3</title>
+    <title>Trading Analyzer Pro | Dashboard</title>
+    <!-- Font Awesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-        :root { --primary: #4f46e5; --bg: #f8fafc; --card-bg: #ffffff; --text-main: #0f172a; --success: #10b981; --danger: #ef4444; --border: #e2e8f0; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 0; }
-        .container { max-width: 1000px; margin: 2rem auto; padding: 0 1.5rem; }
-        .search-box { max-width: 600px; margin: 0 auto 2rem; position: relative; }
-        .search-form { display: flex; gap: 10px; background: white; padding: 6px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
         
-        /* Style pour le défilement automatique des secteurs */
-        .sector-ticker-container { margin-top: 1rem; overflow: hidden; white-space: nowrap; position: relative; background: transparent; padding: 5px 0; }
-        .sector-ticker-inner { display: inline-block; animation: ticker 80s linear infinite; padding-left: 100%; }
-        .sector-ticker-inner:hover { animation-play-state: paused; }
-        @keyframes ticker { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
-        .sector-badge { display: inline-block; background: white; border: 1px solid var(--border); padding: 6px 14px; border-radius: 99px; font-size: 0.8rem; margin-right: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        
-        input[type="text"] { flex: 1; border: none; padding: 12px 20px; outline: none; font-size: 1rem; }
-        button.btn-search { background: var(--primary); color: white; border: none; padding: 12px 28px; border-radius: 12px; font-weight: 600; cursor: pointer; }
-        .dashboard-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 1.5rem; }
-        .card { background: var(--card-bg); border-radius: 20px; border: 1px solid var(--border); padding: 1.5rem; }
-        .col-8 { grid-column: span 8; } .col-4 { grid-column: span 4; } .col-12 { grid-column: span 12; }
-        .badge { padding: 6px 14px; border-radius: 99px; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; }
-        .badge-buy { background: #ecfdf5; color: var(--success); } .badge-sell { background: #fef2f2; color: var(--danger); }
-        .stat-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
-        .stat-label { color: #64748b; } .stat-val { font-weight: 700; }
-        .accordion-btn { width: 100%; padding: 15px; background: #0f172a; color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; margin-top: 1rem; }
-        .accordion-content { display: none; margin-top: 1rem; background: white; border-radius: 20px; border: 1px solid var(--border); padding: 1rem; }
-        .heatmap-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; padding: 1rem; }
-        .heatmap-tile { text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 70px; border-radius: 12px; color: white; font-weight: 800; font-size: 0.85rem; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .heatmap-tile:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.15); }
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 2s linear infinite; }
-        
-        /* Style des boutons de période du graphique */
-        .chart-controls { display: flex; flex-direction: column; gap: 8px; padding-right: 15px; border-right: 1px solid var(--border); }
-        .btn-period { background: white; border: 1px solid var(--border); color: var(--text-main); padding: 8px 12px; border-radius: 10px; font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: all 0.2s; min-width: 50px; }
-        .btn-period:hover { border-color: var(--primary); color: var(--primary); }
-        .btn-period.active { background: var(--primary); color: white; border-color: var(--primary); }
+        :root { 
+            --primary: #2563eb; 
+            --primary-light: #eff6ff;
+            --bg: #f1f5f9; 
+            --sidebar-bg: #0f172a;
+            --card-bg: #ffffff; 
+            --text-main: #1e293b; 
+            --text-muted: #64748b;
+            --success: #10b981; 
+            --danger: #ef4444; 
+            --warning: #f59e0b;
+            --border: #e2e8f0; 
+            --radius: 16px;
+        }
 
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg); 
+            color: var(--text-main); 
+            margin: 0; 
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            color: white;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+        }
+        .sidebar-logo {
+            font-weight: 800;
+            font-size: 1.2rem;
+            margin-bottom: 2.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .sidebar-logo i { color: var(--primary); }
+        .nav-menu { list-style: none; padding: 0; margin: 0; flex: 1; }
+        .nav-item { margin-bottom: 0.5rem; }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #94a3b8;
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255,255,255,0.05);
+            color: white;
+        }
+        .nav-link.active { background: var(--primary); }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 2rem;
+            max-width: calc(100vw - 260px);
+        }
+
+        /* Top Header / Search */
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            gap: 2rem;
+        }
+        .search-container {
+            flex: 1;
+            position: relative;
+            max-width: 600px;
+        }
+        .search-bar {
+            width: 100%;
+            background: white;
+            border: 1px solid var(--border);
+            padding: 12px 20px 12px 45px;
+            border-radius: var(--radius);
+            font-size: 0.95rem;
+            outline: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+            transition: border-color 0.2s;
+        }
+        .search-bar:focus { border-color: var(--primary); }
+        .search-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        /* Stat Grid (Bento Boxes) */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: auto;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+        .span-2 { grid-column: span 2; }
+        .span-3 { grid-column: span 3; }
+        .span-4 { grid-column: span 4; }
+
+        /* Typography & Components */
+        h2, h3 { margin: 0 0 1rem 0; font-weight: 700; }
+        .text-muted { color: var(--text-muted); font-size: 0.85rem; }
+        .price-large { font-size: 2.2rem; font-weight: 800; margin: 0.5rem 0; }
+        .change-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+        .bg-success-light { background: #dcfce7; color: var(--success); }
+        .bg-danger-light { background: #fee2e2; color: var(--danger); }
+        
+        .reco-badge {
+            padding: 8px 16px;
+            border-radius: 99px;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+
+        /* Sector Ticker */
+        .ticker-wrap {
+            background: white;
+            border-bottom: 1px solid var(--border);
+            padding: 10px 0;
+            overflow: hidden;
+            margin-bottom: 2rem;
+            border-radius: var(--radius);
+        }
+        .ticker {
+            display: flex;
+            white-space: nowrap;
+            animation: ticker 60s linear infinite;
+        }
+        .ticker-item {
+            padding: 0 2rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-right: 1px solid var(--border);
+        }
+        @keyframes ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Charts & Lists */
+        .chart-container { height: 450px; width: 100%; }
+        .news-item {
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+            transition: background 0.2s;
+        }
+        .news-item:last-child { border: none; }
+        .news-link { text-decoration: none; color: var(--text-main); font-weight: 600; font-size: 0.9rem; }
+        .news-link:hover { color: var(--primary); }
+
+        /* Heatmap Styles */
+        .heatmap-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 12px;
+        }
+        .heatmap-box {
+            height: 80px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: white;
+            font-weight: 700;
+            transition: transform 0.2s;
+            text-align: center;
+        }
+        .heatmap-box:hover { transform: scale(1.05); }
+
+        /* Utility classes */
+        .d-flex { display: flex; }
+        .justify-between { justify-content: space-between; }
+        .align-center { align-items: center; }
+        .gap-1 { gap: 1rem; }
+        .mt-2 { margin-top: 2rem; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        @media (max-width: 1024px) {
+            .sidebar { display: none; }
+            .main-content { margin-left: 0; max-width: 100vw; }
+            .bento-grid { grid-template-columns: 1fr; }
+            .span-2, .span-3, .span-4 { grid-column: span 1; }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1 style="text-align: center; margin-bottom: 0.5rem;">Trading Analyzer Pro</h1>
-        <p style="text-align: center; color: #64748b; font-size: 0.85rem; max-width: 600px; margin: 0 auto 1.5rem; line-height: 1.4;">
-            <strong>⚠️ Avertissement :</strong> Ce projet est un outil <strong>expérimental</strong> et ne constitue en aucun cas un conseil en investissement. Les données sont fournies à titre indicatif. L'éditeur décline toute responsabilité en cas de perte financière.
-        </p>
 
-        <div class="search-box">
-            <form action="{{ url_for('ultra_search') }}" method="POST" class="search-form">
-                <input type="text" name="query" id="search-input" placeholder="Ticker (MC.PA) ou Code ISIN (FR00...)" required autocomplete="off" value="{{ symbol|default('') }}">
-                <button type="submit" class="btn-search">Analyser</button>
-            </form>
-            <div id="autocomplete-results" style="position:absolute; width:100%; background:white; z-index:100; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.1); display:none;"></div>
-            
-            {% if market_indices %}
-            <div style="display: flex; gap: 15px; margin-top: 15px; justify-content: center;">
-                {% if market_indices.FCHI %}
-                <a href="/analyze?symbol=%5EFCHI" style="text-decoration: none; flex: 1; max-width: 200px;">
-                    <div style="background: white; border: 1px solid var(--border); padding: 10px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: center; transition: transform 0.2s;">
-                        <div style="font-size: 0.7rem; color: #64748b; font-weight: 700;">CAC 40</div>
-                        <div style="font-weight: 800; font-size: 1.1rem; margin: 4px 0;">{{ market_indices.FCHI.price|round(0) if market_indices.FCHI.price else '...' }}</div>
-                        <div style="font-size: 0.8rem; color: {% if market_indices.FCHI.change >= 0 %}var(--success){% else %}var(--danger){% endif %}; font-weight: 700;">
-                            {{ "+" if market_indices.FCHI.change > 0 }}{{ market_indices.FCHI.change|round(2) }}%
-                        </div>
-                    </div>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <i class="fas fa-chart-line fa-lg"></i>
+            <span>TRADING ANALYZER</span>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="/" class="nav-link active">
+                    <i class="fas fa-th-large"></i> Dashboard
                 </a>
-                {% endif %}
-                {% if market_indices.SBF120 %}
-                <a href="/analyze?symbol=%5ESBF120" style="text-decoration: none; flex: 1; max-width: 200px;">
-                    <div style="background: white; border: 1px solid var(--border); padding: 10px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: center; transition: transform 0.2s;">
-                        <div style="font-size: 0.7rem; color: #64748b; font-weight: 700;">SBF 120</div>
-                        <div style="font-weight: 800; font-size: 1.1rem; margin: 4px 0;">{{ market_indices.SBF120.price|round(0) if market_indices.SBF120.price else '...' }}</div>
-                        <div style="font-size: 0.8rem; color: {% if market_indices.SBF120.change >= 0 %}var(--success){% else %}var(--danger){% endif %}; font-weight: 700;">
-                            {{ "+" if market_indices.SBF120.change > 0 }}{{ market_indices.SBF120.change|round(2) }}%
-                        </div>
-                    </div>
+            </li>
+            <li class="nav-item">
+                <a href="/sectors" class="nav-link">
+                    <i class="fas fa-layer-group"></i> Secteurs
                 </a>
-                {% endif %}
+            </li>
+            <li class="nav-item">
+                <a href="/subscriptions" class="nav-link">
+                    <i class="fas fa-bell"></i> Alertes
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" onclick="alert('Bientôt disponible !')">
+                    <i class="fas fa-history"></i> Historique
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" onclick="alert('Bientôt disponible !')">
+                    <i class="fas fa-wallet"></i> Portefeuille
+                </a>
+            </li>
+        </ul>
+        <div style="padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1);">
+            <div class="text-muted" style="font-size: 0.7rem; text-transform: uppercase; margin-bottom: 1rem;">Marché</div>
+            {% for idx_name, idx in market_indices.items() %}
+            <div class="d-flex justify-between align-center" style="margin-bottom: 1rem; font-size: 0.8rem;">
+                <span style="color: #94a3b8;">{{ idx_name }}</span>
+                <span style="color: {% if idx.change >= 0 %}var(--success){% else %}var(--danger){% endif %}; font-weight: 700;">
+                    {{ "+" if idx.change > 0 }}{{ idx.change|round(2) }}%
+                </span>
             </div>
-            {% endif %}
+            {% endfor %}
+        </div>
 
-            <div class="sector-ticker-container">
-                <div class="sector-ticker-inner">
-                    {% if top_sectors %}
-                        {% for sec in top_sectors %}
-                        <div class="sector-badge">
-                            {{ sec.name }} <span style="color: {% if sec.change|default(0) >= 0 %}var(--success){% else %}var(--danger){% endif %}; font-weight: 700;">{{ "+" if sec.change|default(0) > 0 }}{{ sec.change|default(0)|round(2) }}%</span>
-                        </div>
-                        {% endfor %}
-                        <!-- Doubler pour un défilement continu sans saut -->
-                        {% for sec in top_sectors %}
-                        <div class="sector-badge">
-                            {{ sec.name }} <span style="color: {% if sec.change|default(0) >= 0 %}var(--success){% else %}var(--danger){% endif %}; font-weight: 700;">{{ "+" if sec.change|default(0) > 0 }}{{ sec.change|default(0)|round(2) }}%</span>
-                        </div>
-                        {% endfor %}
-                    {% else %}
-                        <div style="color: #64748b; font-size: 0.75rem; padding: 5px;">Chargement des tendances sectorielles...</div>
-                    {% endif %}
+        <div style="padding-top: 1.5rem; margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
+            <div class="text-muted" style="font-size: 0.7rem; text-transform: uppercase; margin-bottom: 1rem;">Risque Global</div>
+            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px;">
+                <div class="d-flex justify-between" style="font-size: 0.75rem; margin-bottom: 8px;">
+                    <span style="color: #94a3b8;">Stabilité</span>
+                    <span style="font-weight: 700; color: {% if geopolitics.risk_score < 40 %}#ef4444{% else %}#10b981{% endif %};">{{ geopolitics.risk_score }}/100</span>
+                </div>
+                <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;">
+                    <div style="width: {{ geopolitics.risk_score }}%; height: 100%; background: {% if geopolitics.risk_score < 40 %}#ef4444{% else %}#10b981{% endif %}; transition: width 1s ease-in-out;"></div>
+                </div>
+                <div style="font-size: 0.65rem; color: #64748b; margin-top: 8px; line-height: 1.3;">
+                    {{ geopolitics.verdict }}
                 </div>
             </div>
         </div>
+    </aside>
 
-        <div class="dashboard-grid">
-            {% if not symbol %}
-            <div class="card col-12" style="text-align: center; padding: 4rem 2rem;">
-                <div style="font-size: 4rem; margin-bottom: 1rem;">📈</div>
-                <h2>Prêt pour l'analyse</h2>
-                <p style="color: #64748b;">Entrez un code boursier pour obtenir les signaux d'achat/vente et les graphiques.</p>
-            </div>
-            {% elif last_close_price is none %}
-            <div class="card col-12" style="text-align: center; padding: 4rem 2rem;">
-                <div class="loader" style="margin: 0 auto 1rem;"></div>
-                <h2>Récupération des données pour {{ symbol }}...</h2>
-                <p>Cela peut prendre quelques secondes.</p>
-                <script>setTimeout(function(){ location.reload(); }, 5000);</script>
-            </div>
-            {% else %}
-            <div class="card col-8">
-                <div style="display: flex; justify-content: space-between;">
-                    <div>
-                        <h2 style="margin:0;">
-                            {{ symbol }}
-                            {% if website_url %}
-                            <a href="{{ website_url }}" target="_blank" title="Site Web Officiel" style="font-size: 1rem; vertical-align: middle; text-decoration: none; margin-left: 10px;">🔗</a>
-                            {% endif %}
-                        </h2>
-                        <div style="font-size: 2.5rem; font-weight: 800;">
-                            {{ last_close_price|default(0)|round(2) }} {{ currency_symbol|default('€') }}
-                        </div>
-                        <div style="color: {% if daily_change_percent|default(0) > 0 %}var(--success){% else %}var(--danger){% endif %}; font-weight: 700;">
-                            {{ daily_change_percent|default(0)|round(2) }}%
-                        </div>
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Geopolitical Risk Banner -->
+        {% if geopolitics and geopolitics.risk_score < 40 %}
+        <div class="card" style="background: {% if geopolitics.risk_score < 25 %}#ef4444{% else %}#f59e0b{% endif %}; color: white; margin-bottom: 2rem; border: none; animation: pulse 2s infinite;">
+            <div class="d-flex align-center gap-2" style="justify-content: center; font-weight: 800; font-size: 1.1rem; padding: 0.5rem; text-align: center;">
+                <i class="fas fa-radiation-alt fa-2x"></i>
+                <div>
+                    {{ geopolitics.verdict }} (Indice de Risque: {{ geopolitics.risk_score }}/100)
+                    <div style="font-size: 0.8rem; font-weight: 400; opacity: 0.9; margin-top: 5px;">
+                        Facteurs de stress: {{ geopolitics.top_events | join(' | ') | truncate(250) }}
                     </div>
-                    {% if recommendation %}
-                    <div class="badge {% if recommendation == 'Achat' %}badge-buy{% else %}badge-sell{% endif %}" style="height: fit-content;">
+                </div>
+            </div>
+        </div>
+        <style>
+            @keyframes pulse {
+                0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+                70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+                100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+            }
+        </style>
+        {% endif %}
+
+        <!-- Top Header -->
+        <header class="top-header">
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <form action="{{ url_for('ultra_search') }}" method="POST">
+                    <input type="text" name="query" id="search-input" class="search-bar" placeholder="Rechercher une action, un indice ou un code ISIN..." value="{{ symbol|default('') }}">
+                </form>
+                <div id="autocomplete-results" style="position:absolute; width:100%; background:white; z-index:100; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.1); display:none; margin-top: 5px;"></div>
+            </div>
+            <div class="d-flex align-center gap-1">
+                <div class="text-muted" style="text-align: right;">
+                    <div style="font-weight: 700; color: var(--text-main);">{{ last_update }}</div>
+                    <div style="font-size: 0.7rem;">Mise à jour Auto</div>
+                </div>
+                <div style="width: 45px; height: 45px; background: var(--primary); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white;">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- Sector Ticker -->
+        <div class="ticker-wrap">
+            <div class="ticker">
+                {% for sec in top_sectors %}
+                <a href="/sector/{{ sec.name }}" style="text-decoration: none; color: inherit;">
+                    <div class="ticker-item">
+                        {{ sec.name }} <span style="color: {% if sec.change >= 0 %}var(--success){% else %}var(--danger){% endif %};">
+                            {{ "+" if sec.change > 0 }}{{ sec.change|round(2) }}%
+                        </span>
+                    </div>
+                </a>
+                {% endfor %}
+                <!-- Double pour l'animation -->
+                {% for sec in top_sectors %}
+                <a href="/sector/{{ sec.name }}" style="text-decoration: none; color: inherit;">
+                    <div class="ticker-item">
+                        {{ sec.name }} <span style="color: {% if sec.change >= 0 %}var(--success){% else %}var(--danger){% endif %};">
+                            {{ "+" if sec.change > 0 }}{{ sec.change|round(2) }}%
+                        </span>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% if not symbol %}
+        <!-- Welcome Screen -->
+        <div class="card" style="text-align: center; padding: 5rem 2rem;">
+            <img src="https://illustrations.popsy.co/blue/data-analysis.svg" alt="Analyse" style="width: 250px; margin-bottom: 2rem;">
+            <h2>Bienvenue sur votre Dashboard de Trading</h2>
+            <p class="text-muted" style="max-width: 500px; margin: 0 auto 2rem;">
+                Analysez plus de 100 000 actifs avec nos algorithmes d'IA. Commencez par rechercher un symbole boursier comme <strong>MC.PA</strong> ou <strong>AAPL</strong>.
+            </p>
+            <div class="d-flex justify-center gap-1" style="justify-content: center;">
+                <button class="reco-badge" style="background: var(--primary-light); color: var(--primary); border: none; cursor: pointer;" onclick="document.getElementById('search-input').value='MC.PA'; document.querySelector('form').submit();">Exemple : LVMH</button>
+                <button class="reco-badge" style="background: var(--primary-light); color: var(--primary); border: none; cursor: pointer;" onclick="document.getElementById('search-input').value='EDEN.PA'; document.querySelector('form').submit();">Exemple : Edenred</button>
+            </div>
+        </div>
+        {% else %}
+
+        <!-- Bento Dashboard -->
+        <div class="bento-grid">
+            <!-- Asset Header -->
+            <div class="card span-2 d-flex justify-between align-center">
+                <div>
+                    <div class="text-muted">{{ sector|default('Secteur Inconnu') }}</div>
+                    <h1 style="margin: 0.5rem 0;">{{ symbol }}</h1>
+                    <div class="d-flex align-center gap-1">
+                        <span class="price-large">{{ last_close_price|round(2) }} {{ currency_symbol }}</span>
+                        <span class="change-badge {% if daily_change_percent >= 0 %}bg-success-light{% else %}bg-danger-light{% endif %}">
+                            <i class="fas fa-caret-{% if daily_change_percent >= 0 %}up{% else %}down{% endif %}"></i>
+                            {{ daily_change_percent|round(2) }}%
+                        </span>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div class="reco-badge {% if 'Achat' in recommendation %}bg-success-light{% elif 'Vendre' in recommendation or 'Prudence' in recommendation %}bg-danger-light{% else %}background: #f1f5f9; color: #475569;{% endif %}" style="font-size: 1rem; padding: 12px 24px;">
                         {{ recommendation }}
                     </div>
-                    {% endif %}
-                </div>
-                <p style="background: #f8fafc; padding: 1rem; border-radius: 12px; margin-top: 1rem; margin-bottom: 0.5rem;"><strong>Signal :</strong> {{ reason|default('Analyse technique en cours...') }}</p>
-                
-                <!-- Moyennes Mobiles déplacées ici -->
-                <div style="display: flex; gap: 10px; margin-bottom: 1rem; flex-wrap: wrap;">
-                    <div style="background: #eff6ff; border: 1px solid #dbeafe; padding: 5px 12px; border-radius: 8px; font-size: 0.8rem;">
-                        <span style="color: blue; font-weight: 800;">●</span> MM20: <strong>{{ mm20|round(2) if mm20 else 'N/A' }}</strong>
-                    </div>
-                    <div style="background: #fff7ed; border: 1px solid #ffedd5; padding: 5px 12px; border-radius: 8px; font-size: 0.8rem;">
-                        <span style="color: orange; font-weight: 800;">●</span> MM50: <strong>{{ mm50|round(2) if mm50 else 'N/A' }}</strong>
-                    </div>
-                    <div style="background: #fef2f2; border: 1px solid #fee2e2; padding: 5px 12px; border-radius: 8px; font-size: 0.8rem;">
-                        <span style="color: red; font-weight: 800;">●</span> MM200: <strong>{{ mm200|round(2) if mm200 else 'N/A' }}</strong>
-                    </div>
-                </div>
-
-                <!-- Nouvelle Section Prédictions IA Multi-Horizons -->
-                {% if ai_predictions %}
-                <button class="accordion-btn" style="background: #0f172a;" onclick="toggleSection('ai-multi-predictions-area')">🧠 Prédictions IA Multi-Horizons</button>
-                <div id="ai-multi-predictions-area" class="accordion-content">
-                    <h4 style="margin: 0 0 8px 0; font-size: 0.9rem; color: var(--primary);">🎯 Rendements Futurs Prévus :</h4>
-                    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 1rem;">
-                        {% for horizon, prediction_value in ai_predictions.items() %}
-                        <div style="background: #f1f5f9; border: 1px solid #e2e8f0; padding: 8px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 600;">
-                            {{ horizon.upper() }} : 
-                            <span style="color: {% if prediction_value >= 0 %}var(--success){% else %}var(--danger){% endif %};">
-                                {{ "+" if prediction_value > 0 }}{{ prediction_value|round(2) }}%
-                            </span>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    <p style="margin: 1rem 0 0; font-size: 0.8rem; color: #64748b; font-style: italic;">
-                        Ces prédictions sont générées par un modèle de Machine Learning (XGBoost) entraîné sur les 5 dernières années de données historiques et sont exprimées en pourcentage de rendement futur.
-                    </p>
-                    <p style="margin: 1rem 0 0; font-size: 0.8rem; color: #ef4444; font-style: italic;">
-                        <strong>⚠️ Avertissement :</strong> Ceci est un outil expérimental. Ne constitue en aucun cas un conseil en investissement.
-                    </p>
-                </div>
-                {% endif %}
-
-                <!-- Module de Justification -->
-                <div style="background: #f1f5f9; border-left: 4px solid var(--primary); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; margin-top: 1rem;">
-                    <h4 style="margin: 0 0 8px 0; font-size: 0.9rem; color: var(--primary);">🎯 Justification de la recommandation</h4>
-                    <p style="margin: 0; font-size: 0.85rem; line-height: 1.5; color: #334155;">
-                        {{ reason }}
-                        <br><br>
-                        <strong>Note :</strong> L'avis des analystes (actuellement : <span style="color:var(--primary)">{{ analyst_recommendation }}</span>) reflète souvent un objectif à 12 mois basé sur les fondamentaux, tandis que notre signal est <strong>purement technique</strong> (immédiat). Une divergence peut apparaître si le titre est techniquement surchargé malgré un bon profil financier.
-                    </p>
-                </div>
-
-                <div style="margin-top: 2rem;">
-                    <h3 style="margin-bottom: 1rem;">📊 GRAPHIQUE TECHNIQUE</h3>
-                    <div style="display: flex; align-items: flex-start;">
-                        <!-- Boutons à gauche -->
-                        <div class="chart-controls">
-                            <button class="btn-period" onclick="updateChartPeriod(1, 'month', this)">1M</button>
-                            <button class="btn-period" onclick="updateChartPeriod(3, 'month', this)">3M</button>
-                            <button class="btn-period" onclick="updateChartPeriod(6, 'month', this)">6M</button>
-                            <button class="btn-period" onclick="updateChartPeriod(1, 'year', this)">1Y</button>
-                            <button class="btn-period active" onclick="updateChartPeriod(0, 'all', this)">Tout</button>
-                        </div>
-                        <!-- Graphique à droite -->
-                        <div style="flex: 1; overflow: hidden;">
-                            {{ stock_chart_div|safe }}
-                        </div>
-                    </div>
+                    <div class="text-muted" style="margin-top: 10px;">Signal IA Temps Réel</div>
                 </div>
             </div>
 
-            <div class="col-4" style="display: flex; flex-direction: column; gap: 1.5rem;">
-                <div class="card">
-                    <h3 style="margin-top:0;">Statistiques</h3>
-                    <div class="stat-item"><span class="stat-label">Secteur</span><span class="stat-val">{{ sector|default('N/A') }}</span></div>
-                    <div class="stat-item"><span class="stat-label">RSI (14)</span><span class="stat-val">{{ rsi_value|default(50)|round(2) }}</span></div>
-                    {% if pe_ratio %}
-                    <div class="stat-item"><span class="stat-label">P/E Ratio</span><span class="stat-val">{{ pe_ratio|round(2) }}</span></div>
-                    {% endif %}
-                    {% if div_yield %}
-                    <div class="stat-item"><span class="stat-label">Dividende</span><span class="stat-val">{{ div_yield|round(2) }}%</span></div>
-                    {% endif %}
-                    {% if analyst_recommendation and analyst_recommendation != 'N/A' %}
-                    <div class="stat-item"><span class="stat-label">Analystes</span><span class="stat-val" style="color: var(--primary);">{{ analyst_recommendation }}</span></div>
-                    {% endif %}
-                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 2px solid #f1f5f9;">
-                        <div class="stat-item"><span class="stat-label">Prix Entrée</span><span class="stat-val" style="color: var(--success);">{{ short_term_entry_price|default('N/A') }} {{ currency_symbol }}</span></div>
-                        <div class="stat-item"><span class="stat-label">Objectif</span><span class="stat-val" style="color: var(--primary);">{{ short_term_exit_price|default('N/A') }} {{ currency_symbol }}</span></div>
+            <!-- Focus du Jour Card -->
+            <div class="card span-2" style="background: linear-gradient(135deg, #2563eb, #1e40af); color: white;">
+                <h3 style="color: white;"><i class="fas fa-bolt me-2"></i> Focus du Jour</h3>
+                <p style="font-size: 0.95rem; line-height: 1.6; opacity: 0.9;">
+                    {{ daily_editorial|truncate(200) }}
+                </p>
+                <div class="mt-2 p-3" style="background: rgba(255,255,255,0.1); border-radius: 12px;">
+                    <small style="display: block; opacity: 0.7; margin-bottom: 5px;">CONSEIL STRATÉGIQUE (Sentiment : {{ global_sentiment_label|default('Neutre') }})</small>
+                    <div style="font-weight: 600;">"{{ ai_tip }}"</div>
+                </div>
+            </div>
+
+            <!-- Chart Card -->
+            <div class="card span-3">
+                <div class="d-flex justify-between align-center">
+                    <h3>Graphique de Performance</h3>
+                    <div class="d-flex gap-1" style="gap: 5px;">
+                        <button class="reco-badge active" style="padding: 4px 10px; cursor: pointer; background: #f1f5f9; border: none;" onclick="updateChartPeriod(1, 'month', this)">1M</button>
+                        <button class="reco-badge" style="padding: 4px 10px; cursor: pointer; background: #f1f5f9; border: none;" onclick="updateChartPeriod(6, 'month', this)">6M</button>
+                        <button class="reco-badge" style="padding: 4px 10px; cursor: pointer; background: #f1f5f9; border: none;" onclick="updateChartPeriod(1, 'year', this)">1Y</button>
+                    </div>
+                </div>
+                <div class="chart-container" id="chart-area">
+                    {{ stock_chart_div|safe }}
+                </div>
+            </div>
+
+            <!-- Stats & RSI Card -->
+            <div class="card span-1">
+                <h3>Indicateurs</h3>
+                <div style="margin-bottom: 2rem;">
+                    <div class="d-flex justify-between align-center mb-2">
+                        <span class="text-muted">RSI (14)</span>
+                        <span style="font-weight: 800; color: {% if rsi_value < 30 %}var(--success){% elif rsi_value > 70 %}var(--danger){% else %}var(--primary){% endif %};">{{ rsi_value|round(1) }}</span>
+                    </div>
+                    <div style="width: 100%; height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden; position: relative;">
+                        <div style="position: absolute; left: 30%; width: 40%; height: 100%; background: #e2e8f0; border-left: 1px dashed #94a3b8; border-right: 1px dashed #94a3b8;"></div>
+                        <div style="position: absolute; left: 0; width: {{ rsi_value }}%; height: 100%; background: var(--primary); border-radius: 4px;"></div>
+                    </div>
+                    <div class="d-flex justify-between" style="font-size: 0.6rem; color: #94a3b8; margin-top: 5px;">
+                        <span>SURVENTE</span>
+                        <span>SURACHAT</span>
                     </div>
                 </div>
 
-                {% if news %}
-                <div class="card" style="padding: 0; overflow: hidden;">
-                    <div style="background: #4f46e5; color: white; padding: 1rem; font-weight: 700;">📰 ACTUALITÉS</div>
-                    <div style="max-height: 600px; overflow-y: auto;">
-                        {% for item in news %}
-                        <div style="padding: 1rem; border-bottom: 1px solid #f1f5f9;">
-                            <a href="{{ item.link }}" target="_blank" style="text-decoration: none; color: var(--text-main); font-weight: 600; font-size: 0.85rem; display: block; line-height: 1.4;">
-                                {{ item.title }}
-                            </a>
-                            <div style="font-size: 0.7rem; color: #64748b; margin-top: 8px; display: flex; justify-content: space-between;">
-                                <span>{{ item.publisher }} {% if "Social" in item.source %}<strong style="color: var(--primary);">(Officiel Social)</strong>{% endif %}</span>
-                                <span>{{ item.published }}</span>
-                            </div>
+                <div class="mt-2">
+                    <div class="text-muted mb-1">Moyenne 200j</div>
+                    <div style="font-weight: 700; font-size: 1.1rem;">{{ mm200|round(2) }} {{ currency_symbol }}</div>
+                    <div style="font-size: 0.7rem; color: {% if last_close_price > mm200 %}var(--success){% else %}var(--danger){% endif %};">
+                        {{ "Au-dessus" if last_close_price > mm200 else "En-dessous" }} de la tendance
+                    </div>
+                </div>
+
+                <div class="mt-2" style="border-top: 1px solid var(--border); padding-top: 1rem;">
+                    <div class="text-muted mb-1">Objectif Analystes</div>
+                    <div style="font-weight: 700; font-size: 1.1rem; color: var(--text-main);">{{ analyst_target|round(2) if analyst_target != 'N/A' else 'N/A' }} {{ currency_symbol }}</div>
+                    <div style="font-size: 0.7rem; color: var(--primary);">Consensus 12 mois</div>
+                </div>
+
+                <div class="mt-2" style="border-top: 1px solid var(--border); padding-top: 1rem;">
+                    <div class="text-muted mb-1">Cible IA à 1 mois</div>
+                    <div style="font-weight: 800; font-size: 1.2rem; color: var(--primary);">{{ ia_target_1m|round(2) if ia_target_1m != 'N/A' else 'N/A' }} {{ currency_symbol }}</div>
+                    <div style="font-size: 0.7rem; color: var(--success);">Probabilité algorithmique</div>
+                </div>
+
+                <div class="mt-2" style="border-top: 1px solid var(--border); padding-top: 1rem;">
+                    <div class="text-muted mb-1">Prix de Sortie Conseillé</div>
+                    <div style="font-weight: 700; font-size: 1.1rem; color: var(--danger);">{{ short_term_exit_price }} {{ currency_symbol }}</div>
+                </div>
+            </div>
+
+            <!-- News Card -->
+            <div class="card span-2">
+                <h3>Actualités Récentes</h3>
+                <div style="max-height: 400px; overflow-y: auto;">
+                    {% for item in news %}
+                    <div class="news-item">
+                        <a href="{{ item.link }}" target="_blank" class="news-link">{{ item.title }}</a>
+                        <div class="d-flex justify-between mt-1" style="font-size: 0.7rem; color: var(--text-muted);">
+                            <span>{{ item.publisher }}</span>
+                            <span>{{ item.published }}</span>
                         </div>
-                        {% endfor %}
                     </div>
-                </div>
-                {% endif %}
-
-                {% if sector_peers %}
-                <button class="accordion-btn" style="background: #1e293b;" onclick="toggleSection('sector-area')">🔍 VALEURS DU SECTEUR : {{ sector }}</button>
-                <div id="sector-area" class="accordion-content" style="padding: 0;">
-                    <div style="overflow-x: auto;">
-                        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left;">
-                            <thead>
-                                <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
-                                    <th style="padding: 12px;">Valeur</th>
-                                    <th style="padding: 12px;">Cours</th>
-                                    <th style="padding: 12px;">Signal</th>
-                                    <th style="padding: 12px;">Entrée</th>
-                                    <th style="padding: 12px;">Sortie</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for peer in sector_peers %}
-                                <tr style="border-bottom: 1px solid #f1f5f9;">
-                                    <td style="padding: 12px;">
-                                        <a href="/analyze?symbol={{ peer.symbol }}" style="text-decoration: none; color: var(--primary); font-weight: 700;">{{ peer.symbol }}</a>
-                                        <div style="font-size: 0.7rem; color: #64748b;">{{ peer.name }}</div>
-                                    </td>
-                                    <td style="padding: 12px;">
-                                        <strong>{{ peer.price|round(2) }} {{ currency_symbol }}</strong>
-                                        <div style="font-size: 0.7rem; color: {% if peer.change >= 0 %}var(--success){% else %}var(--danger){% endif %};">
-                                            {{ "+" if peer.change > 0 }}{{ peer.change|round(2) }}%
-                                        </div>
-                                    </td>
-                                    <td style="padding: 12px;">
-                                        <span class="badge {% if peer.reco == 'Achat' or peer.reco == 'Achat Fort' %}badge-buy{% elif peer.reco == 'Vendre' or peer.reco == 'Vente' %}badge-sell{% else %}badge-neutral{% endif %}" style="font-size: 0.65rem; padding: 4px 8px;">
-                                            {{ peer.reco }}
-                                        </span>
-                                    </td>
-                                    <td style="padding: 12px; color: var(--success); font-weight: 600;">{{ peer.entry|round(2) if peer.entry != 'N/A' else 'N/A' }}</td>
-                                    <td style="padding: 12px; color: var(--primary); font-weight: 600;">{{ peer.exit|round(2) if peer.exit != 'N/A' else 'N/A' }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                {% endif %}
-            </div>
-            {% endif %}
-        </div> <!-- Fin de dashboard-grid -->
-
-        <div class="col-12" style="margin-top: 2rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <h3 style="margin: 0;">🗺️ Carte thermique (Échelle -5% / +5%)</h3>
-                <div style="display: flex; gap: 10px; font-size: 0.75rem; align-items: center; background: white; padding: 5px 15px; border-radius: 99px; border: 1px solid var(--border);">
-                    <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: rgba(16, 185, 129, 1); border-radius: 2px;"></span> +5%</span>
-                    <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: rgba(16, 185, 129, 0.4); border-radius: 2px;"></span> Neutre</span>
-                    <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: rgba(239, 68, 68, 1); border-radius: 2px;"></span> -5%</span>
+                    {% endfor %}
                 </div>
             </div>
-            <div class="card heatmap-grid">
-                {% if heatmap_data %}
+
+            <!-- IA Explanation Card -->
+            <div class="card span-2">
+                <h3><i class="fas fa-robot text-primary"></i> Pourquoi ce signal ?</h3>
+                <div style="font-size: 0.9rem; line-height: 1.6; color: #475569;">
+                    {{ reason }}
+                </div>
+                <div class="mt-2 p-3 bg-primary-light" style="border-radius: 12px; border-left: 4px solid var(--primary);">
+                    <div style="font-size: 0.75rem; font-weight: 700; color: var(--primary);">CONCORDANCE ANALYSTES</div>
+                    <div style="font-weight: 600;">{{ analyst_recommendation }}</div>
+                </div>
+            </div>
+        </div>
+
+        {% endif %}
+
+        <!-- Market Heatmap Section -->
+        <div class="mt-2">
+            <h2 class="d-flex align-center gap-1">
+                <i class="fas fa-th text-primary"></i> 
+                Vue d'ensemble du marché
+            </h2>
+            <div class="card">
+                <div class="heatmap-container">
                     {% for item in heatmap_data %}
                     {% set intensity_val = item.intensity|default(0) / 100 %}
-                    <a href="/analyze?symbol={{ item.full_symbol }}" class="heatmap-tile" 
-                       style="background: {% if item.change|default(0) > 0 %}rgba(16, 185, 129, {{ 0.4 + (intensity_val * 0.6) }}){% else %}rgba(239, 68, 68, {{ 0.4 + (intensity_val * 0.6) }}){% endif %};
-                              color: {% if 0.4 + (intensity_val * 0.6) > 0.7 %}white{% else %}#0f172a{% endif %};">
-                        {{ item.symbol }}<br><small style="font-size: 0.6rem; font-weight: 700;">{{ item.change|default(0)|round(1) }}%</small>
+                    <a href="/analyze?symbol={{ item.full_symbol }}" class="heatmap-box" 
+                       style="background: {% if item.change > 0 %}rgba(16, 185, 129, {{ 0.4 + (intensity_val * 0.6) }}){% else %}rgba(239, 68, 68, {{ 0.4 + (intensity_val * 0.6) }}){% endif %};">
+                        <span style="font-size: 0.9rem;">{{ item.symbol }}</span>
+                        <span style="font-size: 0.7rem; opacity: 0.9;">{{ item.change|round(1) }}%</span>
                     </a>
                     {% endfor %}
-                {% else %}
-                    <div style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
-                        <div class="loader" style="margin: 0 auto 1rem;"></div>
-                        <p style="color: #64748b;">Initialisation des données du marché (CAC40)...</p>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-
-        <div class="col-12" style="margin-top: 2rem; margin-bottom: 4rem;">
-            <button class="accordion-btn" style="background: #64748b;" onclick="toggleSection('info-area')">ℹ️ MÉTHODOLOGIE & GUIDE D'UTILISATION</button>
-            <div id="info-area" class="accordion-content">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div>
-                        <h4 style="color: var(--primary); margin-bottom: 10px;">📊 Glossaire des Indicateurs</h4>
-                        <div style="font-size: 0.85rem; line-height: 1.5;">
-                            <p><strong>• RSI (14) :</strong> Évalue la force du prix. Un RSI sous 40 indique une zone d'opportunité, au-dessus de 70 une zone de prudence.</p>
-                            <p><strong>• MM200 :</strong> Moyenne des 200 derniers jours. Si le cours est au-dessus, la tendance est dite "Haussière".</p>
-                            <p><strong>• Volume Ratio :</strong> Compare les échanges du jour à la veille pour valider la conviction des investisseurs.</p>
-                        </div>
-                    </div>
-                    <div>
-                        <h4 style="color: var(--primary); margin-bottom: 10px;">🎯 Comprendre les Prix Cibles</h4>
-                        <div style="font-size: 0.85rem; line-height: 1.5;">
-                            <p><strong>• Prix d'Entrée :</strong> Calculé pour optimiser le ratio gain/risque en fonction de la volatilité récente.</p>
-                            <p><strong>• Objectif :</strong> Cible de sortie court terme basée sur le momentum et les résistances calculées.</p>
-                            <p><strong>• Recommandation :</strong> Synthèse des indicateurs techniques et du consensus des analystes externes.</p>
-                        </div>
-                        <h4 style="color: var(--primary); margin-top: 15px; margin-bottom: 10px;">🧠 NOUVEAU : Prédictions IA Multi-Horizons</h4>
-                        <div style="font-size: 0.85rem; line-height: 1.5;">
-                            <p><strong>• Prédictions IA Multi-Horizons :</strong> Notre Intelligence Artificielle (modèles XGBoost) analyse les 5 dernières années de données historiques et les indicateurs techniques (RSI, MACD, moyennes mobiles) pour prédire les rendements futurs de 1 jour à 1 an (1j, 3j, 1sem, 1m, 3m, 6m, 1an).</p>
-                            <p><strong>• Actualités Sociales Officielles :</strong> Ces actualités, provenant de sources vérifiées (Twitter, LinkedIn) des entreprises et de leurs acteurs clés, sont intégrées à l'analyse pour un signal plus riche et contextuel.</p>
-                        </div>
-                    </div>
-                </div>
-                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee; font-size: 0.8rem; color: #64748b; font-style: italic;">
-                    Note : Les analyses sont mises à jour toutes les 20 minutes durant les heures d'ouverture des marchés.
                 </div>
             </div>
         </div>
 
-        <footer style="text-align: center; color: #64748b; font-size: 0.7rem; margin-top: 3rem; padding-bottom: 2rem; border-top: 1px solid var(--border); padding-top: 1rem;">
-            Trading Analyzer Pro - Version {{ version|default('3.5.0') }} | Statut: {{ engine_status }} | Maj: {{ last_update }}
+        <!-- Risk Warning Footer -->
+        <footer style="margin-top: 4rem; padding: 2rem; border-top: 1px solid var(--border); text-align: center;">
+            <div class="text-muted" style="font-size: 0.75rem; max-width: 800px; margin: 0 auto;">
+                <strong>AVERTISSEMENT :</strong> Ce dashboard est fourni à titre informatif par Trading Analyzer Pro (V {{ version }}). Le trading d'instruments financiers comporte des risques de perte en capital. Les prédictions de l'IA ne sont pas des garanties de performance future.
+            </div>
         </footer>
-    </div>
+    </main>
 
     <script>
-        function updateChartPeriod(count, unit, btn) {
-            const gd = document.getElementById('main-plotly-chart');
-            if (!gd) return;
-
-            // Gérer l'état actif des boutons
-            document.querySelectorAll('.btn-period').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            const now = new Date();
-            let start = new Date();
-
-            if (unit === 'month') {
-                start.setMonth(now.getMonth() - count);
-            } else if (unit === 'year') {
-                start.setFullYear(now.getFullYear() - count);
-            } else if (unit === 'all') {
-                Plotly.relayout(gd, { 'xaxis.autorange': true });
-                return;
-            }
-
-            Plotly.relayout(gd, {
-                'xaxis.range': [start.toISOString(), now.toISOString()],
-                'xaxis.autorange': false
-            });
-        }
-
-        function toggleSection(id) { const e = document.getElementById(id); e.style.display = (e.style.display === 'block') ? 'none' : 'block'; }
+        // Gestion de l'autocomplétion
         const input = document.getElementById('search-input');
         const res = document.getElementById('autocomplete-results');
         input.addEventListener('input', function() {
@@ -398,15 +549,43 @@
                 if (data.length > 0) {
                     res.style.display = 'block';
                     data.forEach(s => {
-                        const a = document.createElement('a'); 
-                        a.href = "/analyze?symbol=" + encodeURIComponent(s.symbol);
-                        a.style.display = 'block'; a.style.padding = '10px'; a.style.textDecoration = 'none'; a.style.color = '#000'; a.style.borderBottom = '1px solid #eee';
-                        a.innerHTML = `<strong>${s.symbol}</strong> - ${s.name}`;
-                        res.appendChild(a);
+                        const div = document.createElement('div');
+                        div.style.padding = '12px 16px';
+                        div.style.cursor = 'pointer';
+                        div.style.borderBottom = '1px solid #f1f5f9';
+                        div.innerHTML = `<div style="display:flex; justify-content:space-between"><strong>${s.symbol}</strong> <span style="font-size:0.75rem; color:#64748b">${s.name}</span></div>`;
+                        div.onclick = function() {
+                            input.value = s.symbol;
+                            res.style.display = 'none';
+                            input.closest('form').submit();
+                        };
+                        div.onmouseover = function() { this.style.background = '#f8fafc'; };
+                        div.onmouseout = function() { this.style.background = 'white'; };
+                        res.appendChild(div);
                     });
                 } else { res.style.display = 'none'; }
             });
         });
+
+        // Fermer les résultats si on clique ailleurs
+        document.addEventListener('click', function(e) {
+            if (!input.contains(e.target) && !res.contains(e.target)) {
+                res.style.display = 'none';
+            }
+        });
+
+        // Mise à jour du graphique (si Plotly est chargé)
+        function updateChartPeriod(count, unit, btn) {
+            const gd = document.querySelector('.js-plotly-plot');
+            if (!gd) return;
+            document.querySelectorAll('.reco-badge').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const now = new Date();
+            let start = new Date();
+            if (unit === 'month') start.setMonth(now.getMonth() - count);
+            else if (unit === 'year') start.setFullYear(now.getFullYear() - count);
+            Plotly.relayout(gd, { 'xaxis.range': [start.toISOString(), now.toISOString()], 'xaxis.autorange': false });
+        }
     </script>
 </body>
 </html>
