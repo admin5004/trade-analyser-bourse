@@ -658,6 +658,21 @@ def ultra_sector_view(name):
         logger.error(f"Error in sector view route: {e}")
         return redirect(url_for('ultra_sectors'))
 
+@app.route('/geopolitics')
+def geopolitical_details():
+    try:
+        from core.market import MARKET_STATE, market_lock
+        with market_lock:
+            geo_data = MARKET_STATE.get('geopolitics', {})
+        
+        return render_template('geopolitics_details.html', 
+                               score=geo_data.get('risk_score', 50),
+                               verdict=geo_data.get('verdict', 'Neutre'),
+                               top_events=geo_data.get('top_events', []))
+    except Exception as e:
+        logger.error(f"Error in geopolitics route: {e}")
+        return redirect(url_for('ultra_analyze'))
+
 @app.route('/status')
 def ultra_status():
     with market_lock:

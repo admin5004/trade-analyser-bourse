@@ -68,8 +68,9 @@ def init_db():
             
             # Liste des actions du CAC 40 pour initialisation
             cac40 = [
-                ('^FCHI', 'CAC 40', 'Indices'), ('^SBF120', 'SBF 120', 'Indices'),
-                ('AC.PA', 'Accor', 'Consommation'), ('AI.PA', 'Air Liquide', 'Industrie'),
+                ('^FCHI', 'CAC 40', 'Indices'), ('^SBF120', 'SBF 120', 'Indices'), ('^VIX', 'Indice VIX', 'Indices'),
+                ('AC.PA', 'Accor', 'Consommation'),
+ ('AI.PA', 'Air Liquide', 'Industrie'),
                 ('AIR.PA', 'Airbus', 'Aéronautique'), ('ALO.PA', 'Alstom', 'Industrie'),
                 ('MT.AS', 'ArcelorMittal', 'Matériaux'), ('CS.PA', 'AXA', 'Finance'), ('BNP.PA', 'BNP Paribas', 'Finance'), ('EN.PA', 'Bouygues', 'Industrie'),
                 ('CAP.PA', 'Capgemini', 'Technologie'), ('CA.PA', 'Carrefour', 'Consommation'), ('ACA.PA', 'Crédit Agricole', 'Finance'), ('BN.PA', 'Danone', 'Consommation'),
@@ -83,7 +84,6 @@ def init_db():
                 ('WLN.PA', 'Worldline', 'Technologie')
             ]
             
-            # On ne peuple pas ici pour éviter les doublons complexes, mais la table est prête
             conn.commit()
             return True
     except Exception as e:

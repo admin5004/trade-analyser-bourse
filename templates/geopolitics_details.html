@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Détails du Risque Géopolitique | Trading Analyzer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        :root { 
+            --bg: #f8fafc; --card: #ffffff; --primary: #2563eb; 
+            --danger: #ef4444; --warning: #f59e0b; --text: #1e293b;
+            --muted: #64748b; --border: #e2e8f0;
+        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 2rem; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .back-btn { display: inline-flex; align-items: center; gap: 8px; color: var(--primary); text-decoration: none; font-weight: 600; margin-bottom: 2rem; transition: transform 0.2s; }
+        .back-btn:hover { transform: translateX(-5px); }
+        .risk-header { 
+            background: {% if score < 25 %}var(--danger){% elif score < 50 %}var(--warning){% else %}var(--primary){% endif %};
+            color: white; padding: 2.5rem; border-radius: 24px; text-align: center; margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .score-circle { 
+            width: 100px; height: 100px; border: 8px solid rgba(255,255,255,0.3); 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 2.2rem; font-weight: 800; margin: 0 auto 1.5rem;
+        }
+        .news-card { background: var(--card); border-radius: 16px; border: 1px solid var(--border); padding: 1.5rem; margin-bottom: 1rem; transition: transform 0.2s; }
+        .news-card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .news-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 0.5rem; line-height: 1.4; display: block; color: var(--text); text-decoration: none; }
+        .news-title:hover { color: var(--primary); }
+        .news-meta { font-size: 0.8rem; color: var(--muted); display: flex; align-items: center; gap: 10px; }
+        .badge { padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+        .badge-danger { background: #fee2e2; color: #b91c1c; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i> Retour au Dashboard</a>
+        
+        <div class="risk-header">
+            <div class="score-circle">{{ score }}</div>
+            <h1 style="margin: 0 0 10px 0;">{{ verdict }}</h1>
+            <p style="opacity: 0.9; font-size: 1.1rem;">Indice de Stress Global (Plus il est haut, plus le risque est élevé)</p>
+        </div>
+
+        <!-- Échelle de Risque Légende -->
+        <div style="background: white; border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; border: 1px solid var(--border);">
+            <h3 style="margin-top: 0;"><i class="fas fa-info-circle text-primary"></i> Échelle de l'Indice de Stress</h3>
+            <div style="display: flex; height: 12px; border-radius: 6px; overflow: hidden; margin: 15px 0;">
+                <div style="width: 25%; background: #10b981;"></div> <!-- SÉRÉNITÉ -->
+                <div style="width: 25%; background: #fbbf24;"></div> <!-- STABLE -->
+                <div style="width: 25%; background: #f59e0b;"></div> <!-- MODÉRÉ -->
+                <div style="width: 25%; background: #ef4444;"></div> <!-- PANIQUE -->
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; font-size: 0.75rem; font-weight: 600; text-align: center;">
+                <div style="color: #10b981;">0-20<br>SÉRÉNITÉ</div>
+                <div style="color: #d97706;">21-40<br>STABLE</div>
+                <div style="color: #f59e0b;">41-75<br>MODÉRÉ / ÉLEVÉ</div>
+                <div style="color: #ef4444;">76-100<br>PANIQUE / KRACH</div>
+            </div>
+        </div>
+
+        <h2 style="margin-bottom: 1.5rem;"><i class="fas fa-newspaper text-primary"></i> Signaux Détectés</h2>
+        
+        {% for news in top_events %}
+        <div class="news-card">
+            <div class="badge badge-danger mb-2">Risque Systémique</div>
+            <div class="news-title">{{ news }}</div>
+            <div class="news-meta">
+                <span><i class="far fa-clock"></i> Détecté à l'instant</span>
+                <span>•</span>
+                <span>Source: Google News Global Monitoring</span>
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="news-card" style="background: #f1f5f9; border: 2px dashed #cbd5e1; text-align: center; padding: 2rem;">
+            <i class="fas fa-info-circle fa-2x" style="color: var(--muted); margin-bottom: 1rem;"></i>
+            <p class="text-muted">Ces informations sont pondérées par notre algorithme de risque pour ajuster vos conseils de trading en temps réel.</p>
+        </div>
+    </div>
+</body>
+</html>

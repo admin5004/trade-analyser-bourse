@@ -90,27 +90,27 @@ def analyze_global_risk():
     if not impacts:
         return 50, "Aucun signal géopolitique majeur détecté.", []
 
-    # Calcul du score hybride : 50% Moyenne / 50% Pire Scénario
-    # Cela permet de rester sensible aux chocs brutaux sans ignorer le contexte global.
+    # Calcul du score de STRESS (Hybride)
     avg_impact = sum(impacts) / len(impacts)
     worst_impact = min(impacts)
     
     final_impact = (avg_impact * 0.5) + (worst_impact * 0.5)
     
-    # Normalisation de 0 à 100
-    risk_score = 50 + (final_impact * 50)
-    risk_score = max(0, min(100, risk_score))
+    # Normalisation : Un impact de -1.0 devient un STRESS de 100
+    # Score de 0 (Calme) à 100 (Panique Totale)
+    stress_score = abs(final_impact) * 100
+    stress_score = max(0, min(100, stress_score))
 
     # Génération du verdict
-    if risk_score < 25:
-        verdict = "ALERTE ROUGE : Risque systémique ou géopolitique EXTRÊME."
-    elif risk_score < 40:
-        verdict = "Risque Géopolitique ÉLEVÉ : Forte volatilité à prévoir."
-    elif risk_score < 50:
-        verdict = "Risque Modéré : Le contexte macroéconomique est fragile."
-    elif risk_score > 65:
-        verdict = "Contexte Favorable : Signes d'apaisement ou de relance."
+    if stress_score > 75:
+        verdict = "PANIQUE : Risque systémique ou géopolitique EXTRÊME."
+    elif stress_score > 60:
+        verdict = "STRESS ÉLEVÉ : Forte volatilité et tensions majeures."
+    elif stress_score > 40:
+        verdict = "STRESS MODÉRÉ : Le contexte macroéconomique est fragile."
+    elif stress_score < 20:
+        verdict = "SÉRÉNITÉ : Signes d'apaisement ou de relance."
     else:
-        verdict = "Contexte Stable : Pas de choc géopolitique majeur."
+        verdict = "STABLE : Pas de choc géopolitique majeur."
 
-    return int(risk_score), verdict, top_events[:5]
+    return int(stress_score), verdict, top_events[:5]

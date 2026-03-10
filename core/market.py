@@ -165,7 +165,7 @@ def get_global_context():
     indices = {}
     
     # Récupération des indices majeurs
-    for idx_sym in ['^FCHI', '^SBF120']:
+    for idx_sym in ['^FCHI', '^SBF120', '^VIX']:
         info = live_tickers.get(idx_sym)
         if info:
             indices[idx_sym.replace('^', '')] = {
